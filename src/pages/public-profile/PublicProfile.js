@@ -16,6 +16,17 @@ import 'react-datepicker/dist/react-datepicker.css';
 import dayjs from 'dayjs'
 
 const PublicProfile = () => {
+    const [inputs, setInputs] = useState({
+        name: '',
+        age: '',
+        dob: '',
+        jobTitle: '',
+        company: '',
+        companyLogo: '',
+        jobDescription: '',
+        startDate: '',
+        endDate: ''
+    })
     const [switches, setSwitches] = useState({
         name: false,
         age: false,
@@ -141,6 +152,7 @@ const PublicProfile = () => {
                             />
 
                         </div>
+                        <h4></h4>
                     </Col>
                 </Row>
 
