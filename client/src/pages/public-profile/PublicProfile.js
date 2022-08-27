@@ -17,8 +17,8 @@ import dayjs from 'dayjs'
 
 const PublicProfile = () => {
     const [inputs, setInputs] = useState({
-        name: '',
-        age: '',
+        name: 'Matt Foo',
+        age: '22',
         dob: '',
         jobTitle: '',
         company: '',
@@ -38,7 +38,7 @@ const PublicProfile = () => {
         startDate: false,
         endDate: false
     })
-    const { startDate } = switches
+    const { age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = switches
     // for img upload
     const [imgPreview, setImgPreview] = useState('')
     const [imgData, setImgData] = useState(undefined)
@@ -90,7 +90,6 @@ const PublicProfile = () => {
                             </Col>
                         </Row>
                         {[
-                            { value: 'name', label: 'Name' },
                             { value: 'age', label: 'Age' },
                             { value: 'dob', label: 'Date of birth' },
                             { value: 'jobTitle', label: 'Job Title' },
@@ -106,7 +105,7 @@ const PublicProfile = () => {
                                     <Col sm={4}>
                                         <p>{obj.label}</p>
                                     </Col>
-                                    <Col sm={1}>
+                                    <Col sm={3}>
                                         <Form.Group>
                                             <Form.Check
                                                 type="switch"
@@ -130,55 +129,45 @@ const PublicProfile = () => {
 
                     </Col>
 
-                    <Col>
-
-                        <div >
-                            {(imgPreview !== '' || (avatar !== null && avatar !== '')) ? (
-                                <Image
-                                    roundedCircle
-                                    src={handleImgPreview()}
-                                    width='107'
-                                    height='107'
-                                    alt=''
-                                    style={{ objectFit: 'cover' }}
+                    <Col >
+                        <Card className={styles.card__col}>
+                            <Card.Body>
+                                {(imgPreview !== '' || (avatar !== null && avatar !== '')) ? (
+                                    <Image
+                                        roundedCircle
+                                        src={handleImgPreview()}
+                                        width='107'
+                                        height='107'
+                                        alt=''
+                                        style={{ objectFit: 'cover' }}
+                                    />
+                                ) : <Image src='profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
+                                <input
+                                    type='file'
+                                    ref={imgInputRef}
+                                    onChange={onFileChange}
+                                    hidden
+                                    accept='image/*'
                                 />
-                            ) : <Image src='profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
-                            <input
-                                type='file'
-                                ref={imgInputRef}
-                                onChange={onFileChange}
-                                hidden
-                                accept='image/*'
-                            />
 
-                        </div>
-                        <h4></h4>
+                            </Card.Body>
+                            <div className='d-flex'>
+                                <h4>{inputs.name}</h4>
+                                {age && <p className={styles.card__age}>{inputs.age}</p>}
+                            </div>
+
+                        </Card>
+
                     </Col>
                 </Row>
 
-                <Button variant="primary" type="submit" className={'mt-3 w-100 text-white'}>Submit</Button>
+                <Button variant="primary" type="submit" className={'mt-3 w-100 text-white'}>Save</Button>
 
             </Card>
 
-        </Container>
+        </Container >
 
     )
 }
-const DatePickerField = ({ ...props }) => {
-    const { setFieldValue } = useFormikContext();
-    const [field] = useField(props);
-    return (
-        <DatePicker
-            dateFormat='dd/MM/yyyy'
-            {...field}
-            {...props}
-            selected={(field.value && new Date(field.value)) || null}
-            onChange={val => {
-                setFieldValue(field.name, val);
-            }}
-            className='form-control'
-            placeholderText='Select date'
-        />
-    );
-};
+
 export default PublicProfile
