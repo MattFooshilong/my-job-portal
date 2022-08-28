@@ -4,5 +4,7 @@ Frontend Engineer Test Glints
 Installation instructions
 
 npm install -g nodemon
+
 npm install
+
 npm start
