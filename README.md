@@ -14,3 +14,8 @@ npm install
 
 
 npm start
+
+Go to http://localhost:3000/
+Login with 
+email: admin@gmail.com
+password: Abc123!
