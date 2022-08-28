@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Formik, Form as FormikForm, useField, useFormikContext } from 'formik'
 import * as Yup from 'yup'
-import axios from 'axios'
+import dayjs from 'dayjs'
 import Container from 'react-bootstrap/Container'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
@@ -13,7 +13,12 @@ import Alert from 'react-bootstrap/Alert'
 import styles from './ProfileForms.module.scss'
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import dayjs from 'dayjs'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { useNavigate } from 'react-router-dom'
+import '../../firebase/firebaseInit'
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore';
 
 const ProfileSettings = () => {
     const [inputs, setInputs] = useState({
@@ -27,43 +32,138 @@ const ProfileSettings = () => {
         startDate: '',
         endDate: ''
     })
-    const [switches, setSwitches] = useState({
-        name: false,
-        age: false,
-        dob: false,
-        jobTitle: false,
-        company: false,
-        companyLogo: false,
-        jobDescription: false,
-        startDate: false,
-        endDate: false
+    const [profileSaved, setProfileSaved] = useState(false)
+    const [showEndDate, setShowEndDate] = useState(() => {
+        if (inputs.name === '') return true
+        else return false
     })
-    const { startDate } = switches
+    const navigate = useNavigate()
+
+    const db = getFirestore();
+
+
     // for img upload
     const [imgPreview, setImgPreview] = useState('')
     const [imgData, setImgData] = useState(undefined)
     const imgInputRef = useRef(null)
     const [avatar, setAvatar] = useState('')
+    const [companyLogoUrl, setCompanyLogoUrl] = useState('')
+
     const handleImgPreview = () => {
         if (imgPreview === '') {
             return avatar
         } else return imgPreview
     }
-    const onFileChange = (event) => {
+    const onFileChange = async (event) => {
         const fileType = event.target.accept
         const file = event.target.files[0]
-
-        // if User actually selected a file
+        console.log(event.target.files)
         if (file !== undefined) {
             if (fileType === 'image/*') {
                 setImgPreview(URL.createObjectURL(file))
                 setImgData(file)
+                //host img on firebase 
+                const storage = getStorage()
+                const spaceRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY,hh:mm:ssA') + file.name}`)
+                await uploadBytesResumable(spaceRef, file).then(() => {
+                })
+                await getDownloadURL(spaceRef)
+                    .then((url) => {
+                        console.log(url)
+                        setAvatar(url)
+
+                        // return setDoc(doc(db, 'myJobPortal', 'userProfile'), {
+                        //     email: 'admin@gmail.com',
+                        //     avatar: url
+                        // });
+
+                    })
+                    // .then((docRef) => console.log('Document written with ID: ', docRef.id))
+                    .catch((error) => {
+                        switch (error.code) {
+                            case 'storage/object-not-found':
+                                // File doesn't exist
+                                break
+                            case 'storage/unauthorized':
+                                // User doesn't have permission to access the object
+                                break
+                            case 'storage/canceled':
+                                // User canceled the upload
+                                break
+                            // ...
+                            case 'storage/unknown':
+                                // Unknown error occurred, inspect the server response
+                                break
+                        }
+                    })
+
             }
         }
     }
-    const handleSubmit = (values) => {
-        // event.preventDefault()
-        console.log(inputs.startDate)
+    const onCompanyLogoUpload = async (event) => {
+        const fileType = event.target.accept
+        const file = event.target.files[0]
+        console.log('company: ', event.target.files)
+        console.log('company file: ', file)
+        if (file !== undefined) {
+            console.log(fileType)
+            if (fileType === 'image/*') {
+                console.log('2nd')
+
+                //host img on firebase 
+                const storage = getStorage()
+                const spaceRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY,hh:mm:ssA') + file.name}`)
+                await uploadBytesResumable(spaceRef, file).then(() => {
+                    console.log('company file uploaded')
+
+                })
+                await getDownloadURL(spaceRef)
+                    .then((url) => {
+                        console.log(url)
+                        setCompanyLogoUrl(url)
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                        switch (error.code) {
+                            case 'storage/object-not-found':
+                                // File doesn't exist
+                                break
+                            case 'storage/unauthorized':
+                                // User doesn't have permission to access the object
+                                break
+                            case 'storage/canceled':
+                                // User canceled the upload
+                                break
+                            // ...
+                            case 'storage/unknown':
+                                // Unknown error occurred, inspect the server response
+                                break
+                        }
+                    })
+
+            }
+        }
+    }
+    const handleSubmit = async (values) => {
+        setProfileSaved(true)
+        await setDoc(doc(db, 'myJobPortal', 'userProfile'), {
+            email: 'admin@gmail.com',
+            avatar: avatar,
+            name: values.name,
+            age: values.age,
+            dob: dayjs(values.dob).format('MM/DD/YYYY'),
+            jobTitle: values.jobTitle,
+            company: values.company,
+            companyLogo: companyLogoUrl,
+            jobDescription: values.jobDescription,
+            startDate: dayjs(values.startDate).format('MM/DD/YYYY'),
+            endDate: dayjs(values.endDate).format('MM/DD/YYYY')
+        })
+            .then(() => {
+                console.log('uploaded')
+            }).catch(err => console.log('err', err))
+
+
     }
     function formatDate(date) {
         return new Date(date).toLocaleDateString()
@@ -85,11 +185,77 @@ const ProfileSettings = () => {
             .min(Yup.ref('startDate'), ({ min }) => `Date needs to be before ${formatDate(min)}`)
     })
 
+    const DatePickerField = ({ ...props }) => {
+        const { setFieldValue } = useFormikContext();
+        const [field] = useField(props);
+        return (
+            <DatePicker
+                dateFormat='dd-MM-yyyy'
+                {...field}
+                {...props}
+                selected={(field.value && new Date(field.value)) || null}
+                onChange={val => {
+                    setFieldValue(field.name, val)
+                }}
+                className='form-control'
+                placeholderText='Select date'
+            />
+        );
+    };
+
+    // useEffect(() => {
+    //     const getUserProfile = async () => {
+    //         const docRef = doc(db, 'myJobPortal', 'userProfile');
+    //         const docSnap = await getDoc(docRef);
+    //         if (docSnap.exists()) {
+    //             const data = docSnap.data()
+    //             setAvatar(data.avatar)
+    //         } else {
+    //             console.log('No such document!');
+    //         }
+    //     }
+    //     getUserProfile()
+    // }, [])
+    useEffect(() => {
+        const q = query(collection(db, 'myJobPortal'));
+        const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
+            const source = snapshot.metadata.fromCache ? 'local cache' : 'server';
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const data = change.doc.data()
+                    setInputs({
+                        name: data.name,
+                        age: data.age,
+                        dob: new Date(data.dob),
+                        jobTitle: data.jobTitle,
+                        company: data.company,
+                        companyLogo: data.companyLogo,
+                        jobDescription: data.jobDescription,
+                        startDate: new Date(data.startDate),
+                        endDate: new Date(data.endDate)
+                    })
+                    setAvatar(data.avatar)
+                }
 
 
+            });
+        })
+        return () => {
+            unsub();
+        }
+    }, [])
     return (
         <Container>
             <Card className={styles.card}>
+                <Row>
+                    <Col sm={3}>
+                        <Button variant="link" className='text-black ps-0' onClick={() => navigate('/public-profile')}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />Public profile settings</Button>
+                    </Col>
+                </Row>
+                <h1 className='my-3'>
+                    My profile settings
+                </h1>
+
                 <Formik
                     enableReinitialize
                     initialValues={inputs}
@@ -99,10 +265,8 @@ const ProfileSettings = () => {
                     }}>
                     {({ values, handleChange, errors, touched }) => (
                         <FormikForm>
-
                             <Row>
                                 <Col sm={3}>
-
                                     <div >
                                         {(imgPreview !== '' || (avatar !== null && avatar !== '')) ? (
                                             <Image
@@ -152,49 +316,75 @@ const ProfileSettings = () => {
                                 </Col>
 
                             </Row>
-                            {[
-                                { value: 'name', label: 'Name' },
-                                { value: 'age', label: 'Age' },
-                                { value: 'dob', label: 'Date of birth' },
+                            <Row>
+                                <Col sm={10}>
+                                    <Form.Group className="mb-3" >
+                                        <Form.Label>Name</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder={'Enter Name'}
+                                            name='name'
+                                            value={values.name}
+                                            onChange={handleChange}
 
-                                { value: 'jobTitle', label: 'Job Title' },
-                                { value: 'company', label: 'Company' },
-                                { value: 'jobDescription', label: 'Job Description' },
+                                        />
+                                        {errors.name && touched.name && <div className='err-message'>{errors.name}</div>}
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col className="mb-3" sm={10}>
+                                    <label className="form-label">Date of birth</label>
+                                    <DatePickerField name="dob" />
+                                    {errors.dob && touched.dob && <div className='err-message'>{errors.dob}</div>}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col sm={10}>
+                                    <Form.Group className="mb-3" >
+                                        <Form.Label>Age</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder={'Enter Age'}
+                                            name='age'
+                                            value={values.age}
+                                            onChange={handleChange}
+
+                                        />
+                                        {errors.age && touched.age && <div className='err-message'>{errors.age}</div>}
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            {[{ value: 'jobTitle', label: 'Job Title' },
+                            { value: 'company', label: 'Company' },
+                            { value: 'jobDescription', label: 'Job Description' },
                             ].map((obj, i) => {
                                 return (
-                                    (obj.value === 'dob') ?
 
-                                        (<Row key={i}>
-                                            <Col className="mb-3">
-                                                <label className="form-label">{obj.label}</label>
-                                                <DatePickerField name="dob" />
-                                                {errors.dob && touched.dob && <div className='err-message'>{errors.dob}</div>}
-                                            </Col>
-                                        </Row>)
-                                        :
-                                        (<Row key={i}>
-                                            <Col>
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label>{obj.label}</Form.Label>
-                                                    <Form.Control
-                                                        type="text"
-                                                        placeholder={`Enter ${obj.label}`}
-                                                        name={obj.value}
-                                                        value={values[obj.value]}
-                                                        onChange={handleChange}
-                                                    />
-                                                    {errors[obj.value] && touched[obj.value] && <div className='err-message'>{errors[obj.value]}</div>}
-                                                </Form.Group>
-                                            </Col>
-                                        </Row>)
+                                    <Row key={i}>
+                                        <Col sm={10}>
+                                            <Form.Group className="mb-3" >
+                                                <Form.Label>{obj.label}</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder={`Enter ${obj.label}`}
+                                                    name={obj.value}
+                                                    value={values[obj.value]}
+                                                    onChange={handleChange}
+
+                                                />
+                                                {errors[obj.value] && touched[obj.value] && <div className='err-message'>{errors[obj.value]}</div>}
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
 
                                 )
                             })}
                             <Row >
-                                <Col className="mb-3">
+                                <Col className="mb-3" sm={10}>
                                     <Form.Group controlId="formFileSm">
                                         <Form.Label>Company Logo</Form.Label>
-                                        <Form.Control type="file" size="sm" accept="image/png, image/jpeg" />
+                                        <Form.Control type="file" size="sm" accept="image/*" onChange={onCompanyLogoUpload} />
 
                                     </Form.Group>
                                 </Col>
@@ -208,16 +398,36 @@ const ProfileSettings = () => {
                                 </Col>
 
                             </Row>
-                            <Row >
-                                <Col className="mb-3" sm={3}>
-                                    <label className="form-label">End Date</label>
-                                    <DatePickerField name="endDate" />
-                                    {errors.endDate && touched.endDate && <div className='err-message'>{errors.endDate}</div>}
-                                </Col>
+                            <div>
+                                <Form.Check
+                                    type='checkbox'
+                                    id='Currently employed'
+                                    label='I am currently working in this role'
+                                    className='mb-3'
+                                    checked={!showEndDate}
+                                    onChange={() => {
+                                        setShowEndDate(!showEndDate)
+                                        setInputs({ ...inputs, endDate: '' })
+                                    }}
+                                />
+                            </div>
+                            {showEndDate &&
+                                <Row >
+                                    <Col className="mb-3" sm={3}>
+                                        <label className="form-label">End Date</label>
+                                        <DatePickerField name="endDate" />
+                                        {errors.endDate && touched.endDate && <div className='err-message'>{errors.endDate}</div>}
+                                    </Col>
 
+                                </Row>}
+                            <Row>
+                                <Col sm={3}>
+                                    {profileSaved && <Alert variant="success" className='mt-3'>Profile saved!</Alert>}
+                                </Col>
                             </Row>
                             <Row>
                                 <Col className='d-flex justify-content-end' sm={3}>
+
                                     <Button variant="primary" type="submit" className={'mt-3 w-100 text-white '}>Submit</Button>
                                 </Col>
                             </Row>
@@ -230,21 +440,5 @@ const ProfileSettings = () => {
 
     )
 }
-const DatePickerField = ({ ...props }) => {
-    const { setFieldValue } = useFormikContext();
-    const [field] = useField(props);
-    return (
-        <DatePicker
-            dateFormat='dd/MM/yyyy'
-            {...field}
-            {...props}
-            selected={(field.value && new Date(field.value)) || null}
-            onChange={val => {
-                setFieldValue(field.name, val);
-            }}
-            className='form-control'
-            placeholderText='Select date'
-        />
-    );
-};
+
 export default ProfileSettings

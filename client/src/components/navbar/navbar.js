@@ -6,10 +6,15 @@ import Nav from 'react-bootstrap/Nav'
 import styles from './Nav.module.scss'
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react'
-
+import { useNavigate } from 'react-router-dom'
 const NavBar = () => {
     let location = useLocation();
+    const navigate = useNavigate()
     const [token, setToken] = useState(null)
+    const logout = () => {
+        localStorage.clear();
+        navigate('/')
+    }
     useEffect(() => {
         const temp = localStorage.getItem('token')
         setToken(temp)
@@ -25,7 +30,7 @@ const NavBar = () => {
                     <Navbar.Collapse id='basic-navbar-nav' style={{ justifyContent: 'flex-end' }}>
                         <Nav className={styles.nav}>
 
-                            {token && <Nav.Link href='/logout'>Logout</Nav.Link>}
+                            {token && <Nav.Link onClick={() => logout()}>Logout</Nav.Link>}
 
                         </Nav>
                     </Navbar.Collapse>

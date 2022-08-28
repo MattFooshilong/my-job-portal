@@ -12,21 +12,19 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
-import '../../firebase/firebaseInit'
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore';
+
 
 const PublicProfile = () => {
     const [inputs, setInputs] = useState({
-        name: '',
-        age: '',
-        dob: '',
-        jobTitle: '',
-        company: '',
+        name: 'Matt Foo',
+        age: '22',
+        dob: '01/01/1980',
+        jobTitle: 'Designer',
+        company: 'Designer Pte Ltd',
         companyLogo: '',
-        jobDescription: '',
-        startDate: '',
-        endDate: ''
+        jobDescription: 'Help to create mockups and design dashboard',
+        startDate: '01/02/2022',
+        endDate: '01/07/2022'
     })
     const [switches, setSwitches] = useState({
         name: true,
@@ -42,8 +40,6 @@ const PublicProfile = () => {
     const { age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = switches
     const [preferencesSaved, setPreferencesSaved] = useState(false)
     const navigate = useNavigate()
-    const db = getFirestore();
-
     // for img upload
     const [imgPreview, setImgPreview] = useState('')
     const [imgData, setImgData] = useState(undefined)
@@ -66,86 +62,23 @@ const PublicProfile = () => {
             }
         }
     }
-    const handleSubmit = async () => {
-
+    const handleSubmit = () => {
+        const publicPrefences = JSON.stringify(switches)
+        localStorage.setItem('publicPrefences', publicPrefences)
         setPreferencesSaved(true)
-        await setDoc(doc(db, 'users', 'userPublicProfile'), {
-            age: age,
-            dob: dob,
-            jobTitle: jobTitle,
-            company: company,
-            companyLogo: companyLogo,
-            jobDescription: jobDescription,
-            startDate: startDate,
-            endDate: endDate
-        })
-            .then(() => {
-                console.log('uploaded')
-            }).catch(err => console.log('err', err))
-
     }
     useEffect(() => {
-        const q = query(collection(db, 'users'));
-        const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-            const source = snapshot.metadata.fromCache ? 'local cache' : 'server';
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const data = change.doc.data()
-                    setSwitches({
-                        age: data.age,
-                        dob: data.dob,
-                        jobTitle: data.jobTitle,
-                        company: data.company,
-                        companyLogo: data.companyLogo,
-                        jobDescription: data.jobDescription,
-                        startDate: data.startDate,
-                        endDate: data.endDate
-                    })
-                }
-
-
-            });
-        })
-        return () => {
-            unsub();
-        }
+        const publicPrefences = JSON.parse(localStorage.getItem('publicPrefences'))
+        if (publicPrefences !== null) setSwitches(publicPrefences)
     }, [])
-    useEffect(() => {
-        const q = query(collection(db, 'myJobPortal'));
-        const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-            const source = snapshot.metadata.fromCache ? 'local cache' : 'server';
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const data = change.doc.data()
-                    setInputs({
-                        name: data.name,
-                        age: data.age,
-                        dob: data.dob,
-                        jobTitle: data.jobTitle,
-                        company: data.company,
-                        companyLogo: data.companyLogo,
-                        jobDescription: data.jobDescription,
-                        startDate: data.startDate,
-                        endDate: data.endDate
-                    })
-                    setAvatar(data.avatar)
 
-                }
-
-
-            });
-        })
-        return () => {
-            unsub();
-        }
-    }, [])
 
     return (
         <Container>
             <Card className={styles.card}>
                 <Row>
                     <Col sm={3}>
-                        <Button variant="link" className='text-black ps-0' onClick={() => navigate('/profile-settings')}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />Profile settings</Button>
+                        <Button variant="link" className='text-black ps-0' onClick={() => navigate(-1)}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />back</Button>
                     </Col>
                 </Row>
 
@@ -236,14 +169,6 @@ const PublicProfile = () => {
                             {dob && <p>Date of birth: {inputs.dob}</p>}
                             <h3>Career</h3>
                             {jobTitle && <h6 className='mb-0'>{inputs.jobTitle}</h6>}
-                            {<Image
-                                roundedCircle
-                                src={inputs.companyLogo || ''}
-                                width='100'
-                                height='100'
-                                alt=''
-                                style={{ objectFit: 'cover' }}
-                            />}
                             {company && <p className='text-muted'>{inputs.company}</p>}
                             {jobDescription &&
                                 <div className='mb-3'>
