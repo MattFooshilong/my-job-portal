@@ -57,7 +57,6 @@ const ProfileSettings = () => {
     const onFileChange = async (event) => {
         const fileType = event.target.accept
         const file = event.target.files[0]
-        console.log(event.target.files)
         if (file !== undefined) {
             if (fileType === 'image/*') {
                 setImgPreview(URL.createObjectURL(file))
@@ -69,16 +68,8 @@ const ProfileSettings = () => {
                 })
                 await getDownloadURL(spaceRef)
                     .then((url) => {
-                        console.log(url)
                         setAvatar(url)
-
-                        // return setDoc(doc(db, 'myJobPortal', 'userProfile'), {
-                        //     email: 'admin@gmail.com',
-                        //     avatar: url
-                        // });
-
                     })
-                    // .then((docRef) => console.log('Document written with ID: ', docRef.id))
                     .catch((error) => {
                         switch (error.code) {
                             case 'storage/object-not-found':
@@ -103,27 +94,21 @@ const ProfileSettings = () => {
     const onCompanyLogoUpload = async (event) => {
         const fileType = event.target.accept
         const file = event.target.files[0]
-        console.log('company: ', event.target.files)
-        console.log('company file: ', file)
+
         if (file !== undefined) {
-            console.log(fileType)
             if (fileType === 'image/*') {
-                console.log('2nd')
 
                 //host img on firebase 
                 const storage = getStorage()
                 const spaceRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY,hh:mm:ssA') + file.name}`)
                 await uploadBytesResumable(spaceRef, file).then(() => {
-                    console.log('company file uploaded')
 
                 })
                 await getDownloadURL(spaceRef)
                     .then((url) => {
-                        console.log(url)
                         setCompanyLogoUrl(url)
                     })
                     .catch((error) => {
-                        console.log(error)
                         switch (error.code) {
                             case 'storage/object-not-found':
                                 // File doesn't exist

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 
+//authorization
 const adminCredentials = {
     email: 'admin@gmail.com',
     password: 'Abc123!'
