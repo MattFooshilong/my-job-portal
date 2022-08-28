@@ -2,9 +2,6 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const routes = require('./routes/routes')
-const helmet = require('helmet')
-const nocache = require('nocache')
 const authController = require('./controllers/authController')
 
 // Globals

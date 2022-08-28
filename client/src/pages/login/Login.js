@@ -33,7 +33,6 @@ const Login = () => {
             navigate('/profile-settings')
         } catch (err) {
             setErr(true)
-            console.log(err)
         }
     }
 
