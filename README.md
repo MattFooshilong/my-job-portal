@@ -2,22 +2,19 @@
 Frontend Engineer Test Glints
 
 Installation instructions
+--------------------
 
 npm install -g nodemon
 
 npm install
 
-cd client
-
-npm install
+cd client, npm install
 
 cd ..
 
-cd server
+cd server, npm install
 
-npm install
-
-
+-------------------
 npm start
 
 Go to http://localhost:3000/
