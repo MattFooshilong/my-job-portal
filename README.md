@@ -6,10 +6,15 @@ Installation instructions
 npm install -g nodemon
 
 npm install
+
 cd client
+
 npm install
+
 cd ..
+
 cd server
+
 npm install
 
 
