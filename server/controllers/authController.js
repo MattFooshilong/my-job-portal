@@ -15,7 +15,7 @@ exports.login = (req, res) => {
         id: 1,
         role: 'admin',
         emailAddr: req.body.email,
-    }, process.env.JWT_SECRET || 'sad2q31233Q@@3', {
+    }, process.env.JWT_SECRET, {
         algorithm: 'HS256',
         expiresIn: '7d'
     })

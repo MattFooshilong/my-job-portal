@@ -26,7 +26,7 @@ const Login = () => {
             password: values.password
         }
         try {
-            const res = await axios.post('/login', data)
+            const res = await axios.post('/api/login', data)
             const { token } = res.data
             window.localStorage.setItem('token', token)
             setErr(false)

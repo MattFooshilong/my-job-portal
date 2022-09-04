@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "cd ../client && npm run build",
+    "client-install": "cd ../client && npm install",
+    "heroku-postbuild": "npm run client-install && npm run build"
   },
   "author": "matt",
   "license": "ISC",
@@ -16,6 +19,7 @@
     "dayjs": "^1.11.4",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
+    "glints-interview": "file:..",
     "helmet": "^5.1.1",
     "jsonwebtoken": "^8.5.1",
     "nocache": "^3.0.4"

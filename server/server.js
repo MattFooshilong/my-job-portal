@@ -3,22 +3,28 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const routes = require('./routes/routes')
-const helmet = require('helmet')
-const nocache = require('nocache')
 const authController = require('./controllers/authController')
-
+const path = require('path');
+const fs = require('fs');
 // Globals
 const app = express()
-const port = process.env.PORT || 3001
+const port = 3001
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 // Routes
 app.options('*', cors())
+app.use('/api/', routes)
 
-app.post('/login', authController.login)
+if (process.env.NODE_ENV === 'production')
+    app.use(express.static(path.join(__dirname, '../client/build')))
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/build/index.html'), (err) => {
+        if (err) res.send('error')
+    })
+})
 
-app.listen(port, () => console.log(`Server listening on port ${port}!`))
+app.listen(process.env.PORT || port, () => console.log(`Server listening on port ${port}!`))
 // This overrides the default error handler, and must be called last
 app.use((err, req, res, next) => {
     console.error(err.message)

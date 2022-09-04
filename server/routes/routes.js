@@ -1,26 +1,27 @@
 const express = require('express')
 const router = express.Router()
 const cors = require('cors')
-
 const authController = require('../controllers/authController')
 
-// For Cors
-const whitelist = [
-    'http://localhost:3000'
-]
+// const whitelist = [
+//     'http://localhost:3000'
+//   ]
 
+//   const corsOptions = {
+//     origin: (origin, callback) => {
+//       try {
+//         if (whitelist.indexOf(origin) !== -1 || process.env.NODE_ENV == 'staging') {
+//           callback(null, true)
+//         } else {
+//           callback(new Error('Not Allowed'), false)
+//         }
+//       } catch (error) {
+//         console.error(error, 'error-CORS')
+//       }
+//     },
+//     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+//   }
 
-const corsAllowAll = {
-    origin: '*',
-    methods: 'POST',
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-}
-
-
-// ==================== Auth ====================
-router.post('/user/login', cors(corsAllowAll), authController.login)
-//router.post('/user/logout', cors(corsOptions), authController.logout)
-
+router.post('/login', authController.login)
 
 module.exports = router
