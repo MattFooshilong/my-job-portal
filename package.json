@@ -11,10 +11,11 @@
     "start": "cd server && node server.js",
     "build": "cd client && npm run build",
     "install-client": "cd client && npm install",
-    "heroku-postbuild": "npm run install-client && npm run build",
-    "client-install": "npm install --prefix client",
-    "server-install": "npm install --prefix server",
-    "install-all": "npm install && concurrently --kill-others-on-fail \"npm run client-install\" \"npm run server-install\""
+    "install-server": "cd server && npm install",
+    "heroku-postbuild": "npm run install-server && npm run install-client && npm run build",
+    "first-time-client-install": "npm install --prefix client",
+    "first-time-server-install": "npm install --prefix server",
+    "first-time-install": "npm install && concurrently --kill-others-on-fail \"npm run first-time-client-install\" \"npm run first-time-server-install\""
   },
   "author": "",
   "license": "ISC",
