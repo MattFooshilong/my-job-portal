@@ -26,50 +26,12 @@ const PublicProfile = () => {
         startDate: '01/02/2022',
         endDate: '01/07/2022'
     })
-    const [switches, setSwitches] = useState({
-        name: true,
-        age: true,
-        dob: true,
-        jobTitle: true,
-        company: true,
-        companyLogo: true,
-        jobDescription: true,
-        startDate: true,
-        endDate: true
-    })
-    const { age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = switches
-    const [preferencesSaved, setPreferencesSaved] = useState(false)
-    const navigate = useNavigate()
-    // for img upload
-    const [imgPreview, setImgPreview] = useState('')
-    const [imgData, setImgData] = useState(undefined)
-    const imgInputRef = useRef(null)
-    const [avatar, setAvatar] = useState('')
-    const handleImgPreview = () => {
-        if (imgPreview === '') {
-            return avatar
-        } else return imgPreview
-    }
-    const onFileChange = (event) => {
-        const fileType = event.target.accept
-        const file = event.target.files[0]
 
-        // if User actually selected a file
-        if (file !== undefined) {
-            if (fileType === 'image/*') {
-                setImgPreview(URL.createObjectURL(file))
-                setImgData(file)
-            }
-        }
-    }
-    const handleSubmit = () => {
-        const publicPrefences = JSON.stringify(switches)
-        localStorage.setItem('publicPrefences', publicPrefences)
-        setPreferencesSaved(true)
-    }
+    const navigate = useNavigate()
+
+
     useEffect(() => {
-        const publicPrefences = JSON.parse(localStorage.getItem('publicPrefences'))
-        if (publicPrefences !== null) setSwitches(publicPrefences)
+
     }, [])
 
 
