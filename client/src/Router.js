@@ -1,6 +1,5 @@
 import React from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
-//import Home from './pages/dashboard/Dashboard'
 import Login from './pages/login/Login'
 import Nav from './components/navbar/navbar'
 import PublicProfile from './pages/public-profile/PublicProfile'
