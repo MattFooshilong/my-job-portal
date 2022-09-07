@@ -5,9 +5,6 @@ import axios from 'axios'
 import Container from 'react-bootstrap/Container'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
-//import Image from 'react-bootstrap/Image'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import styles from './Login.module.scss'
@@ -15,8 +12,8 @@ import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
     const [inputs, setInputs] = useState({
-        email: '',
-        password: ''
+        email: 'admin@gmail.com',
+        password: 'Abc123!'
     })
     const [err, setErr] = useState(false)
     const navigate = useNavigate()
@@ -33,7 +30,6 @@ const Login = () => {
             navigate('/profile-settings')
         } catch (err) {
             setErr(true)
-            console.log(err)
         }
     }
 
