@@ -12,6 +12,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
+import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore';
 
 
 const PublicProfile = () => {
@@ -28,79 +29,72 @@ const PublicProfile = () => {
     })
 
     const navigate = useNavigate()
+    const db = getFirestore();
 
+    // for img upload
+    const [imgPreview, setImgPreview] = useState('')
+    const [imgData, setImgData] = useState(undefined)
+    const imgInputRef = useRef(null)
+    const [avatar, setAvatar] = useState('')
+    const handleImgPreview = () => {
+        if (imgPreview === '') {
+            return avatar
+        } else return imgPreview
+    }
+    const onFileChange = (event) => {
+        const fileType = event.target.accept
+        const file = event.target.files[0]
+
+        // if User actually selected a file
+        if (file !== undefined) {
+            if (fileType === 'image/*') {
+                setImgPreview(URL.createObjectURL(file))
+                setImgData(file)
+            }
+        }
+    }
 
     useEffect(() => {
+        const q = query(collection(db, 'myJobPortal'));
+        const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
+            const source = snapshot.metadata.fromCache ? 'local cache' : 'server';
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const data = change.doc.data()
+                    setInputs({
+                        name: data.name,
+                        age: data.age,
+                        dob: data.dob,
+                        jobTitle: data.jobTitle,
+                        company: data.company,
+                        companyLogo: data.companyLogo,
+                        jobDescription: data.jobDescription,
+                        startDate: data.startDate,
+                        endDate: data.endDate
+                    })
+                    setAvatar(data.avatar)
 
+                }
+
+
+            });
+        })
+        return () => {
+            unsub();
+        }
     }, [])
 
 
     return (
         <Container>
             <Card className={styles.card}>
-                <Row>
-                    <Col sm={3}>
-                        <Button variant="link" className='text-black ps-0' onClick={() => navigate(-1)}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />back</Button>
-                    </Col>
-                </Row>
 
                 <h1>
-                    Public profile settings
+                    My profile settings
                 </h1>
-                <Row className='mb-2'>
-                    <Col sm={5}>
-                        <p>
-                            You control your profile and limit what is shown to the public. Toggle your preferences on the left and your public profile is as on the right.
-                        </p>
-                    </Col>
-                </Row>
+
 
                 <Row>
-                    <Col sm={5}>
-                        <Row>
-                            <Col className={styles.col__end}>
-                                <h2>Edit visibility</h2>
-                            </Col>
-                        </Row>
-                        {[
-                            { value: 'age', label: 'Age' },
-                            { value: 'dob', label: 'Date of birth' },
-                            { value: 'jobTitle', label: 'Job Title' },
-                            { value: 'company', label: 'Company' },
-                            { value: 'jobDescription', label: 'Job Description' },
-                            { value: 'companyLogo', label: 'Company Logo' },
-                            { value: 'startDate', label: 'Start Date' },
-                            { value: 'endDate', label: 'End Date' },
-
-                        ].map((obj, i) => {
-                            return (
-                                <Row key={i} className='mt-3'>
-                                    <Col sm={4}>
-                                        <p>{obj.label}</p>
-                                    </Col>
-                                    <Col sm={3}>
-                                        <Form.Group>
-                                            <Form.Check
-                                                type="switch"
-                                                id="custom-switch"
-                                                className={styles.form__switch}
-                                                checked={switches[obj.value]}
-                                                onChange={() => {
-                                                    setSwitches({ ...switches, [obj.value]: !switches[obj.value] })
-                                                }}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col className='mt-1 ps-0'>
-                                        {switches[obj.value] && <span style={{ fontWeight: 'bold' }}>Public</span>}
-                                    </Col>
-                                </Row>
-
-                            )
-                        })}
-
-
-                    </Col>
 
                     <Col >
                         <Card className={styles.card__col}>
