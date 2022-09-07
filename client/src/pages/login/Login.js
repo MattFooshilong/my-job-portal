@@ -12,8 +12,8 @@ import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
     const [inputs, setInputs] = useState({
-        email: '',
-        password: ''
+        email: 'admin@gmail.com',
+        password: 'Abc123!'
     })
     const [err, setErr] = useState(false)
     const navigate = useNavigate()
