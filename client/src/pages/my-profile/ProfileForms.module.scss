@@ -1,12 +1,11 @@
 .card {
-    padding: 5rem;
+    padding: 2rem;
     margin-top: 3rem;
 
     &__col {
         padding: 1rem;
-        border-radius: 10px;
         border: 1px solid rgba(0, 0, 0, .125);
-        border-radius: 24px !important;
+        border-radius: 10px !important;
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .1);
     }
 
@@ -39,4 +38,10 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+@media only screen and (max-width: 575px) {
+    .card {
+        padding: 1rem
+    }
 }

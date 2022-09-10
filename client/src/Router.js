@@ -21,7 +21,6 @@ const Router = () => {
                     <Route path="/my-profile" element={<MyProfile />} />
                     <Route path="/profile-settings" element={<ProfileSettings />} />
                     <Route path="/public-profile" element={<PublicProfile />} />
-
                 </Route>
             </Routes>
         </>

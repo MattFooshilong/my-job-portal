@@ -10,7 +10,7 @@ import styles from './ProfileForms.module.scss'
 import Alert from 'react-bootstrap/Alert'
 import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { faPenToSquare } from '@fortawesome/free-regular-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore';
 
@@ -27,33 +27,17 @@ const PublicProfile = () => {
         startDate: '01/02/2022',
         endDate: '01/07/2022'
     })
-
+    const { name, age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = inputs
     const navigate = useNavigate()
     const db = getFirestore();
 
-    // for img upload
-    const [imgPreview, setImgPreview] = useState('')
-    const [imgData, setImgData] = useState(undefined)
-    const imgInputRef = useRef(null)
+    // avatar
     const [avatar, setAvatar] = useState('')
     const handleImgPreview = () => {
-        if (imgPreview === '') {
-            return avatar
-        } else return imgPreview
-    }
-    const onFileChange = (event) => {
-        const fileType = event.target.accept
-        const file = event.target.files[0]
-
-        // if User actually selected a file
-        if (file !== undefined) {
-            if (fileType === 'image/*') {
-                setImgPreview(URL.createObjectURL(file))
-                setImgData(file)
-            }
-        }
+        return avatar
     }
 
+    // on load
     useEffect(() => {
         const q = query(collection(db, 'myJobPortal'));
         const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
@@ -73,11 +57,8 @@ const PublicProfile = () => {
                         endDate: data.endDate
                     })
                     setAvatar(data.avatar)
-
                 }
-
-
-            });
+            })
         })
         return () => {
             unsub();
@@ -87,67 +68,52 @@ const PublicProfile = () => {
 
     return (
         <Container>
-            <Card className={styles.card}>
+            <Row>
+                <Col >
+                    <Card className={styles.card}>
+                        <Card.Body>
+                            <Row className='d-flex justify-content-between'>
+                                <Col xs={{ order: 2, span: 12 }} sm={{ order: 1, span: 6 }}>
+                                    {avatar ?
+                                        <Image
+                                            roundedCircle
+                                            src={handleImgPreview()}
+                                            width='107'
+                                            height='107'
+                                            alt=''
+                                            style={{ objectFit: 'cover' }}
+                                        />
+                                        : <Image src='profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
+                                </Col>
+                                <Col xs={{ order: 1, span: 12 }} sm={{ order: 2, span: 6 }}>
+                                    <FontAwesomeIcon icon={faPenToSquare} size='xl' className='float-end' />
+                                </Col>
+                            </Row>
 
-                <h1>
-                    My profile settings
-                </h1>
 
 
-                <Row>
-
-                    <Col >
-                        <Card className={styles.card__col}>
-                            <Card.Body>
-                                {(imgPreview !== '' || (avatar !== null && avatar !== '')) ? (
-                                    <Image
-                                        roundedCircle
-                                        src={handleImgPreview()}
-                                        width='107'
-                                        height='107'
-                                        alt=''
-                                        style={{ objectFit: 'cover' }}
-                                    />
-                                ) : <Image src='profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
-                                <input
-                                    type='file'
-                                    ref={imgInputRef}
-                                    onChange={onFileChange}
-                                    hidden
-                                    accept='image/*'
-                                />
-
-                            </Card.Body>
-                            <div className='d-flex'>
-                                <h3>{inputs.name}</h3>
-                                {age && <p className={styles.card__age}>{inputs.age}</p>}
+                        </Card.Body>
+                        <div className='d-flex'>
+                            <h3>{name}</h3>
+                            {age && <p className={styles.card__age}>{inputs.age}</p>}
+                        </div>
+                        {dob && <p>Date of birth: {dob}</p>}
+                        <h3>Career</h3>
+                        {jobTitle && <h6 className='mb-0'>{jobTitle}</h6>}
+                        {company && <p className='text-muted'>{company}</p>}
+                        {jobDescription &&
+                            <div className='mb-3'>
+                                <h6 className='mb-0'>Job Description:</h6>
+                                <small >{jobDescription}</small>
                             </div>
-                            {dob && <p>Date of birth: {inputs.dob}</p>}
-                            <h3>Career</h3>
-                            {jobTitle && <h6 className='mb-0'>{inputs.jobTitle}</h6>}
-                            {company && <p className='text-muted'>{inputs.company}</p>}
-                            {jobDescription &&
-                                <div className='mb-3'>
-                                    <h6 className='mb-0'>Job Description:</h6>
-                                    <small >{inputs.jobDescription}</small>
-                                </div>
-                            }
-                            {startDate && <p className='text-muted mb-0'>From: {inputs.startDate} </p>}
-                            {endDate && <p className='text-muted'>To: {inputs.endDate}</p>}
+                        }
+                        {startDate && <p className='text-muted mb-0'>From: {startDate} </p>}
+                        {endDate && <p className='text-muted'>To: {endDate}</p>}
 
-                        </Card>
+                    </Card>
 
-                    </Col>
-                </Row>
-                <Row>
-                    <Col sm={4}>
-                        {preferencesSaved && <Alert variant="success" className='mt-3'>Preferences saved!</Alert>}
-                        <Button onClick={() => handleSubmit()} variant="primary" type="button" className={'mt-3 w-100 text-white'}>Save</Button>
-                    </Col>
-                </Row>
-
-
-            </Card>
+                </Col>
+            </Row>
 
         </Container >
 
