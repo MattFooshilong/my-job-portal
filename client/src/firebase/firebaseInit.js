@@ -12,11 +12,11 @@ const firebaseConfig = {
 
 
 initializeApp(firebaseConfig);
-enableIndexedDbPersistence(getFirestore())
-    .catch((err) => {
-        if (err.code == 'failed-precondition') {
-            console.log('failed failed-precondition')
-        } else if (err.code == 'unimplemented') {
-            console.log('failed unimplemented')
-        }
-    })
+// enableIndexedDbPersistence(getFirestore())
+//     .catch((err) => {
+//         if (err.code == 'failed-precondition') {
+//             console.log('failed failed-precondition')
+//         } else if (err.code == 'unimplemented') {
+//             console.log('failed unimplemented')
+//         }
+//     })

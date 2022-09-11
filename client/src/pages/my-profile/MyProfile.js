@@ -111,15 +111,15 @@ const PublicProfile = () => {
                         </a>
                         <h3>Career</h3>
                         {jobTitle && <h6 className='mb-0'>{jobTitle}</h6>}
-                        {company && <p className='text-muted'>{company}</p>}
+                        {company && <p className='mb-0'>{company}                         {startDate && <small className='mb-3 d-block'>{startDate} - {endDate ? endDate : 'Present'}</small>}
+                        </p>}
                         {jobDescription &&
                             <div className='mb-3'>
                                 <h6 className='mb-0'>Job Description:</h6>
                                 <small >{jobDescription}</small>
                             </div>
                         }
-                        {startDate && <p className='text-muted mb-0'>From: {startDate} </p>}
-                        {endDate && <p className='text-muted'>To: {endDate}</p>}
+
 
                     </Card>
 

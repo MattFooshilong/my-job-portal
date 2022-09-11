@@ -30,7 +30,7 @@ const ProfileSettings = () => {
         companyLogo: '',
         jobDescription: '',
         startDate: '',
-        endDate: ''
+        endDate: null
     })
     const [profileSaved, setProfileSaved] = useState(false)
     const [showEndDate, setShowEndDate] = useState(() => {
@@ -38,17 +38,16 @@ const ProfileSettings = () => {
         else return false
     })
     const navigate = useNavigate()
-
     const db = getFirestore();
 
-
-    // for img upload
+    // for image upload
     const [imgPreview, setImgPreview] = useState('')
     const [imgData, setImgData] = useState(undefined)
     const imgInputRef = useRef(null)
     const [avatar, setAvatar] = useState('')
     const [companyLogoUrl, setCompanyLogoUrl] = useState('')
 
+    // event handlers
     const handleImgPreview = () => {
         if (imgPreview === '') {
             return avatar
@@ -130,7 +129,6 @@ const ProfileSettings = () => {
         }
     }
     const handleSubmit = async (values) => {
-        setProfileSaved(true)
         await setDoc(doc(db, 'myJobPortal', 'userProfile'), {
             email: 'admin@gmail.com',
             avatar: avatar,
@@ -142,14 +140,15 @@ const ProfileSettings = () => {
             companyLogo: companyLogoUrl,
             jobDescription: values.jobDescription,
             startDate: dayjs(values.startDate).format('MM/DD/YYYY'),
-            endDate: dayjs(values.endDate).format('MM/DD/YYYY')
+            endDate: showEndDate ? dayjs(values.endDate).format('MM/DD/YYYY') : null
         })
             .then(() => {
                 console.log('uploaded')
+                setProfileSaved(true)
             }).catch(err => console.log('err', err))
-
-
     }
+
+    // validation
     function formatDate(date) {
         return new Date(date).toLocaleDateString()
     }
@@ -166,10 +165,11 @@ const ProfileSettings = () => {
         jobDescription: Yup.string().required('required')
             .matches(/^[a-zA-Z0-9~!@^&*()_'"/_ ]*$/, 'Please remove any special characters and try again'),
         startDate: Yup.date().nullable().required('required'),
-        endDate: Yup.date().nullable().required('required')
+        endDate: Yup.date().nullable()
             .min(Yup.ref('startDate'), ({ min }) => `Date needs to be before ${formatDate(min)}`)
     })
 
+    // date picker
     const DatePickerField = ({ ...props }) => {
         const { setFieldValue } = useFormikContext();
         const [field] = useField(props);
@@ -201,10 +201,13 @@ const ProfileSettings = () => {
     //     }
     //     getUserProfile()
     // }, [])
+
+    // on load
     useEffect(() => {
         const q = query(collection(db, 'myJobPortal'));
-        const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
+        const unsub = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
             const source = snapshot.metadata.fromCache ? 'local cache' : 'server';
+            console.log(source)
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
                     const data = change.doc.data()
@@ -217,7 +220,7 @@ const ProfileSettings = () => {
                         companyLogo: data.companyLogo,
                         jobDescription: data.jobDescription,
                         startDate: new Date(data.startDate),
-                        endDate: new Date(data.endDate)
+                        endDate: data.endDate ? new Date(data.endDate) : new Date()
                     })
                     setAvatar(data.avatar)
                 }
@@ -231,7 +234,8 @@ const ProfileSettings = () => {
     }, [])
     return (
         <Container>
-            <Card className={styles.card}>
+            {console.log(inputs.endDate)}
+            <Card className='mt-5 p-3 p-sm-5'>
                 <Row>
                     <Col sm={3}>
                         <Button variant="link" className='text-black ps-0' onClick={() => navigate('/my-profile')}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />My profile</Button>
@@ -240,7 +244,6 @@ const ProfileSettings = () => {
                 <h1 className='my-3'>
                     My profile settings
                 </h1>
-
                 <Formik
                     enableReinitialize
                     initialValues={inputs}
@@ -251,7 +254,7 @@ const ProfileSettings = () => {
                     {({ values, handleChange, errors, touched }) => (
                         <FormikForm>
                             <Row>
-                                <Col sm={3}>
+                                <Col sm={6}>
                                     <div >
                                         {(imgPreview !== '' || (avatar !== null && avatar !== '')) ? (
                                             <Image
@@ -270,7 +273,7 @@ const ProfileSettings = () => {
                                             hidden
                                             accept='image/*'
                                         />
-                                        <div >
+                                        <div className='mt-3'>
                                             <Col sm={12}>
                                                 <Row>
                                                     <Col>
@@ -302,7 +305,7 @@ const ProfileSettings = () => {
 
                             </Row>
                             <Row>
-                                <Col sm={10}>
+                                <Col>
                                     <Form.Group className="mb-3" >
                                         <Form.Label>Name</Form.Label>
                                         <Form.Control
@@ -318,14 +321,14 @@ const ProfileSettings = () => {
                                 </Col>
                             </Row>
                             <Row>
-                                <Col className="mb-3" sm={10}>
+                                <Col className="mb-3">
                                     <label className="form-label">Date of birth</label>
                                     <DatePickerField name="dob" />
                                     {errors.dob && touched.dob && <div className='err-message'>{errors.dob}</div>}
                                 </Col>
                             </Row>
                             <Row>
-                                <Col sm={10}>
+                                <Col>
                                     <Form.Group className="mb-3" >
                                         <Form.Label>Age</Form.Label>
                                         <Form.Control
@@ -347,7 +350,7 @@ const ProfileSettings = () => {
                                 return (
 
                                     <Row key={i}>
-                                        <Col sm={10}>
+                                        <Col>
                                             <Form.Group className="mb-3" >
                                                 <Form.Label>{obj.label}</Form.Label>
                                                 <Form.Control
@@ -366,7 +369,7 @@ const ProfileSettings = () => {
                                 )
                             })}
                             <Row >
-                                <Col className="mb-3" sm={10}>
+                                <Col className="mb-3">
                                     <Form.Group controlId="formFileSm">
                                         <Form.Label>Company Logo</Form.Label>
                                         <Form.Control type="file" size="sm" accept="image/*" onChange={onCompanyLogoUpload} />
@@ -375,7 +378,7 @@ const ProfileSettings = () => {
                                 </Col>
 
                             </Row>
-                            <Row >
+                            <Row>
                                 <Col className="mb-3" sm={3}>
                                     <label className="form-label">Start Date</label>
                                     <DatePickerField name="startDate" />
