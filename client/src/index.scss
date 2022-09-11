@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 @import "./styles/variables";
+@import "../node_modules/bootstrap/scss/bootstrap";
 @import "~bootstrap/scss/bootstrap";
 
 .accordion-button:not(.collapsed) {

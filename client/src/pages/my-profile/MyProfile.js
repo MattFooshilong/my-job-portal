@@ -1,18 +1,19 @@
 import { useState, useRef, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Card from 'react-bootstrap/Card'
-import Form from 'react-bootstrap/Form'
 import Image from 'react-bootstrap/Image'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import styles from './ProfileForms.module.scss'
-import Alert from 'react-bootstrap/Alert'
 import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare } from '@fortawesome/free-regular-svg-icons'
-import { useNavigate } from 'react-router-dom'
-import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore';
+import { faPenToSquare, faEnvelope } from '@fortawesome/free-regular-svg-icons'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faWhatsapp, faLinkedin } from '@fortawesome/free-brands-svg-icons'
+
+import { Link } from 'react-router-dom'
+import { query, getFirestore, onSnapshot, collection } from 'firebase/firestore';
 
 
 const PublicProfile = () => {
@@ -28,14 +29,10 @@ const PublicProfile = () => {
         endDate: '01/07/2022'
     })
     const { name, age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = inputs
-    const navigate = useNavigate()
     const db = getFirestore();
 
     // avatar
     const [avatar, setAvatar] = useState('')
-    const handleImgPreview = () => {
-        return avatar
-    }
 
     // on load
     useEffect(() => {
@@ -69,7 +66,7 @@ const PublicProfile = () => {
     return (
         <Container>
             <Row>
-                <Col >
+                <Col sm={8}>
                     <Card className={styles.card}>
                         <Card.Body>
                             <Row className='d-flex justify-content-between'>
@@ -77,7 +74,7 @@ const PublicProfile = () => {
                                     {avatar ?
                                         <Image
                                             roundedCircle
-                                            src={handleImgPreview()}
+                                            src={avatar}
                                             width='107'
                                             height='107'
                                             alt=''
@@ -86,18 +83,32 @@ const PublicProfile = () => {
                                         : <Image src='profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
                                 </Col>
                                 <Col xs={{ order: 1, span: 12 }} sm={{ order: 2, span: 6 }}>
-                                    <FontAwesomeIcon icon={faPenToSquare} size='xl' className='float-end' />
+                                    <Link to='/profile-settings'>
+                                        <FontAwesomeIcon icon={faPenToSquare} size='xl' className='float-end text-black' />
+                                    </Link>
+
                                 </Col>
                             </Row>
 
 
 
                         </Card.Body>
-                        <div className='d-flex'>
+                        <div className='d-flex mb-0'>
                             <h3>{name}</h3>
                             {age && <p className={styles.card__age}>{inputs.age}</p>}
                         </div>
-                        {dob && <p>Date of birth: {dob}</p>}
+                        <p className='mb-0'>Hi I&apos;m a full stack developer and I have built dashboards with React, Typescript, Bootstrap on the frontend and Nodejs, SQL, Graphql for the backend</p>
+                        <small>Singapore</small>
+
+                        <p className='mb-0 mt-2'>
+                            <FontAwesomeIcon icon={faEnvelope} size='xl' className='me-2' />shilongfoo@gmail.com
+                        </p>
+                        <p className='mb-0'>
+                            <FontAwesomeIcon icon={faWhatsapp} size='xl' className='me-2' />+65 83687202 (preferred)
+                        </p>
+                        <a className='mb-3 text-black' href='https://www.linkedin.com/in/shilong-foo-a8b721144/'>
+                            <FontAwesomeIcon icon={faLinkedin} size='xl' className='me-2' />https://www.linkedin.com/in/shilong-foo-a8b721144/
+                        </a>
                         <h3>Career</h3>
                         {jobTitle && <h6 className='mb-0'>{jobTitle}</h6>}
                         {company && <p className='text-muted'>{company}</p>}
@@ -112,6 +123,42 @@ const PublicProfile = () => {
 
                     </Card>
 
+                </Col>
+
+                <Col>
+                    <Card className='mt-2 mt-sm-5'>
+                        <Card.Body>
+                            <Link to='/public-profile'>Edit public settings</Link>
+                            <small className='d-block text-secondary'>Edit how your profile looks like to the public and employers</small>
+                        </Card.Body>
+                    </Card>
+                    <Card className='mt-2'>
+                        <Card.Body>
+                            <p>People you may know</p>
+                            {[
+                                { name: 'John Lee', jobTitle: 'Developer at Google' },
+                                { name: 'Susan Koh', jobTitle: 'Designer at Mavrick' },
+                                { name: 'Shakesphere Tan', jobTitle: 'Poet lecturer at Singapore Polytechnic' },
+                                { name: 'Hafiz', jobTitle: 'Engineer at NTU' },
+                                { name: 'Lambert Lahm', jobTitle: 'QA Engineer at PlatsOrg' }
+
+                            ].map((ele, i) => {
+                                return (
+                                    <Row className='d-flex justify-content-between mt-3' key={i}>
+                                        <Col xs={3}>
+                                            <Image src='profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                                        </Col>
+                                        <Col>
+                                            <p className='mb-0'>{ele.name}</p>
+                                            <small className='d-block text-secondary'>{ele.jobTitle}</small>
+                                            <Button variant="outline-secondary" className='mt-1'><FontAwesomeIcon icon={faPlus} size='xs' className='me-2' />Add</Button>
+                                        </Col>
+                                    </Row>
+                                )
+                            })}
+
+                        </Card.Body>
+                    </Card>
                 </Col>
             </Row>
 

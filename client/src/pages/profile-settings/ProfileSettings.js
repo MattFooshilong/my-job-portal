@@ -234,7 +234,7 @@ const ProfileSettings = () => {
             <Card className={styles.card}>
                 <Row>
                     <Col sm={3}>
-                        <Button variant="link" className='text-black ps-0' onClick={() => navigate('/public-profile')}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />Public profile settings</Button>
+                        <Button variant="link" className='text-black ps-0' onClick={() => navigate('/my-profile')}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />My profile</Button>
                     </Col>
                 </Row>
                 <h1 className='my-3'>

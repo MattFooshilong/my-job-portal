@@ -145,7 +145,7 @@ const PublicProfile = () => {
             <Card className={styles.card}>
                 <Row>
                     <Col sm={3}>
-                        <Button variant="link" className='text-black ps-0' onClick={() => navigate('/profile-settings')}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />Profile settings</Button>
+                        <Button variant="link" className='text-black ps-0' onClick={() => navigate('/my-profile')}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />My profile</Button>
                     </Col>
                 </Row>
 
