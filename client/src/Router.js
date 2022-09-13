@@ -5,6 +5,7 @@ import Nav from './components/navbar/navbar'
 import PublicProfile from './pages/public-profile/PublicProfile'
 import ProfileSettings from './pages/profile-settings/ProfileSettings'
 import MyProfile from './pages/my-profile/MyProfile'
+import Jobs from './pages/jobs/Jobs'
 
 const ProtectedRoutes = () => {
     const isLoggedIn = localStorage.getItem('token')
@@ -17,6 +18,7 @@ const Router = () => {
             <Nav />
             <Routes>
                 <Route path="/" element={<Login />} />
+                <Route path="/jobs" element={<Jobs />} />
                 <Route element={<ProtectedRoutes />}>
                     <Route path="/my-profile" element={<MyProfile />} />
                     <Route path="/profile-settings" element={<ProfileSettings />} />
