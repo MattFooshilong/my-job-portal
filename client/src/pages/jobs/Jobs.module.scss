@@ -9,27 +9,27 @@ small {
     color: grey;
 }
 
-.form__switch {
-    input {
-        height: 30px !important;
-        width: 60px !important;
-    }
-
-    label {
-        margin: auto;
-        height: 30px !important;
-        width: 60px !important;
-    }
-}
-
-.form__datepicker {
-    width: 266px;
-}
-
-.col__end {
+.row_clickable {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    border-bottom: 1px solid rgb(220, 220, 220);
+
+    h6 {
+        color: rgb(49, 49, 255);
+        margin-bottom: 0;
+    }
+
+
+}
+
+.row_clickable:hover {
+    cursor: pointer;
+
+    h6 {
+        text-decoration: underline;
+        cursor: pointer;
+    }
 }
 
 @media only screen and (max-width: 575px) {
