@@ -10,16 +10,17 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBuilding } from '@fortawesome/free-regular-svg-icons'
 import { faCheck, faBriefcase, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
-import { faWhatsapp, faLinkedin } from '@fortawesome/free-brands-svg-icons'
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom'
+import Spinner from 'react-bootstrap/Spinner'; import PropTypes from 'prop-types';
 import { getFirestore, collection, doc, setDoc, getDocs } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom'
 
 
 const Jobs = () => {
     const db = getFirestore();
     const [jobs, setJobs] = useState([])
     const [job, setJob] = useState({})
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
 
     //event handlers
     const addJob = async () => {
@@ -50,6 +51,7 @@ const Jobs = () => {
     // on load
     useEffect(() => {
         async function fetchData() {
+            setLoading(true)
             const querySnapshot = await getDocs(collection(db, 'jobs'));
             const arr = []
             querySnapshot.forEach((doc) => {
@@ -59,6 +61,8 @@ const Jobs = () => {
             });
             setJobs(arr)
             setJob(arr[0])
+            setLoading(false)
+
         }
         fetchData()
     }, [])
@@ -67,30 +71,65 @@ const Jobs = () => {
     return (
         <Container>
             {/* <Button onClick={() => addJob()}>Add job</Button> */}
-            <Row>
-                <Col className='pe-sm-0'>
-                    <div className={styles.list__white}>
-                        {jobs.map((ele, i) => {
-                            return (
-                                <Row className={styles.row_clickable} key={i} onClick={() => setJob(ele)}>
-                                    <Col xs={4} sm={3}>
-                                        <Image src={`company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
-                                    </Col>
-                                    <Col>
-                                        <h6>{ele.jobTitle}</h6>
-                                        <p className='mb-0'>{ele.companyName}</p>
-                                        <small className='d-block'>{ele.location}</small>
-                                        <small className='d-block mb-2'> <FontAwesomeIcon icon={faCheck} className='me-1' color='green' />{ele.isRecruiting}</small>
-                                    </Col>
-                                </Row>
-                            )
-                        })}
+            {loading ? <Spinner animation="border" className='mt-5' />
+                :
+                <>
+                    {/* Desktop */}
+                    <div className='d-none d-sm-block'>
+                        <Row>
+                            <Col className='pe-sm-0'>
+                                <div className={styles.custom__card}>
+                                    {jobs.map((ele, i) => {
+                                        return (
+                                            //desktop
+                                            <Row className={styles.row_clickable} key={i} onClick={() => setJob(ele)}>
+                                                <Col xs={4} sm={3}>
+                                                    <Image src={`company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                                                </Col>
+                                                <Col>
+                                                    <h6>{ele.jobTitle}</h6>
+                                                    <p className='mb-0'>{ele.companyName}</p>
+                                                    <small className='d-block'>{ele.location}</small>
+                                                    <small className='d-block mb-2'> <FontAwesomeIcon icon={faCheck} className='me-1' color='green' />{ele.isRecruiting}</small>
+                                                </Col>
+                                            </Row>
+                                        )
+                                    })}
+                                </div>
+                            </Col>
+                            <Col sm={8} >
+                                <EachJob job={job} />
+                            </Col>
+                        </Row>
                     </div>
-                </Col>
-                <Col sm={8} >
-                    <EachJob job={job} />
-                </Col>
-            </Row>
+                    {/* mobile */}
+                    <div className='d-block d-sm-none'>
+                        <Row>
+                            <Col className='pe-sm-0'>
+                                <div className={styles.custom__card}>
+                                    {jobs.map((ele, i) => {
+                                        return (
+                                            //desktop
+                                            <Row className={styles.row_clickable} key={i} onClick={() => navigate('/job/' + ele.id)}>
+                                                <Col xs={4} sm={3}>
+                                                    <Image src={`company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                                                </Col>
+                                                <Col>
+                                                    <h6>{ele.jobTitle}</h6>
+                                                    <p className='mb-0'>{ele.companyName}</p>
+                                                    <small className='d-block'>{ele.location}</small>
+                                                    <small className='d-block mb-2'> <FontAwesomeIcon icon={faCheck} className='me-1' color='green' />{ele.isRecruiting}</small>
+                                                </Col>
+                                            </Row>
+                                        )
+                                    })}
+                                </div>
+                            </Col>
+
+                        </Row>
+                    </div>
+                </>
+            }
 
         </Container >
 
@@ -101,7 +140,7 @@ const EachJob = ({ job }) => {
     return (
         <>
             {Object.keys(job).length !== 0 &&
-                <div className={styles.list__white}>
+                <div className={styles.custom__card}>
                     <h3 className='mt-3'>{job?.jobTitle}</h3>
                     <Row sm={4} className='gx-0'>
                         <Col sm={4}>{job?.companyName},&nbsp; {job?.location}</Col>

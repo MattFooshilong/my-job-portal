@@ -6,6 +6,7 @@ import PublicProfile from './pages/public-profile/PublicProfile'
 import ProfileSettings from './pages/profile-settings/ProfileSettings'
 import MyProfile from './pages/my-profile/MyProfile'
 import Jobs from './pages/jobs/Jobs'
+import FullPageJob from './pages/jobs/FullPageJob'
 
 const ProtectedRoutes = () => {
     const isLoggedIn = localStorage.getItem('token')
@@ -19,6 +20,7 @@ const Router = () => {
             <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="/jobs" element={<Jobs />} />
+                <Route path="/job/:id" element={<FullPageJob />} />
                 <Route element={<ProtectedRoutes />}>
                     <Route path="/my-profile" element={<MyProfile />} />
                     <Route path="/profile-settings" element={<ProfileSettings />} />

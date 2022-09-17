@@ -234,7 +234,6 @@ const ProfileSettings = () => {
     }, [])
     return (
         <Container>
-            {console.log(inputs.endDate)}
             <Card className='mt-5 p-3 p-sm-5'>
                 <Row>
                     <Col sm={3}>
