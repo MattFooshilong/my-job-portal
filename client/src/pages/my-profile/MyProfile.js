@@ -6,14 +6,14 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import styles from './ProfileForms.module.scss'
-import 'react-datepicker/dist/react-datepicker.css';
+import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare, faEnvelope } from '@fortawesome/free-regular-svg-icons'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faWhatsapp, faLinkedin } from '@fortawesome/free-brands-svg-icons'
 
 import { Link } from 'react-router-dom'
-import { query, getFirestore, onSnapshot, collection } from 'firebase/firestore';
+import { query, getFirestore, onSnapshot, collection } from 'firebase/firestore'
 
 
 const PublicProfile = () => {
@@ -29,16 +29,16 @@ const PublicProfile = () => {
         endDate: '01/07/2022'
     })
     const { name, age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = inputs
-    const db = getFirestore();
+    const db = getFirestore()
 
     // avatar
     const [avatar, setAvatar] = useState('')
 
     // on load
     useEffect(() => {
-        const q = query(collection(db, 'myJobPortal'));
+        const q = query(collection(db, 'myJobPortal'))
         const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-            const source = snapshot.metadata.fromCache ? 'local cache' : 'server';
+            const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
                     const data = change.doc.data()
@@ -58,7 +58,7 @@ const PublicProfile = () => {
             })
         })
         return () => {
-            unsub();
+            unsub()
         }
     }, [])
 

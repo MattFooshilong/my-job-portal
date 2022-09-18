@@ -11,14 +11,14 @@ import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import styles from './ProfileForms.module.scss'
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import '../../firebase/firebaseInit'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore';
+import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore'
 
 const ProfileSettings = () => {
     const [inputs, setInputs] = useState({
@@ -38,7 +38,7 @@ const ProfileSettings = () => {
         else return false
     })
     const navigate = useNavigate()
-    const db = getFirestore();
+    const db = getFirestore()
 
     // for image upload
     const [imgPreview, setImgPreview] = useState('')
@@ -171,8 +171,8 @@ const ProfileSettings = () => {
 
     // date picker
     const DatePickerField = ({ ...props }) => {
-        const { setFieldValue } = useFormikContext();
-        const [field] = useField(props);
+        const { setFieldValue } = useFormikContext()
+        const [field] = useField(props)
         return (
             <DatePicker
                 dateFormat='dd-MM-yyyy'
@@ -185,8 +185,8 @@ const ProfileSettings = () => {
                 className='form-control'
                 placeholderText='Select date'
             />
-        );
-    };
+        )
+    }
 
     // useEffect(() => {
     //     const getUserProfile = async () => {
@@ -204,9 +204,9 @@ const ProfileSettings = () => {
 
     // on load
     useEffect(() => {
-        const q = query(collection(db, 'myJobPortal'));
+        const q = query(collection(db, 'myJobPortal'))
         const unsub = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
-            const source = snapshot.metadata.fromCache ? 'local cache' : 'server';
+            const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
             console.log(source)
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
@@ -226,10 +226,10 @@ const ProfileSettings = () => {
                 }
 
 
-            });
+            })
         })
         return () => {
-            unsub();
+            unsub()
         }
     }, [])
     return (
