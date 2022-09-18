@@ -12,7 +12,7 @@ import { faBuilding } from '@fortawesome/free-regular-svg-icons'
 import { faBriefcase, faArrowUpRightFromSquare, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import Spinner from 'react-bootstrap/Spinner'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getFirestore, collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 
 const FullPageJob = () => {
@@ -44,7 +44,6 @@ const FullPageJob = () => {
     }, [])
     return (
         <>
-            {console.log(job)}
             {loading ? <Spinner animation="border" className='mt-5' /> :
                 Object.keys(job).length !== 0 && <div className={styles.custom__card}>
                     <Row>

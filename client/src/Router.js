@@ -10,7 +10,7 @@ import FullPageJob from './pages/jobs/FullPageJob'
 
 const ProtectedRoutes = () => {
     const isLoggedIn = localStorage.getItem('token')
-    return isLoggedIn ? <Outlet /> : <Navigate to='/' />
+    return isLoggedIn ? <Outlet /> : <Navigate to='/jobs' />
 }
 
 const Router = () => {
@@ -18,7 +18,8 @@ const Router = () => {
         <>
             <Nav />
             <Routes>
-                <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<Jobs />} />
                 <Route path="/jobs" element={<Jobs />} />
                 <Route path="/job/:id" element={<FullPageJob />} />
                 <Route element={<ProtectedRoutes />}>

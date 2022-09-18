@@ -28,21 +28,25 @@ const NavBar = () => {
                     <Image src='/logo192.png' alt='' width='35' height='35' className='me-3' />
                     My Job Portal
                 </Navbar.Brand>
-                {token && <>
-                    <Navbar.Toggle aria-controls='basic-navbar-nav' />
-                    <Navbar.Collapse id='basic-navbar-nav' className='justify-content-end'>
-                        <Nav className={styles.nav}>
-                            <Nav.Link href="/jobs">Jobs</Nav.Link>
+
+                <Navbar.Toggle aria-controls='basic-navbar-nav' />
+                <Navbar.Collapse id='basic-navbar-nav' className='justify-content-end'>
+                    <Nav className={styles.nav}>
+                        <Nav.Link href="/jobs">Jobs</Nav.Link>
+
+                        {!token && <Nav.Link href="/login">Login</Nav.Link>}
+
+                        {token && <>
                             <NavDropdown title="Me" id="basic-nav-dropdown" align='end'>
                                 <NavDropdown.Item href="/my-profile">My Profile</NavDropdown.Item>
                                 <NavDropdown.Item href="/profile-settings">Profile Settings</NavDropdown.Item>
                                 <NavDropdown.Item href="/public-profile">Edit Public Profile</NavDropdown.Item>
                             </NavDropdown>
                             <Nav.Link onClick={() => logout()}>Logout</Nav.Link>
+                        </>}
+                    </Nav>
+                </Navbar.Collapse>
 
-                        </Nav>
-                    </Navbar.Collapse>
-                </>}
             </Container>
 
         </Navbar>
