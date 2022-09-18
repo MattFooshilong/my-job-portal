@@ -21,6 +21,18 @@
         "quotes": [
             "error",
             "single"
+        ],
+        "semi": [
+            "error",
+            "never"
         ]
+    },
+    "globals": {
+        "React": true,
+        "adsbygoogle": true,
+        "window": true,
+        "process": true,
+        "JSX": true,
+        "module": true
     }
 }

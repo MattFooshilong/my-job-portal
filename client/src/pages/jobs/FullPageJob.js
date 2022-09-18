@@ -6,17 +6,17 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import styles from './Jobs.module.scss'
-import 'react-datepicker/dist/react-datepicker.css';
+import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBuilding } from '@fortawesome/free-regular-svg-icons'
 import { faBriefcase, faArrowUpRightFromSquare, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import Spinner from 'react-bootstrap/Spinner'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
 
 
 const FullPageJob = () => {
-    const db = getFirestore();
+    const db = getFirestore()
     const param = useParams()
     const jobID = param.id !== undefined ? param.id : ''
     const [loading, setLoading] = useState(false)
@@ -27,15 +27,15 @@ const FullPageJob = () => {
     useEffect(() => {
         async function fetchData() {
             setLoading(true)
-            const docRef = doc(db, 'jobs', `jobs-${jobID}`);
-            const docSnap = await getDoc(docRef);
+            const docRef = doc(db, 'jobs', `jobs-${jobID}`)
+            const docSnap = await getDoc(docRef)
             if (docSnap.exists()) {
                 const data = docSnap.data()
                 data.id = jobID
                 setJob(data)
             } else {
                 // doc.data() will be undefined in this case
-                console.log('No such document!');
+                console.log('No such document!')
             }
             setLoading(false)
 

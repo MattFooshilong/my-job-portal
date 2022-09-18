@@ -6,23 +6,43 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import styles from './Jobs.module.scss'
-import 'react-datepicker/dist/react-datepicker.css';
+import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBuilding } from '@fortawesome/free-regular-svg-icons'
 import { faCheck, faBriefcase, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
-import Spinner from 'react-bootstrap/Spinner'; import PropTypes from 'prop-types';
-import { getFirestore, collection, doc, setDoc, getDocs } from 'firebase/firestore';
+import Spinner from 'react-bootstrap/Spinner'; import PropTypes from 'prop-types'
+import { getFirestore, collection, doc, setDoc, getDocs, updateDoc } from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom'
-
+import Toast from 'react-bootstrap/Toast'
+import ToastContainer from 'react-bootstrap/ToastContainer'
 
 const Jobs = () => {
-    const db = getFirestore();
+    const db = getFirestore()
+    const navigate = useNavigate()
     const [jobs, setJobs] = useState([])
     const [job, setJob] = useState({})
     const [loading, setLoading] = useState(false)
-    const navigate = useNavigate()
+    const [showToast, setShowToast] = useState(false)
+    const [applyingJob, setApplyingJob] = useState(false)
 
     //event handlers
+    const applyJob = async (jobID) => {
+        setApplyingJob(true)
+        const token = localStorage.getItem('token')
+        if (!token) {
+            console.log('to login')
+            navigate('/login')
+            setApplyingJob(false)
+        }
+        else {
+            const jobRef = doc(db, 'jobs', `jobs-${jobID}`)
+            await updateDoc(jobRef, { applied: true })
+            setShowToast(true)
+            setApplyingJob(false)
+
+        }
+    }
+
     const addJob = async () => {
         await setDoc(doc(db, 'jobs', 'jobs-5'), {
             jobTitle: 'Senior frontend developer',
@@ -44,7 +64,7 @@ const Jobs = () => {
             },
             companyDescription: 'This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).',
             industry: 'Finance'
-        });
+        })
         console.log('added job')
     }
 
@@ -52,13 +72,13 @@ const Jobs = () => {
     useEffect(() => {
         async function fetchData() {
             setLoading(true)
-            const querySnapshot = await getDocs(collection(db, 'jobs'));
+            const querySnapshot = await getDocs(collection(db, 'jobs'))
             const arr = []
             querySnapshot.forEach((doc) => {
                 const data = doc.data()
                 data.id = doc.id.slice(-1)
                 arr.push(data)
-            });
+            })
             setJobs(arr)
             setJob(arr[0])
             setLoading(false)
@@ -81,7 +101,6 @@ const Jobs = () => {
                                 <div className={styles.custom__card}>
                                     {jobs.map((ele, i) => {
                                         return (
-                                            //desktop
                                             <Row className={styles.row_clickable} key={i} onClick={() => setJob(ele)}>
                                                 <Col xs={4} sm={3}>
                                                     <Image src={`./images/company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
@@ -98,7 +117,7 @@ const Jobs = () => {
                                 </div>
                             </Col>
                             <Col sm={8} >
-                                <EachJob job={job} />
+                                <EachJob job={job} applyJob={applyJob} applyingJob={applyingJob} />
                             </Col>
                         </Row>
                     </div>
@@ -109,7 +128,6 @@ const Jobs = () => {
                                 <div className={styles.custom__card}>
                                     {jobs.map((ele, i) => {
                                         return (
-                                            //desktop
                                             <Row className={styles.row_clickable} key={i} onClick={() => navigate('/job/' + ele.id)}>
                                                 <Col xs={4} sm={3}>
                                                     <Image src={`/images/company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
@@ -128,6 +146,18 @@ const Jobs = () => {
 
                         </Row>
                     </div>
+                    <ToastContainer className="p-3" position='top-end'>
+                        <Toast show={showToast} onClose={() => {
+                            setShowToast(!showToast)
+                            window.location.reload()
+                        }} delay={5000} autohide>
+                            <Toast.Header>
+                                <strong className="me-auto text-success">Success!</strong>
+                                <small>Just now</small>
+                            </Toast.Header>
+                            <Toast.Body>You&apos;ve successfully applied for the job! Refreshing page</Toast.Body>
+                        </Toast>
+                    </ToastContainer>
                 </>
             }
 
@@ -136,7 +166,8 @@ const Jobs = () => {
     )
 }
 
-const EachJob = ({ job }) => {
+const EachJob = ({ job, applyJob, applyingJob }) => {
+    const token = localStorage.getItem('token')
     return (
         <>
             {Object.keys(job).length !== 0 &&
@@ -153,9 +184,24 @@ const EachJob = ({ job }) => {
                     <p>
                         <FontAwesomeIcon icon={faBuilding} size='xl' className='me-2' />{job?.noOfEmployees} employees
                     </p>
-                    <Button variant="primary" className='text-white mb-3'>
-                        <FontAwesomeIcon icon={faArrowUpRightFromSquare} size='lg' className='me-2' />Apply
-                    </Button>
+                    {/* check login or not then show application status */}
+                    {token ?
+                        job.applied ?
+                            <Button variant="secondary" className='text-white mb-3'>
+                                Applied
+                            </Button>
+                            :
+                            <div>
+                                <Button onClick={() => applyJob(job.id)} variant="primary" className='text-white mb-3'>
+                                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} size='lg' className='me-2' />Apply
+
+                                </Button>
+                                {applyingJob ? <Spinner animation="border" className='ms-1' /> : ''}
+                            </div>
+                        : <Button onClick={() => applyJob(job.id)} variant="primary" className='text-white mb-3'>
+                            <FontAwesomeIcon icon={faArrowUpRightFromSquare} size='lg' className='me-2' />Apply
+                        </Button>
+                    }
                     <h6>Job Description</h6>
                     <p>{job?.jobDescription}</p>
                     <h6>What skills and experience you will need</h6>
@@ -188,11 +234,14 @@ const EachJob = ({ job }) => {
                     </Card>
                 </div >
             }
+
         </>
 
     )
 }
 EachJob.propTypes = {
-    job: PropTypes.object.isRequired
+    job: PropTypes.object.isRequired,
+    applyJob: PropTypes.func.isRequired,
+    applyingJob: PropTypes.bool
 }
 export default Jobs

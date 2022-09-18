@@ -3,18 +3,18 @@ import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import Image from 'react-bootstrap/Image'
 import Nav from 'react-bootstrap/Nav'
-import NavDropdown from 'react-bootstrap/NavDropdown';
+import NavDropdown from 'react-bootstrap/NavDropdown'
 import styles from './Nav.module.scss'
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const NavBar = () => {
-    let location = useLocation();
+    let location = useLocation()
     const navigate = useNavigate()
     const [token, setToken] = useState(null)
     const logout = () => {
-        localStorage.clear();
+        localStorage.clear()
         navigate('/')
     }
     useEffect(() => {

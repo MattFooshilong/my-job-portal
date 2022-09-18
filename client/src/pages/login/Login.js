@@ -27,7 +27,7 @@ const Login = () => {
             const { token } = res.data
             window.localStorage.setItem('token', token)
             setErr(false)
-            navigate('/my-profile')
+            navigate('/jobs')
         } catch (err) {
             setErr(true)
         }
