@@ -9,9 +9,9 @@ import styles from './Jobs.module.scss'
 import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBuilding } from '@fortawesome/free-regular-svg-icons'
-import { faCheck, faBriefcase, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
-import Spinner from 'react-bootstrap/Spinner'; import PropTypes from 'prop-types';
-import { useParams } from 'react-router-dom'
+import { faBriefcase, faArrowUpRightFromSquare, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import Spinner from 'react-bootstrap/Spinner'
+import { useParams, useNavigate } from 'react-router-dom'
 import { getFirestore, collection, doc, setDoc, getDoc } from 'firebase/firestore';
 
 
@@ -21,6 +21,7 @@ const FullPageJob = () => {
     const jobID = param.id !== undefined ? param.id : ''
     const [loading, setLoading] = useState(false)
     const [job, setJob] = useState({})
+    const navigate = useNavigate()
 
     // on load
     useEffect(() => {
@@ -46,6 +47,11 @@ const FullPageJob = () => {
             {console.log(job)}
             {loading ? <Spinner animation="border" className='mt-5' /> :
                 Object.keys(job).length !== 0 && <div className={styles.custom__card}>
+                    <Row>
+                        <Col sm={3}>
+                            <Button variant="link" className='text-black ps-0' onClick={() => navigate(-1)}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' /></Button>
+                        </Col>
+                    </Row>
                     <h3 className='mt-3'>{job?.jobTitle}</h3>
                     <Row sm={4} className='gx-0'>
                         <Col sm={4}>{job?.companyName},&nbsp; {job?.location}</Col>
@@ -80,7 +86,7 @@ const FullPageJob = () => {
                             <h4>About the company</h4>
                             <Row className='mt-3 mb-3'>
                                 <Col xs={3} sm={1} className='me-4'>
-                                    <Image src={`company${job.id}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                                    <Image src={`/images/company${job.id}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                                 </Col>
                                 <Col>
                                     <h5 className='pt-2'>{job.companyName}</h5>
@@ -97,7 +103,5 @@ const FullPageJob = () => {
 
     )
 }
-FullPageJob.propTypes = {
-    job: PropTypes.object.isRequired
-}
+
 export default FullPageJob

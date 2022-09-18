@@ -219,7 +219,7 @@ const PublicProfile = () => {
                                         alt=''
                                         style={{ objectFit: 'cover' }}
                                     />
-                                ) : <Image src='profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
+                                ) : <Image src='../images/profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
                                 <input
                                     type='file'
                                     ref={imgInputRef}

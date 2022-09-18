@@ -80,7 +80,7 @@ const PublicProfile = () => {
                                             alt=''
                                             style={{ objectFit: 'cover' }}
                                         />
-                                        : <Image src='profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
+                                        : <Image src='../images/profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
                                 </Col>
                                 <Col xs={{ order: 1, span: 12 }} sm={{ order: 2, span: 6 }}>
                                     <Link to='/profile-settings'>
@@ -146,7 +146,7 @@ const PublicProfile = () => {
                                 return (
                                     <Row className='d-flex justify-content-between mt-3' key={i}>
                                         <Col xs={3}>
-                                            <Image src='profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                                            <Image src='../images/profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                                         </Col>
                                         <Col>
                                             <p className='mb-0'>{ele.name}</p>

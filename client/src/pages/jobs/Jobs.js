@@ -84,7 +84,7 @@ const Jobs = () => {
                                             //desktop
                                             <Row className={styles.row_clickable} key={i} onClick={() => setJob(ele)}>
                                                 <Col xs={4} sm={3}>
-                                                    <Image src={`company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                                                    <Image src={`./images/company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                                                 </Col>
                                                 <Col>
                                                     <h6>{ele.jobTitle}</h6>
@@ -112,7 +112,7 @@ const Jobs = () => {
                                             //desktop
                                             <Row className={styles.row_clickable} key={i} onClick={() => navigate('/job/' + ele.id)}>
                                                 <Col xs={4} sm={3}>
-                                                    <Image src={`company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                                                    <Image src={`/images/company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                                                 </Col>
                                                 <Col>
                                                     <h6>{ele.jobTitle}</h6>
@@ -175,7 +175,7 @@ const EachJob = ({ job }) => {
                             <h4>About the company</h4>
                             <Row className='mt-3 mb-3'>
                                 <Col xs={3} sm={1} className='me-4'>
-                                    <Image src={`company${job.id}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                                    <Image src={`/images/company${job.id}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                                 </Col>
                                 <Col>
                                     <h5 className='pt-2'>{job.companyName}</h5>
