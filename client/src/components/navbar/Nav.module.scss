@@ -4,5 +4,9 @@
 }
 
 .nav {
-    align-items: center;
+
+    a {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
 }

@@ -1,0 +1,43 @@
+.custom__card {
+    padding: 1rem 2rem 2rem 2rem;
+    margin-top: 3rem;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .1);
+}
+
+small {
+    color: grey;
+}
+
+.row_clickable {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    border-bottom: 1px solid rgb(220, 220, 220);
+
+    h6 {
+        color: rgb(49, 49, 255);
+        margin-bottom: 0;
+    }
+
+
+}
+
+.row_clickable:hover {
+    cursor: pointer;
+
+    h6 {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+}
+
+@media only screen and (max-width: 575px) {
+    .row_clickable:active {
+
+        h6 {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    }
+}

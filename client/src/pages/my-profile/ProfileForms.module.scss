@@ -1,0 +1,51 @@
+.card {
+    padding: 2rem;
+    margin-top: 3rem;
+
+    &__col {
+        padding: 1rem;
+        border: 1px solid rgba(0, 0, 0, .125);
+        border-radius: 10px !important;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .1);
+    }
+
+    &__age {
+        padding-top: 8px;
+        color: grey;
+        padding-left: 8px;
+    }
+
+}
+
+small {
+    color: grey;
+}
+
+.form__switch {
+    input {
+        height: 30px !important;
+        width: 60px !important;
+    }
+
+    label {
+        margin: auto;
+        height: 30px !important;
+        width: 60px !important;
+    }
+}
+
+.form__datepicker {
+    width: 266px;
+}
+
+.col__end {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+@media only screen and (max-width: 575px) {
+    .card {
+        padding: 1rem
+    }
+}
