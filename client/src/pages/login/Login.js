@@ -23,7 +23,7 @@ const Login = () => {
             password: values.password
         }
         try {
-            const res = await axios.post('/api/login', data)
+            const res = await axios.post('https://matt-foo-frontend-engineer-28-aug2022.vercel.app/api/login', data)
             const { token } = res.data
             window.localStorage.setItem('token', token)
             setErr(false)
