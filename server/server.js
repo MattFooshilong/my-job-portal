@@ -16,6 +16,11 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.options('*', cors())
 app.use('/api/', routes)
 
+app.get('/', (req, res) => {
+    res.status(200).send('welcome')
+})
+
+
 if (process.env.NODE_ENV === 'production')
     app.use(express.static(path.join(__dirname, '../client/build')))
 app.get('*', (req, res) => {
@@ -30,3 +35,5 @@ app.use((err, req, res, next) => {
     console.error(err.message)
     res.status(403).send(err.message)
 })
+
+module.exports = app
