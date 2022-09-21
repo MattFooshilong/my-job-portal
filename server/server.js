@@ -35,3 +35,5 @@ app.use((err, req, res, next) => {
     console.error(err.message)
     res.status(403).send(err.message)
 })
+
+module.exports = app
