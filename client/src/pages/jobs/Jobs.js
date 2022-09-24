@@ -43,6 +43,7 @@ const Jobs = () => {
     }
 
     const addJob = async () => {
+        //for testing
         await setDoc(doc(db, 'jobs', 'jobs-5'), {
             jobTitle: 'Senior frontend developer',
             companyName: 'Fiverr',
