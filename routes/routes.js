@@ -23,6 +23,13 @@ const corsOptions = {
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
-router.post('/login', cors(corsOptions), authController.login)
+const corsAllowAll = {
+    origin: '*',
+    methods: 'POST',
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+}
+
+router.post('/login', cors(corsAllowAll), authController.login)
 
 module.exports = router
