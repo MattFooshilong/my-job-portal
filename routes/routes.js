@@ -5,7 +5,7 @@ const authController = require('../controllers/authController')
 
 const whitelist = [
     'http://localhost:3000',
-    'https://my-job-portal-github-io.vercel.app'
+    'https://my-job-portal.vercel.app'
 ]
 
 const corsOptions = {
