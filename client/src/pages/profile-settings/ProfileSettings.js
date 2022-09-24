@@ -143,7 +143,6 @@ const ProfileSettings = () => {
             endDate: showEndDate ? dayjs(values.endDate).format('MM/DD/YYYY') : null
         })
             .then(() => {
-                console.log('uploaded')
                 setProfileSaved(true)
             }).catch(err => console.log('err', err))
     }
@@ -207,7 +206,6 @@ const ProfileSettings = () => {
         const q = query(collection(db, 'myJobPortal'))
         const unsub = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
             const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
-            console.log(source)
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
                     const data = change.doc.data()

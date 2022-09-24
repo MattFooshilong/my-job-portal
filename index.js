@@ -16,12 +16,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.options('*', cors())
 app.use('/api/', routes)
 
-// app.get('/', (req, res) => {
-//     res.status(200).send('welcome')
-// })
-
-
-
 app.use(express.static(path.join(__dirname, './client/build')))
 app.get('*', (req, res) => {
     res.sendFile(

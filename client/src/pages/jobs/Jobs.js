@@ -30,7 +30,6 @@ const Jobs = () => {
         setApplyingJob(true)
         const token = localStorage.getItem('token')
         if (!token) {
-            console.log('to login')
             navigate('/login')
             setApplyingJob(false)
         }
@@ -65,7 +64,6 @@ const Jobs = () => {
             companyDescription: 'This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).',
             industry: 'Finance'
         })
-        console.log('added job')
     }
 
     // on load
