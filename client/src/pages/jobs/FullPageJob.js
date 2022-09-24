@@ -12,8 +12,9 @@ import { faBuilding } from '@fortawesome/free-regular-svg-icons'
 import { faBriefcase, faArrowUpRightFromSquare, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import Spinner from 'react-bootstrap/Spinner'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getFirestore, doc, getDoc } from 'firebase/firestore'
-
+import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore'
+import Toast from 'react-bootstrap/Toast'
+import ToastContainer from 'react-bootstrap/ToastContainer'
 
 const FullPageJob = () => {
     const db = getFirestore()
@@ -22,7 +23,26 @@ const FullPageJob = () => {
     const [loading, setLoading] = useState(false)
     const [job, setJob] = useState({})
     const navigate = useNavigate()
+    const [applyingJob, setApplyingJob] = useState(false)
+    const [showToast, setShowToast] = useState(false)
+    const token = localStorage.getItem('token')
 
+    //event handlers
+    const applyJob = async (jobID) => {
+        setApplyingJob(true)
+        const token = localStorage.getItem('token')
+        if (!token) {
+            navigate('/login')
+            setApplyingJob(false)
+        }
+        else {
+            const jobRef = doc(db, 'jobs', `jobs-${jobID}`)
+            await updateDoc(jobRef, { applied: true })
+            setShowToast(true)
+            setApplyingJob(false)
+
+        }
+    }
     // on load
     useEffect(() => {
         async function fetchData() {
@@ -63,9 +83,24 @@ const FullPageJob = () => {
                     <p>
                         <FontAwesomeIcon icon={faBuilding} size='xl' className='me-2' />{job?.noOfEmployees} employees
                     </p>
-                    <Button variant="primary" className='text-white mb-3'>
-                        <FontAwesomeIcon icon={faArrowUpRightFromSquare} size='lg' className='me-2' />Apply
-                    </Button>
+                    {/* check login or not then show application status */}
+                    {token ?
+                        job.applied ?
+                            <Button variant="secondary" className='text-white mb-3'>
+                                Applied
+                            </Button>
+                            :
+                            <div>
+                                <Button onClick={() => applyJob(job.id)} variant="primary" className='text-white mb-3'>
+                                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} size='lg' className='me-2' />Apply
+
+                                </Button>
+                                {applyingJob ? <Spinner animation="border" className='ms-1' /> : ''}
+                            </div>
+                        : <Button onClick={() => applyJob(job.id)} variant="primary" className='text-white mb-3'>
+                            <FontAwesomeIcon icon={faArrowUpRightFromSquare} size='lg' className='me-2' />Apply
+                        </Button>
+                    }
                     <h6>Job Description</h6>
                     <p>{job?.jobDescription}</p>
                     <h6>What skills and experience you will need</h6>
@@ -97,7 +132,20 @@ const FullPageJob = () => {
                         </Card.Body>
                     </Card>
                 </div >
+
             }
+            <ToastContainer className="p-3" position='top-end'>
+                <Toast show={showToast} onClose={() => {
+                    setShowToast(!showToast)
+                    window.location.reload()
+                }} delay={5000} autohide>
+                    <Toast.Header>
+                        <strong className="me-auto text-success">Success!</strong>
+                        <small>Just now</small>
+                    </Toast.Header>
+                    <Toast.Body>You&apos;ve successfully applied for the job! Refreshing page</Toast.Body>
+                </Toast>
+            </ToastContainer>
         </>
 
     )
