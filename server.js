@@ -22,10 +22,10 @@ app.use('/api/', routes)
 
 
 
-app.use(express.static(path.join(__dirname, '../client/build')))
+app.use(express.static(path.join(__dirname, './client/build')))
 app.get('*', (req, res) => {
     res.sendFile(
-        path.join(__dirname, '../client/build/index.html'), (err) => {
+        path.join(__dirname, './client/build/index.html'), (err) => {
             if (err) res.status(500).send('error')
         })
 })
