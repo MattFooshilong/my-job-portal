@@ -81,7 +81,6 @@ const FullPageJob = () => {
                             </Row>
                             <Row>
                                 <Col>Over 100 applicants</Col>
-
                             </Row>
                             <p className='mt-3'>
                                 <FontAwesomeIcon icon={faBriefcase} size='xl' className='me-2' />{job?.type}
