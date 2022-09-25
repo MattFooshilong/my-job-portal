@@ -102,7 +102,7 @@ const Jobs = () => {
                                         return (
                                             <Row className={styles.row_clickable} key={i} onClick={() => setJob(ele)}>
                                                 <Col xs={4} sm={3}>
-                                                    <Image src={`./images/company${i}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                                                    <Image src={`./images/company${ele.id}.jpg`} alt='company-logo' style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                                                 </Col>
                                                 <Col>
                                                     <h6>{ele.jobTitle}</h6>
