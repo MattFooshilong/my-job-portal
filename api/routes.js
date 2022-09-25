@@ -29,7 +29,11 @@ const corsAllowAll = {
     preflightContinue: false,
     optionsSuccessStatus: 204
 }
-
+router.get('/', (req, res) => {
+    res.status(200).send(
+        'welcome'
+    )
+})
 router.post('/login', cors(corsAllowAll), authController.login)
 
 module.exports = router

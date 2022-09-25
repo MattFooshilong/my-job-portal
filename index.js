@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const routes = require('./routes/routes')
+const routes = require('./api/routes')
 const authController = require('./controllers/authController')
 const path = require('path');
 const fs = require('fs');
