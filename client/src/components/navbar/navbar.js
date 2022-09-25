@@ -37,7 +37,7 @@ const NavBar = () => {
                         {!token && <Nav.Link href="/login">Login</Nav.Link>}
 
                         {token && <>
-                            <Nav.Link href="/job-applications">Job Applications</Nav.Link>
+                            {/* <Nav.Link href="/job-applications">Job Applications</Nav.Link> */}
 
                             <Nav.Link href="/my-profile">My Profile</Nav.Link>
                             <Nav.Link href="/profile-settings">Profile Settings</Nav.Link>
