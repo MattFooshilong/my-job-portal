@@ -37,11 +37,19 @@ const NavBar = () => {
                         {!token && <Nav.Link href="/login">Login</Nav.Link>}
 
                         {token && <>
+                            <Nav.Link href="/job-applications">Job Applications</Nav.Link>
 
                             <Nav.Link href="/my-profile">My Profile</Nav.Link>
                             <Nav.Link href="/profile-settings">Profile Settings</Nav.Link>
                             <Nav.Link href="/public-profile">Edit Public Profile</Nav.Link>
                             <Nav.Link onClick={() => logout()}>Logout</Nav.Link>
+
+
+                            {/* <NavDropdown title="Me" id="basic-nav-dropdown" align='end'>
+                                <NavDropdown.Item href="/my-profile">My Profile</NavDropdown.Item>
+                                <NavDropdown.Item href="/profile-settings">Profile Settings</NavDropdown.Item>
+                                <NavDropdown.Item href="/public-profile">Edit Public Profile</NavDropdown.Item>
+                            </NavDropdown> */}
                         </>}
                     </Nav>
                 </Navbar.Collapse>

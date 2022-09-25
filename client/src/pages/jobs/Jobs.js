@@ -35,7 +35,7 @@ const Jobs = () => {
         }
         else {
             const jobRef = doc(db, 'jobs', `jobs-${jobID}`)
-            await updateDoc(jobRef, { applied: true })
+            await updateDoc(jobRef, { applied: true, status: 'InProgress' })
             setShowToast(true)
             setApplyingJob(false)
 
