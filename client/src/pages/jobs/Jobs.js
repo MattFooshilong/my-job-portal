@@ -239,7 +239,7 @@ const EachJob = ({ job, applyJob, applyingJob }) => {
     )
 }
 EachJob.propTypes = {
-    job: PropTypes.object.isRequired,
+    job: PropTypes.object,
     applyJob: PropTypes.func.isRequired,
     applyingJob: PropTypes.bool
 }

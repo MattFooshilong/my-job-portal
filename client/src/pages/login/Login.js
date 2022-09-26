@@ -58,6 +58,7 @@ const Login = () => {
                             <Form.Group className="mt-3 mb-3">
                                 <Form.Label>Email address</Form.Label>
                                 <Form.Control
+                                    id='email'
                                     type="email"
                                     placeholder="Enter email"
                                     name="email"
