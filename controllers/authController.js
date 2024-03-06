@@ -1,27 +1,34 @@
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken")
 
 //authorization
 const adminCredentials = {
-    email: 'admin@gmail.com',
-    password: 'Abc123!'
+  email: "admin@gmail.com",
+  password: "Abc123!",
 }
 exports.login = (req, res) => {
-    if (req.body.email !== adminCredentials.email || req.body.password !== adminCredentials.password) {
-        res.status(400).send({
-            message: 'Wrong password'
-        })
-        return
+  if (
+    req.body.email !== adminCredentials.email ||
+    req.body.password !== adminCredentials.password
+  ) {
+    res.status(400).send({
+      message: "Wrong password",
+    })
+    return
+  }
+  const token = jwt.sign(
+    {
+      id: 1,
+      role: "admin",
+      emailAddr: req.body.email,
+    },
+    process.env.JWT_SECRET,
+    {
+      algorithm: "HS256",
+      expiresIn: "7d",
     }
-    const token = jwt.sign({
-        id: 1,
-        role: 'admin',
-        emailAddr: req.body.email,
-    }, process.env.JWT_SECRET, {
-        algorithm: 'HS256',
-        expiresIn: '7d'
-    })
-    res.status(200).send({
-        token,
-        message: 'Login successful'
-    })
+  )
+  res.status(200).send({
+    token,
+    message: "Login successful",
+  })
 }
