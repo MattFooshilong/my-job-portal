@@ -35,12 +35,13 @@ const PublicProfile = () => {
 
   // on load
   useEffect(() => {
-    const q = query(collection(db, 'myJobPortal'))
+    const q = query(collection(db, 'users'))
     const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
       const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
       snapshot.docChanges().forEach((change) => {
         if (change.type === 'added') {
           const data = change.doc.data()
+          console.log(data)
           setInputs({
             name: data.name,
             age: data.age,

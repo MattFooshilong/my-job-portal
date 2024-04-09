@@ -7,13 +7,13 @@ import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
-import styles from './Login.module.scss'
+import styles from './SignUp.module.scss'
 import { useNavigate } from 'react-router-dom'
 
-const Login = () => {
+const SignUp = () => {
   const [inputs, setInputs] = useState({
-    email: 'admin@gmail.com',
-    password: 'Abc123!',
+    email: '',
+    password: '',
   })
   const [err, setErr] = useState(false)
   const navigate = useNavigate()
@@ -23,17 +23,17 @@ const Login = () => {
       password: values.password,
     }
     try {
-      const res = await axios.post('/api/login', data)
-      const accessToken = res?.data?.accessToken
-
-      //window.localStorage.setItem('token', token)
+      const res = await axios.post('/api/signup', data)
+      const message = res.data.message
+      console.log('message: ', message)
       setErr(false)
       navigate('/jobs')
     } catch (err) {
+      console.log(err)
       setErr(true)
     }
   }
-
+  //shift this to server-side
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Not a valid email').required('Required'),
     password: Yup.string()
@@ -66,9 +66,9 @@ const Login = () => {
                 <Form.Control type="password" placeholder="Password" name="password" value={values.password} onChange={handleChange} />
                 {errors.password && touched.password && <div className="err-message">{errors.password}</div>}
               </Form.Group>
-              {err && <Alert variant="danger">Incorrect email or password</Alert>}
+              {err && <Alert variant="danger">Something went wrong, please try again later</Alert>}
               <Button variant="primary" type="submit" className={'mt-3 w-100 text-white'}>
-                Login
+                Sign Up
               </Button>
             </FormikForm>
           )}
@@ -78,4 +78,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default SignUp

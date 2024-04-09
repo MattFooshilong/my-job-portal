@@ -3,7 +3,7 @@ import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import Image from 'react-bootstrap/Image'
 import Nav from 'react-bootstrap/Nav'
-import NavDropdown from 'react-bootstrap/NavDropdown'
+import axios from 'axios'
 import styles from './Nav.module.scss'
 import { useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
@@ -13,16 +13,20 @@ const NavBar = () => {
   let location = useLocation()
   const navigate = useNavigate()
   const [token, setToken] = useState(null)
-  const logout = () => {
-    localStorage.clear()
+  const logout = async () => {
+    await axios.get('/api/logout').catch((err) => console.log(err))
+    console.log('after logout call')
     navigate('/')
   }
   useEffect(() => {
     const temp = localStorage.getItem('token')
     setToken(temp)
   }, [location])
+
   return (
     <Navbar bg="light" expand="lg" collapseOnSelect className={styles.navbar}>
+      {console.log(token)}
+
       <Container fluid className="px-sm-0 mx-sm-4">
         <Navbar.Brand href="/">
           <Image src="/logo192.png" alt="" width="35" height="35" className="me-3" />

@@ -16,9 +16,9 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
-import '../../firebase/firebaseInit'
+import { firebaseApp } from '../../firebase/firebaseInit'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore'
+import { query, getDoc, updateDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore'
 
 const ProfileSettings = () => {
   const [inputs, setInputs] = useState({
@@ -38,7 +38,7 @@ const ProfileSettings = () => {
     else return false
   })
   const navigate = useNavigate()
-  const db = getFirestore()
+  const db = getFirestore(firebaseApp)
 
   // for image upload
   const [imgPreview, setImgPreview] = useState('')
@@ -61,7 +61,7 @@ const ProfileSettings = () => {
         setImgPreview(URL.createObjectURL(file))
         setImgData(file)
         //host img on firebase
-        const storage = getStorage()
+        const storage = getStorage(firebaseApp)
         const spaceRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY,hh:mm:ssA') + file.name}`)
         await uploadBytesResumable(spaceRef, file).then(() => {})
         await getDownloadURL(spaceRef)
@@ -122,8 +122,8 @@ const ProfileSettings = () => {
       }
     }
   }
-  const handleSubmit = async (values) => {
-    await setDoc(doc(db, 'myJobPortal', 'userProfile'), {
+  const handleSubmit = (values) => {
+    updateDoc(doc(db, 'users', 'admin'), {
       email: 'admin@gmail.com',
       avatar: avatar,
       name: values.name,
@@ -135,6 +135,16 @@ const ProfileSettings = () => {
       jobDescription: values.jobDescription,
       startDate: dayjs(values.startDate).format('MM/DD/YYYY'),
       endDate: showEndDate ? dayjs(values.endDate).format('MM/DD/YYYY') : null,
+      publicProfilePref: {
+        age: true,
+        dob: true,
+        jobTitle: true,
+        company: true,
+        companyLogo: true,
+        jobDescription: true,
+        startDate: true,
+        endDate: true,
+      },
     })
       .then(() => {
         setProfileSaved(true)
@@ -186,23 +196,9 @@ const ProfileSettings = () => {
     )
   }
 
-  // useEffect(() => {
-  //     const getUserProfile = async () => {
-  //         const docRef = doc(db, 'myJobPortal', 'userProfile');
-  //         const docSnap = await getDoc(docRef);
-  //         if (docSnap.exists()) {
-  //             const data = docSnap.data()
-  //             setAvatar(data.avatar)
-  //         } else {
-  //             console.log('No such document!');
-  //         }
-  //     }
-  //     getUserProfile()
-  // }, [])
-
   // on load
   useEffect(() => {
-    const q = query(collection(db, 'myJobPortal'))
+    const q = query(collection(db, 'users'))
     const unsub = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
       const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
       snapshot.docChanges().forEach((change) => {
