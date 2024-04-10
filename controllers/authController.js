@@ -40,7 +40,7 @@ const addUser = async (email, hashedPassword) => {
     await setDoc(doc(db, "users", `user${documentsCount}`), {
       email: email,
       password: hashedPassword,
-      role: "user", //manually add admin for now
+      role: 2, //manually add admin for now
     })
     documentsCount++
   } catch (error) {
@@ -116,7 +116,7 @@ const login = async (req, res) => {
     res.status(403).send({ message: "Wrong password" })
     return
   }
-  const accessToken = createAccessToken(email, "user")
+  const accessToken = createAccessToken(email, 2)
   const refreshToken = createRefreshToken(email)
   // saving refreshToken with current user
   await saveRefreshTokenToDb(email, refreshToken)
@@ -140,7 +140,7 @@ const signUp = async (req, res) => {
     password = await bcrypt.hash(password, salt)
     await addUser(email, password)
     //log in and give refresh and access token
-    const accessToken = createAccessToken(email, "user")
+    const accessToken = createAccessToken(email, 2)
     const refreshToken = createRefreshToken(email)
     await saveRefreshTokenToDb(email, refreshToken)
     res.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 1 * 60 * 60 * 1000 })

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import AuthContext from '../../context/AuthProvider'
 import { Formik, Form as FormikForm } from 'formik'
 import * as Yup from 'yup'
 import axios from 'axios'
@@ -16,6 +17,8 @@ const Login = () => {
     password: 'Abc123!',
   })
   const [err, setErr] = useState(false)
+  const { setAuth } = useContext(AuthContext)
+
   const navigate = useNavigate()
   const handleSubmit = async (values) => {
     const data = {
@@ -25,8 +28,7 @@ const Login = () => {
     try {
       const res = await axios.post('/api/login', data)
       const accessToken = res?.data?.accessToken
-
-      //window.localStorage.setItem('token', token)
+      setAuth({ user: inputs, accessToken })
       setErr(false)
       navigate('/jobs')
     } catch (err) {
