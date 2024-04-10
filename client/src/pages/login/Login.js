@@ -30,6 +30,7 @@ const Login = () => {
       setErr(false)
       navigate('/jobs')
     } catch (err) {
+      console.log(err)
       setErr(true)
     }
   }

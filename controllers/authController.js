@@ -24,8 +24,6 @@ const getUserCredentials = async (email) => {
     const snapshot = await getDocs(q)
     const credentials = new Map()
     snapshot.forEach((doc) => {
-      console.log("doc: ", doc.id)
-
       const data = doc.data()
       credentials.set("email", data.email)
       credentials.set("password", data.password)
@@ -76,7 +74,7 @@ const createRefreshToken = (email) => {
     }
   )
 }
-const saveRefreshToken = async (email, token) => {
+const saveRefreshTokenToDb = async (email, token) => {
   try {
     const usersRef = collection(db, "users")
     const q = query(usersRef, where("email", "==", email))
@@ -121,7 +119,7 @@ const login = async (req, res) => {
   const accessToken = createAccessToken(email, "user")
   const refreshToken = createRefreshToken(email)
   // saving refreshToken with current user
-  await saveRefreshToken(email, refreshToken)
+  await saveRefreshTokenToDb(email, refreshToken)
   res.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 1 * 60 * 60 * 1000 })
   res.status(201).json({ accessToken })
 }
@@ -140,16 +138,15 @@ const signUp = async (req, res) => {
     const saltRounds = 10
     const salt = await bcrypt.genSalt(saltRounds)
     password = await bcrypt.hash(password, salt)
-
     await addUser(email, password)
+    //log in and give refresh and access token
     const accessToken = createAccessToken(email, "user")
     const refreshToken = createRefreshToken(email)
-    await saveRefreshToken(email, refreshToken)
+    await saveRefreshTokenToDb(email, refreshToken)
     res.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 1 * 60 * 60 * 1000 })
     res.status(201).json({ accessToken })
   } catch (error) {
-    const errors = handleErrors(error)
-    res.status(500).send({ errors })
+    res.status(500).send({ error })
   }
 }
 const logout = async (req, res) => {

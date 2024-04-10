@@ -12,7 +12,27 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 // Routes
-app.options("*", cors())
+//app.options("*", cors())
+const allowedOrigins = ["http://localhost:3000", "http://localhost:3001/", "https://my-job-portal.vercel.app"]
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    console.log("origin: ", origin)
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV == "staging") {
+      callback(null, true)
+    } else {
+      callback(new Error("Not allowed by CORS"))
+    }
+  },
+  optionsSuccessStatus: 200,
+}
+
+const corsAllowAll = {
+  origin: "*",
+  optionsSuccessStatus: 200,
+}
+
+app.use(cors(corsOptions))
 app.use("/api/", routes)
 
 app.use(express.static(path.join(__dirname, "./client/build")))
