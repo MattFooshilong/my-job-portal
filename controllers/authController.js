@@ -22,11 +22,12 @@ const getUserCredentials = async (email) => {
     const usersRef = collection(db, "users")
     const q = query(usersRef, where("email", "==", email))
     const snapshot = await getDocs(q)
-    const credentials = new Map()
+    const credentials = {}
     snapshot.forEach((doc) => {
       const data = doc.data()
-      credentials.set("email", data.email)
-      credentials.set("password", data.password)
+      credentials.email = data.email
+      credentials.password = data.password
+      credentials.roles = data.roles
     })
     return credentials
   } catch (error) {
@@ -40,7 +41,7 @@ const addUser = async (email, hashedPassword) => {
     await setDoc(doc(db, "users", `user${documentsCount}`), {
       email: email,
       password: hashedPassword,
-      role: 2, //manually add admin for now
+      roles: [2], //manually add admin for now
     })
     documentsCount++
   } catch (error) {
@@ -49,10 +50,10 @@ const addUser = async (email, hashedPassword) => {
   }
 }
 
-const createAccessToken = (email, role) => {
+const createAccessToken = (email, roles) => {
   return jwt.sign(
     {
-      role: role,
+      roles: roles,
       emailAddr: email,
     },
     process.env.JWT_SECRET,
@@ -81,7 +82,6 @@ const saveRefreshTokenToDb = async (email, token) => {
     const snapshot = await getDocs(q)
     let docID = ""
     snapshot.forEach((doc) => {
-      console.log(typeof doc.id)
       docID = doc.id
     })
     await updateDoc(doc(db, "users", docID), { refreshToken: token })
@@ -107,30 +107,30 @@ const handleErrors = (err) => {
 const login = async (req, res) => {
   const { email, password } = req.body
   const userCredentials = await getUserCredentials(email)
-  if (email !== userCredentials.get("email")) {
+  if (email !== userCredentials.email) {
     res.status(403).send({ message: "Wrong email" })
     return
   }
-  const passwordMatched = await bcrypt.compare(password, userCredentials.get("password"))
+  const passwordMatched = await bcrypt.compare(password, userCredentials.password)
   if (!passwordMatched) {
     res.status(403).send({ message: "Wrong password" })
     return
   }
-  const accessToken = createAccessToken(email, 2)
+  const accessToken = createAccessToken(email, [2])
   const refreshToken = createRefreshToken(email)
   // saving refreshToken with current user
   await saveRefreshTokenToDb(email, refreshToken)
   res.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 1 * 60 * 60 * 1000 })
-  res.status(201).json({ accessToken })
+  delete userCredentials.password
+  res.status(201).json({ user: userCredentials, accessToken })
 }
 
 const signUp = async (req, res) => {
   try {
     const email = req.body.email
     const userCredentials = await getUserCredentials(email)
-    console.log(userCredentials)
     //check duplicate email
-    if (userCredentials.has("email")) {
+    if (userCredentials.email) {
       res.status(403).send({ message: "Email is already in use" })
       return
     }
@@ -140,11 +140,12 @@ const signUp = async (req, res) => {
     password = await bcrypt.hash(password, salt)
     await addUser(email, password)
     //log in and give refresh and access token
-    const accessToken = createAccessToken(email, 2)
+    const accessToken = createAccessToken(email, [2])
     const refreshToken = createRefreshToken(email)
     await saveRefreshTokenToDb(email, refreshToken)
     res.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 1 * 60 * 60 * 1000 })
-    res.status(201).json({ accessToken })
+    delete userCredentials.password
+    res.status(201).json({ user: userCredentials, accessToken })
   } catch (error) {
     res.status(500).send({ error })
   }

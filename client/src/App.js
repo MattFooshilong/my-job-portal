@@ -13,8 +13,13 @@ import Layout from './Layout'
 import Missing from './pages/missing/Missing'
 import RequireAuth from './components/RequireAuth'
 import Unauthorized from './pages/unauthorized/Unauthorized'
-
+import AdminDashboard from './pages/admin-dashboard/AdminDashboard'
 const App = () => {
+  const ROLES = {
+    Admin: 1,
+    User: 2,
+  }
+
   return (
     <>
       <Nav />
@@ -26,15 +31,17 @@ const App = () => {
           <Route path="/" element={<Jobs />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/job/:id" element={<FullPageJob />} />
-          <Route path="unauthorized" element={<Unauthorized />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
           {/* protected routes */}
-          <Route element={<RequireAuth />}>
+          <Route element={<RequireAuth allowedRoles={[ROLES.User]} />}>
             <Route path="/my-profile" element={<MyProfile />} />
             <Route path="/profile-settings" element={<ProfileSettings />} />
             <Route path="/public-profile" element={<PublicProfile />} />
             <Route path="/job-applications" element={<JobApplications />} />
           </Route>
-
+          <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
+            <Route path="admin-dashboard" element={<AdminDashboard />} />
+          </Route>
           {/* catch all */}
           <Route path="*" element={<Missing />} />
         </Route>

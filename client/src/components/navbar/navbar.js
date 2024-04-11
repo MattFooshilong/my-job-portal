@@ -7,8 +7,10 @@ import axios from 'axios'
 import styles from './Nav.module.scss'
 import { useNavigate, Link } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
+import RequireAuth from '../RequireAuth'
 
 const NavBar = () => {
+  const ROLES = [2]
   const { auth, setAuth } = useAuth()
   const navigate = useNavigate()
   const logout = async () => {
@@ -16,6 +18,9 @@ const NavBar = () => {
     setAuth({})
     navigate('/')
   }
+
+  const userOnly = auth?.user?.roles.includes(2)
+  const adminOnly = auth?.user?.roles.includes(1)
 
   return (
     <Navbar bg="light" expand="lg" collapseOnSelect className={styles.navbar}>
@@ -31,10 +36,15 @@ const NavBar = () => {
             <Link to="/jobs">Jobs</Link>
             {auth?.user ? (
               <>
-                <Link to="/job-applications">Job Applications</Link>
-                <Link to="/my-profile">My Profile</Link>
-                <Link to="/profile-settings">Profile Settings</Link>
-                <Link to="/public-profile">Edit Public Profile</Link>
+                {userOnly && (
+                  <>
+                    <Link to="/job-applications">Job Applications</Link>
+                    <Link to="/my-profile">My Profile</Link>
+                    <Link to="/profile-settings">Profile Settings</Link>
+                    <Link to="/public-profile">Edit Public Profile</Link>
+                  </>
+                )}
+                {adminOnly && <Link to="/admin-dashboard">Admin Dashboard</Link>}
                 <div className={styles.logoutButton} onClick={() => logout()}>
                   Logout
                 </div>

@@ -17,7 +17,6 @@ const allowedOrigins = ["http://localhost:3000", "http://localhost:3001/", "http
 
 const corsOptions = {
   origin: (origin, callback) => {
-    console.log("origin: ", origin)
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV == "staging") {
       callback(null, true)
     } else {

@@ -30,7 +30,9 @@ const Login = () => {
     try {
       const res = await axios.post('/api/login', data)
       const accessToken = res?.data?.accessToken
-      setAuth({ user: data, accessToken })
+      const user = res?.data?.user
+      console.log('user login: ', res.data)
+      setAuth({ user, accessToken })
       setErr(false)
       navigate(from, { replace: true })
     } catch (err) {
