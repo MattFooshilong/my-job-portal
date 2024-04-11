@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Login from './pages/login/Login'
 import SignUp from './pages/signup/SignUp'
 import Nav from './components/navbar/navbar'
@@ -9,20 +9,10 @@ import MyProfile from './pages/my-profile/MyProfile'
 import Jobs from './pages/jobs/Jobs'
 import FullPageJob from './pages/jobs/FullPageJob'
 import JobApplications from './pages/job-applications/JobApplications'
-import { jwtDecode } from 'jwt-decode'
 import Layout from './Layout'
-import Missing from './pages/Missing'
-
-const isTokenExpired = (token) => {
-  if (!token) return true // Return true if no token provided
-  const decodedToken = jwtDecode(token)
-  return decodedToken.exp < Date.now() / 1000 // Compare with current time
-}
-
-const ProtectedRoutes = () => {
-  const token = localStorage.getItem('token')
-  return isTokenExpired(token) ? <Outlet /> : <Navigate to="/jobs" />
-}
+import Missing from './pages/missing/Missing'
+import RequireAuth from './components/RequireAuth'
+import Unauthorized from './pages/unauthorized/Unauthorized'
 
 const App = () => {
   return (
@@ -36,12 +26,14 @@ const App = () => {
           <Route path="/" element={<Jobs />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/job/:id" element={<FullPageJob />} />
-
+          <Route path="unauthorized" element={<Unauthorized />} />
           {/* protected routes */}
-          <Route path="/my-profile" element={<MyProfile />} />
-          <Route path="/profile-settings" element={<ProfileSettings />} />
-          <Route path="/public-profile" element={<PublicProfile />} />
-          <Route path="/job-applications" element={<JobApplications />} />
+          <Route element={<RequireAuth />}>
+            <Route path="/my-profile" element={<MyProfile />} />
+            <Route path="/profile-settings" element={<ProfileSettings />} />
+            <Route path="/public-profile" element={<PublicProfile />} />
+            <Route path="/job-applications" element={<JobApplications />} />
+          </Route>
 
           {/* catch all */}
           <Route path="*" element={<Missing />} />
