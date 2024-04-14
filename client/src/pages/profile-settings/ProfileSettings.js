@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom'
 import { firebaseApp } from '../../firebase/firebaseInit'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { query, getDoc, updateDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore'
+import axios from '../../config/axiosConfig'
 
 const ProfileSettings = () => {
   const [inputs, setInputs] = useState({
@@ -123,7 +124,7 @@ const ProfileSettings = () => {
     }
   }
   const handleSubmit = (values) => {
-    updateDoc(doc(db, 'users', 'admin'), {
+    updateDoc(doc(db, 'users', 'user1'), {
       email: 'admin@gmail.com',
       avatar: avatar,
       name: values.name,
@@ -222,6 +223,30 @@ const ProfileSettings = () => {
     return () => {
       unsub()
     }
+  }, [])
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await axios.get('/api/user')
+        const data = response?.data
+        setInputs({
+          name: data.name,
+          age: data.age,
+          dob: isNaN(new Date(data.dob).valueOf()) ? new Date() : new Date(data.dob),
+          jobTitle: data.jobTitle,
+          company: data.company,
+          companyLogo: data.companyLogo,
+          jobDescription: data.jobDescription,
+          startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
+          endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
+        })
+        setAvatar(data.avatar)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getUser()
   }, [])
   return (
     <Container>

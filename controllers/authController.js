@@ -12,7 +12,6 @@ const initialAuthControllerFunction = async () => {
   const userCollection = collection(db, "users")
   const result = await getCountFromServer(userCollection)
   documentsCount = result.data().count
-  console.log("initialAuthControllerFunction ran")
 }
 initialAuthControllerFunction()
 
@@ -25,9 +24,10 @@ const getUserCredentials = async (email) => {
     const credentials = {}
     snapshot.forEach((doc) => {
       const data = doc.data()
-      credentials.email = data.email
-      credentials.password = data.password
-      credentials.roles = data.roles
+      credentials.docId = doc?.id
+      credentials.email = data?.email
+      credentials.password = data?.password
+      credentials.roles = data?.roles
     })
     return credentials
   } catch (error) {
@@ -54,24 +54,24 @@ const createAccessToken = (email, roles) => {
   return jwt.sign(
     {
       roles: roles,
-      emailAddr: email,
+      email: email,
     },
-    process.env.JWT_SECRET,
+    process.env.ACCESS_TOKEN_SECRET,
     {
       algorithm: "HS256",
-      expiresIn: "1h",
+      expiresIn: "10s",
     }
   )
 }
 const createRefreshToken = (email) => {
   return jwt.sign(
     {
-      emailAddr: email,
+      email: email,
     },
-    process.env.JWT_SECRET,
+    process.env.REFRESH_TOKEN_SECRET,
     {
       algorithm: "HS256",
-      expiresIn: "2d",
+      expiresIn: "15s",
     }
   )
 }
@@ -120,6 +120,7 @@ const login = async (req, res) => {
   const refreshToken = createRefreshToken(email)
   // saving refreshToken with current user
   await saveRefreshTokenToDb(email, refreshToken)
+  // send refreshToken back in a cookie
   res.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 1 * 60 * 60 * 1000 })
   delete userCredentials.password
   res.status(201).json({ user: userCredentials, accessToken })

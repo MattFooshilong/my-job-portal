@@ -16,11 +16,12 @@ import { getFirestore, collection, doc, setDoc, getDocs, updateDoc } from 'fireb
 import { useNavigate } from 'react-router-dom'
 import Toast from 'react-bootstrap/Toast'
 import ToastContainer from 'react-bootstrap/ToastContainer'
-import axios from 'axios'
+import axios from '../../config/axiosConfig'
 
 const Jobs = () => {
   const db = getFirestore()
   const navigate = useNavigate()
+
   const [jobs, setJobs] = useState([])
   const [job, setJob] = useState({})
   const [loading, setLoading] = useState(false)
@@ -67,26 +68,44 @@ const Jobs = () => {
     })
   }
 
-  // on load
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true)
-      //  const res = await axios.get('/api/test-read-cookie')
-      //  console.log('res: ', res)
-      const querySnapshot = await getDocs(collection(db, 'jobs'))
-      const arr = []
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        data.id = doc.id.slice(-1)
-        arr.push(data)
-      })
-      setJobs(arr)
-      setJob(arr[0])
-      setLoading(false)
-    }
-    fetchData()
-  }, [])
+  //  useEffect(() => {
+  //    let isMounted = true
+  //    const controller = new AbortController()
 
+  //    const getJobs = async () => {
+  //      try {
+  //        const response = await axios.get('/api/jobs', {
+  //          signal: controller.signal,
+  //        })
+  //        if (isMounted) {
+  //          setJobs(response?.data)
+  //          setJob(response?.data[0])
+  //        }
+  //      } catch (err) {
+  //        console.error(err)
+  //      }
+  //    }
+
+  //    getJobs()
+
+  //    return () => {
+  //      isMounted = false
+  //      controller.abort()
+  //    }
+  //  }, [])
+  useEffect(() => {
+    const getJobs = async () => {
+      try {
+        const response = await axios.get('/api/jobs')
+        setJobs(response?.data)
+        setJob(response?.data[0])
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    getJobs()
+  }, [])
   return (
     <Container>
       {/* <Button onClick={() => addJob()}>Add job</Button> */}

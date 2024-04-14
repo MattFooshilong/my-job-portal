@@ -4,6 +4,9 @@ const bodyParser = require("body-parser")
 const cors = require("cors")
 const routes = require("./api/routes")
 const path = require("path")
+const verifyJWT = require("./middleware/verifyToken")
+const userController = require("./controllers/userController")
+const jobsController = require("./controllers/jobsController")
 
 // Globals
 const app = express()
@@ -11,8 +14,6 @@ const port = 3001
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-// Routes
-//app.options("*", cors())
 const allowedOrigins = ["http://localhost:3000", "http://localhost:3001/", "https://my-job-portal.vercel.app"]
 
 const corsOptions = {
@@ -24,15 +25,19 @@ const corsOptions = {
     }
   },
   optionsSuccessStatus: 200,
+  credentials: true, //To enable HTTP cookies over CORS
 }
 
 const corsAllowAll = {
-  origin: "*",
+  origin: "http://localhost:3000",
   optionsSuccessStatus: 200,
+  credentials: true,
 }
-
 app.use(cors(corsOptions))
 app.use("/api/", routes)
+app.use(verifyJWT)
+
+app.get("/user/:id", userController.getUser)
 
 app.use(express.static(path.join(__dirname, "./client/build")))
 app.get("*", (req, res) => {

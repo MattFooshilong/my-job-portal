@@ -13,7 +13,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
 const Login = () => {
   const [defaultInputs] = useState({
-    email: 'admin@gmail.com',
+    email: 'user1@gmail.com',
     password: 'Abc123!',
   })
   const [err, setErr] = useState(false)
@@ -31,7 +31,6 @@ const Login = () => {
       const res = await axios.post('/api/login', data)
       const accessToken = res?.data?.accessToken
       const user = res?.data?.user
-      console.log('user login: ', res.data)
       setAuth({ user, accessToken })
       setErr(false)
       navigate(from, { replace: true })

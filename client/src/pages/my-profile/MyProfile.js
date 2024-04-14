@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Card from 'react-bootstrap/Card'
 import Image from 'react-bootstrap/Image'
@@ -11,55 +11,56 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare, faEnvelope } from '@fortawesome/free-regular-svg-icons'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faWhatsapp, faLinkedin } from '@fortawesome/free-brands-svg-icons'
-
-import { Link } from 'react-router-dom'
-import { query, getFirestore, onSnapshot, collection } from 'firebase/firestore'
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import useAuth from '../../hooks/useAuth'
 
 const PublicProfile = () => {
   const [inputs, setInputs] = useState({
     name: 'Matt Foo',
     age: '22',
-    dob: '01/01/1980',
     jobTitle: 'Designer',
     company: 'Designer Pte Ltd',
-    companyLogo: '',
     jobDescription: 'Help to create mockups and design dashboard',
     startDate: '01/02/2022',
     endDate: '01/07/2022',
+    email: '',
+    whatsapp: '',
   })
-  const { name, age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = inputs
-  const db = getFirestore()
+  const { name, age, jobTitle, company, jobDescription, startDate, endDate, email, whatsapp } = inputs
+  const { auth } = useAuth()
+  const axiosPrivate = useAxiosWithInterceptors()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   // avatar
   const [avatar, setAvatar] = useState('')
 
   // on load
   useEffect(() => {
-    const q = query(collection(db, 'users'))
-    const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-      const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const data = change.doc.data()
-          console.log(data)
-          setInputs({
-            name: data.name,
-            age: data.age,
-            dob: data.dob,
-            jobTitle: data.jobTitle,
-            company: data.company,
-            companyLogo: data.companyLogo,
-            jobDescription: data.jobDescription,
-            startDate: data.startDate,
-            endDate: data.endDate,
-          })
-          setAvatar(data.avatar)
-        }
-      })
-    })
-    return () => {
-      unsub()
+    const getUser = async () => {
+      try {
+        const response = await axiosPrivate.get(`/user/${auth.user.docId}`)
+        const data = response?.data
+        setInputs({
+          name: data.name,
+          age: data.age,
+          jobTitle: data.jobTitle,
+          company: data.company,
+          jobDescription: data.jobDescription,
+          startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
+          endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
+          email: data?.email,
+          whatsapp: data?.whatsapp,
+        })
+        setAvatar(data.avatar)
+      } catch (err) {
+        console.error(err)
+        navigate('/login', { state: { from: location }, replace: true }) //send them back to where they were before they were kicked out
+      }
     }
+
+    getUser()
   }, [])
 
   return (
@@ -88,11 +89,11 @@ const PublicProfile = () => {
 
             <p className="mb-0 mt-2">
               <FontAwesomeIcon icon={faEnvelope} size="xl" className="me-2" />
-              shilongfoo@gmail.com
+              {email}
             </p>
             <p className="mb-0">
               <FontAwesomeIcon icon={faWhatsapp} size="xl" className="me-2" />
-              +65 83687202 (preferred)
+              +65 {whatsapp}
             </p>
             <a className="mb-3 text-black" href="https://www.linkedin.com/in/shilong-foo/">
               <FontAwesomeIcon icon={faLinkedin} size="xl" className="me-2" />
