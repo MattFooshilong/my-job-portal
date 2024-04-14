@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import Image from 'react-bootstrap/Image'
@@ -50,12 +50,6 @@ const NavBar = () => {
             ) : (
               <Link to="/login">Login</Link>
             )}
-
-            {/* <NavDropdown title="Me" id="basic-nav-dropdown" align='end'>
-                                <NavDropdown.Item href="/my-profile">My Profile</NavDropdown.Item>
-                                <NavDropdown.Item href="/profile-settings">Profile Settings</NavDropdown.Item>
-                                <NavDropdown.Item href="/public-profile">Edit Public Profile</NavDropdown.Item>
-                            </NavDropdown> */}
           </Nav>
         </Navbar.Collapse>
       </Container>

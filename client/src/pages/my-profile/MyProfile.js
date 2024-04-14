@@ -28,7 +28,7 @@ const PublicProfile = () => {
     whatsapp: '',
   })
   const { name, age, jobTitle, company, jobDescription, startDate, endDate, email, whatsapp } = inputs
-  const { auth } = useAuth()
+  const { auth, setAuth } = useAuth()
   const axiosPrivate = useAxiosWithInterceptors()
   const navigate = useNavigate()
   const location = useLocation()
@@ -56,6 +56,7 @@ const PublicProfile = () => {
         setAvatar(data.avatar)
       } catch (err) {
         console.error(err)
+        setAuth({})
         navigate('/login', { state: { from: location }, replace: true }) //send them back to where they were before they were kicked out
       }
     }
