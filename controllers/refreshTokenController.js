@@ -23,11 +23,11 @@ const findUserWithRefreshToken = async (refreshToken) => {
 
 const refreshToken = async (req, res) => {
   const cookies = req.cookies
-  if (!cookies.jwt) return res.sendState(401)
+  if (!cookies.jwt) return res.sendStatus(401)
   const refreshToken = cookies.jwt
   //find user with that refresh token
   const user = await findUserWithRefreshToken(refreshToken)
-  if (!user.email) return res.sendState(403)
+  if (!user.email) return res.sendStatus(403)
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err || decoded.email !== user.email) return res.sendStatus(403)
     const accessToken = jwt.sign(

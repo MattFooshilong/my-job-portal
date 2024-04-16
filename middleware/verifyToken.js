@@ -6,7 +6,7 @@ const verifyToken = (req, res, next) => {
   const accessToken = authHeader.split(" ")[1]
   jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decodedToken) => {
     if (err) {
-      console.log(`jwt verify error: ${err}`)
+      //console.log(`jwt verify error: ${err}`)
       return res.sendStatus(403)
     }
     req.email = decodedToken.email

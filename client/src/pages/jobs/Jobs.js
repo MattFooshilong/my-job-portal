@@ -118,6 +118,7 @@ const Jobs = () => {
             <Row>
               <Col className="pe-sm-0">
                 <div className={styles.custom__card}>
+                  {jobs.length === 0 && <h6>Jobs not loaded!</h6>}
                   {jobs.map((ele, i) => {
                     return (
                       <Row className={styles.row_clickable} key={i} onClick={() => setJob(ele)}>
@@ -149,6 +150,8 @@ const Jobs = () => {
             <Row>
               <Col className="pe-sm-0">
                 <div className={styles.custom__card}>
+                  {jobs.length === 0 && <h6>Jobs not loaded!</h6>}
+
                   {jobs.map((ele, i) => {
                     return (
                       <Row className={styles.row_clickable} key={i} onClick={() => navigate('/job/' + ele.id)}>

@@ -6,8 +6,11 @@ const routes = require("./api/routes")
 const path = require("path")
 const verifyJWT = require("./middleware/verifyToken")
 const userController = require("./controllers/userController")
-const jobsController = require("./controllers/jobsController")
-
+const imageController = require("./controllers/imageController")
+const multer = require("multer")
+const upload = multer({ dest: "uploads/" })
+const { getStorage, ref, uploadBytesResumable, getDownloadURL } = require("firebase/storage")
+const dayjs = require("dayjs")
 // Globals
 const app = express()
 const port = 3001
@@ -36,8 +39,27 @@ const corsAllowAll = {
 app.use(cors(corsOptions))
 app.use("/api/", routes)
 app.use(verifyJWT)
+const uploadImage = async (req, res) => {
+  try {
+    console.log(`file: ${req.body} `)
 
+    //keys.forEach((key) => {
+    //  console.log(key)
+    //})
+
+    //const storage = getStorage()
+    //const imagesRef = ref(storage, `images/${dayjs().format("DD-MM-YYYY, hh:mm:ssA") + fileName}`)
+    //await uploadBytesResumable(imagesRef, file)
+    //const url = await getDownloadURL(imagesRef)
+    //console.log(`url: ${url}, file: ${file}`)
+    //res.json(url)
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
 app.get("/user/:id", userController.getUser)
+app.post("/uploadImage", upload.single("avatar"), uploadImage)
 
 app.use(express.static(path.join(__dirname, "./client/build")))
 app.get("*", (req, res) => {

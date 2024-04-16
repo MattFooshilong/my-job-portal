@@ -71,7 +71,7 @@ const createRefreshToken = (email) => {
     process.env.REFRESH_TOKEN_SECRET,
     {
       algorithm: "HS256",
-      expiresIn: "15s",
+      expiresIn: "1d",
     }
   )
 }

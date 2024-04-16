@@ -19,7 +19,9 @@ import { useNavigate } from 'react-router-dom'
 import { firebaseApp } from '../../firebase/firebaseInit'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { query, getDoc, updateDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore'
-import axios from '../../config/axiosConfig'
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
+import useAxiosWithInterceptorsForImages from '../../hooks/useAxiosWithInterceptorsForImages'
+import useAuth from '../../hooks/useAuth'
 
 const ProfileSettings = () => {
   const [inputs, setInputs] = useState({
@@ -40,6 +42,10 @@ const ProfileSettings = () => {
   })
   const navigate = useNavigate()
   const db = getFirestore(firebaseApp)
+  const axiosPrivate = useAxiosWithInterceptors()
+  const axiosForImages = useAxiosWithInterceptorsForImages()
+
+  const { auth, setAuth } = useAuth()
 
   // for image upload
   const [imgPreview, setImgPreview] = useState('')
@@ -54,38 +60,41 @@ const ProfileSettings = () => {
       return avatar
     } else return imgPreview
   }
-  const onFileChange = async (event) => {
+  const uploadAvatar = async (event) => {
     const fileType = event.target.accept
     const file = event.target.files[0]
-    if (file !== undefined) {
-      if (fileType === 'image/*') {
-        setImgPreview(URL.createObjectURL(file))
-        setImgData(file)
+    if (file !== undefined && fileType === 'image/*') {
+      setImgPreview(URL.createObjectURL(file))
+      setImgData(file)
+      const form = new FormData()
+      form.append('image', file)
+      console.log('formData', form)
+
+      try {
         //host img on firebase
-        const storage = getStorage(firebaseApp)
-        const spaceRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY,hh:mm:ssA') + file.name}`)
-        await uploadBytesResumable(spaceRef, file).then(() => {})
-        await getDownloadURL(spaceRef)
-          .then((url) => {
-            setAvatar(url)
-          })
-          .catch((error) => {
-            switch (error.code) {
-              case 'storage/object-not-found':
-                // File doesn't exist
-                break
-              case 'storage/unauthorized':
-                // User doesn't have permission to access the object
-                break
-              case 'storage/canceled':
-                // User canceled the upload
-                break
-              // ...
-              case 'storage/unknown':
-                // Unknown error occurred, inspect the server response
-                break
-            }
-          })
+
+        const response = await axiosForImages.post('/uploadImage', form, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        setAvatar(response?.data?.url)
+      } catch (error) {
+        switch (error.code) {
+          case 'storage/object-not-found':
+            // File doesn't exist
+            break
+          case 'storage/unauthorized':
+            // User doesn't have permission to access the object
+            break
+          case 'storage/canceled':
+            // User canceled the upload
+            break
+          // ...
+          case 'storage/unknown':
+            // Unknown error occurred, inspect the server response
+            break
+        }
       }
     }
   }
@@ -124,8 +133,8 @@ const ProfileSettings = () => {
     }
   }
   const handleSubmit = (values) => {
-    updateDoc(doc(db, 'users', 'user1'), {
-      email: 'admin@gmail.com',
+    updateDoc(doc(db, 'users', auth.user.docId), {
+      email: values.name,
       avatar: avatar,
       name: values.name,
       age: values.age,
@@ -199,35 +208,9 @@ const ProfileSettings = () => {
 
   // on load
   useEffect(() => {
-    const q = query(collection(db, 'users'))
-    const unsub = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
-      const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const data = change.doc.data()
-          setInputs({
-            name: data.name,
-            age: data.age,
-            dob: isNaN(new Date(data.dob).valueOf()) ? new Date() : new Date(data.dob),
-            jobTitle: data.jobTitle,
-            company: data.company,
-            companyLogo: data.companyLogo,
-            jobDescription: data.jobDescription,
-            startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
-            endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
-          })
-          setAvatar(data.avatar)
-        }
-      })
-    })
-    return () => {
-      unsub()
-    }
-  }, [])
-  useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await axios.get('/api/user')
+        const response = await axiosPrivate.get(`/user/${auth.user.docId}`)
         const data = response?.data
         setInputs({
           name: data.name,
@@ -286,7 +269,7 @@ const ProfileSettings = () => {
                         }}
                       />
                     )}
-                    <input type="file" ref={imgInputRef} onChange={onFileChange} hidden accept="image/*" />
+                    <input type="file" ref={imgInputRef} onChange={uploadAvatar} hidden accept="image/*" name="avatar" />
                     <div className="mt-3">
                       <Col sm={12}>
                         <Row>
