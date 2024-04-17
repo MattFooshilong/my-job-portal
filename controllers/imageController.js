@@ -1,18 +1,18 @@
 const { getStorage, ref, uploadBytesResumable, getDownloadURL } = require("firebase/storage")
 const dayjs = require("dayjs")
-const bodyParser = require("body-parser")
+
+// not working. file type is wrong on firebase. Come back to this when free
+// tried multer, converting to string then sending as object from client, doesnt work
 const uploadImage = async (req, res) => {
   try {
-    const file = req.body
-    //const fileName = file.name
-    console.log(`file: ${req.body}`)
-
-    //const storage = getStorage()
-    //const imagesRef = ref(storage, `images/${dayjs().format("DD-MM-YYYY, hh:mm:ssA")} ${fileName}`)
-    //await uploadBytesResumable(imagesRef, file)
-    //const url = await getDownloadURL(imagesRef)
-    //console.log(`url: ${url}, file: ${file}`)
-    //res.json(url)
+    const file = req.file
+    console.log(file)
+    const storage = getStorage()
+    const imagesRef = ref(storage, `images/${dayjs().format("DD-MM-YYYY, hh:mm:ssA")}, ${file.originalname}`)
+    await uploadBytesResumable(imagesRef, file)
+    const url = await getDownloadURL(imagesRef)
+    console.log(`url: ${url}`)
+    res.json(url)
   } catch (error) {
     console.log(error)
     throw error

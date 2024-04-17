@@ -10,7 +10,6 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
-import styles from './ProfileForms.module.scss'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -18,9 +17,8 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import { firebaseApp } from '../../firebase/firebaseInit'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { query, getDoc, updateDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore'
+import { updateDoc, getFirestore, doc } from 'firebase/firestore'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import useAxiosWithInterceptorsForImages from '../../hooks/useAxiosWithInterceptorsForImages'
 import useAuth from '../../hooks/useAuth'
 
 const ProfileSettings = () => {
@@ -43,9 +41,8 @@ const ProfileSettings = () => {
   const navigate = useNavigate()
   const db = getFirestore(firebaseApp)
   const axiosPrivate = useAxiosWithInterceptors()
-  const axiosForImages = useAxiosWithInterceptorsForImages()
 
-  const { auth, setAuth } = useAuth()
+  const { auth } = useAuth()
 
   // for image upload
   const [imgPreview, setImgPreview] = useState('')
@@ -66,19 +63,13 @@ const ProfileSettings = () => {
     if (file !== undefined && fileType === 'image/*') {
       setImgPreview(URL.createObjectURL(file))
       setImgData(file)
-      const form = new FormData()
-      form.append('image', file)
-      console.log('formData', form)
-
       try {
         //host img on firebase
-
-        const response = await axiosForImages.post('/uploadImage', form, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        setAvatar(response?.data?.url)
+        const storage = getStorage()
+        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`)
+        await uploadBytesResumable(imagesRef, file)
+        const url = await getDownloadURL(imagesRef)
+        setAvatar(url)
       } catch (error) {
         switch (error.code) {
           case 'storage/object-not-found':
@@ -102,64 +93,47 @@ const ProfileSettings = () => {
     const fileType = event.target.accept
     const file = event.target.files[0]
 
-    if (file !== undefined) {
-      if (fileType === 'image/*') {
-        //host img on firebase
+    if (file !== undefined && fileType === 'image/*') {
+      //host img on firebase
+      try {
         const storage = getStorage()
-        const spaceRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY,hh:mm:ssA') + file.name}`)
-        await uploadBytesResumable(spaceRef, file).then(() => {})
-        await getDownloadURL(spaceRef)
-          .then((url) => {
-            setCompanyLogoUrl(url)
-          })
-          .catch((error) => {
-            switch (error.code) {
-              case 'storage/object-not-found':
-                // File doesn't exist
-                break
-              case 'storage/unauthorized':
-                // User doesn't have permission to access the object
-                break
-              case 'storage/canceled':
-                // User canceled the upload
-                break
-              // ...
-              case 'storage/unknown':
-                // Unknown error occurred, inspect the server response
-                break
-            }
-          })
+        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`)
+        await uploadBytesResumable(imagesRef, file)
+        const url = await getDownloadURL(imagesRef)
+        setCompanyLogoUrl(url)
+      } catch (error) {
+        switch (error.code) {
+          case 'storage/object-not-found':
+            // File doesn't exist
+            break
+          case 'storage/unauthorized':
+            // User doesn't have permission to access the object
+            break
+          case 'storage/canceled':
+            // User canceled the upload
+            break
+          // ...
+          case 'storage/unknown':
+            // Unknown error occurred, inspect the server response
+            break
+        }
       }
     }
   }
-  const handleSubmit = (values) => {
-    updateDoc(doc(db, 'users', auth.user.docId), {
-      email: values.name,
-      avatar: avatar,
-      name: values.name,
-      age: values.age,
-      dob: dayjs(values.dob).format('MM/DD/YYYY'),
-      jobTitle: values.jobTitle,
-      company: values.company,
-      companyLogo: companyLogoUrl,
-      jobDescription: values.jobDescription,
-      startDate: dayjs(values.startDate).format('MM/DD/YYYY'),
-      endDate: showEndDate ? dayjs(values.endDate).format('MM/DD/YYYY') : null,
-      publicProfilePref: {
-        age: true,
-        dob: true,
-        jobTitle: true,
-        company: true,
-        companyLogo: true,
-        jobDescription: true,
-        startDate: true,
-        endDate: true,
-      },
-    })
-      .then(() => {
-        setProfileSaved(true)
-      })
-      .catch((err) => console.log('err', err))
+  const handleSubmit = async (values) => {
+    const dataObject = {
+      values,
+      companyLogoUrl,
+      avatar,
+      showEndDate,
+    }
+    try {
+      const response = await axiosPrivate.post(`/user/${auth.user.docId}`, dataObject)
+      const updated = response?.data?.updated
+      setProfileSaved(updated)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   // validation
@@ -169,7 +143,7 @@ const ProfileSettings = () => {
   const validationSchema = Yup.object().shape({
     name: Yup.string()
       .required('required')
-      .matches(/^[a-zA-Z_ ]*$/, 'Please remove any numbers or special characters and try again'),
+      .matches(/^[a-zA-Z0-9_ ]*$/, 'Please remove any numbers or special characters and try again'),
     age: Yup.number().required('required').typeError('Age must be a number').positive('age must be greater than zero'),
     dob: Yup.date().nullable().required('required'),
     jobTitle: Yup.string()
@@ -316,6 +290,7 @@ const ProfileSettings = () => {
               <Row>
                 <Col className="mb-3">
                   <label className="form-label">Date of birth</label>
+                  <br />
                   <DatePickerField name="dob" />
                   {errors.dob && touched.dob && <div className="err-message">{errors.dob}</div>}
                 </Col>

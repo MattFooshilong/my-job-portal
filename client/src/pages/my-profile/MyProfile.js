@@ -14,6 +14,7 @@ import { faWhatsapp, faLinkedin } from '@fortawesome/free-brands-svg-icons'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
+import dayjs from 'dayjs'
 
 const PublicProfile = () => {
   const [inputs, setInputs] = useState({
@@ -25,7 +26,7 @@ const PublicProfile = () => {
     startDate: '01/02/2022',
     endDate: '01/07/2022',
     email: '',
-    whatsapp: '',
+    whatsapp: '99998888',
   })
   const { name, age, jobTitle, company, jobDescription, startDate, endDate, email, whatsapp } = inputs
   const { auth, setAuth } = useAuth()
@@ -43,15 +44,15 @@ const PublicProfile = () => {
         const response = await axiosPrivate.get(`/user/${auth.user.docId}`)
         const data = response?.data
         setInputs({
+          ...inputs,
           name: data.name,
           age: data.age,
           jobTitle: data.jobTitle,
           company: data.company,
           jobDescription: data.jobDescription,
-          startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
-          endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
+          startDate: data.startDate ? dayjs(data.startDate).format('DD-MM-YYYY') : '',
+          endDate: data.endDate ? dayjs(data.endDate).format('DD-MM-YYYY') : '',
           email: data?.email,
-          whatsapp: data?.whatsapp,
         })
         setAvatar(data.avatar)
       } catch (err) {
@@ -83,7 +84,7 @@ const PublicProfile = () => {
             </Card.Body>
             <div className="d-flex mb-0">
               <h3>{name}</h3>
-              {age && <p className={styles.card__age}>{inputs.age}</p>}
+              {age && <p className={styles.card__age}>{inputs.age} years old</p>}
             </div>
             <p className="mb-0">Hi I&apos;m a full stack developer and I have built dashboards with React, Typescript, Bootstrap on the frontend and Nodejs, SQL, Graphql for the backend</p>
             <small>Singapore</small>
@@ -101,10 +102,10 @@ const PublicProfile = () => {
               https://www.linkedin.com/in/shilong-foo/
             </a>
             <h3>Career</h3>
-            {jobTitle && <h6 className="mb-0">{jobTitle}</h6>}
+            {jobTitle && <h6 className="mb-0">Job Title: {jobTitle}</h6>}
             {company && (
               <p className="mb-0">
-                {company}{' '}
+                Company: {company}{' '}
                 {startDate && (
                   <small className="mb-3 d-block">
                     {startDate} - {endDate ? endDate : 'Present'}
