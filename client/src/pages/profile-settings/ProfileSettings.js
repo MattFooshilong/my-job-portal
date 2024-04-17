@@ -17,7 +17,7 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import { firebaseApp } from '../../firebase/firebaseInit'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { updateDoc, getFirestore, doc } from 'firebase/firestore'
+import { getFirestore } from 'firebase/firestore'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import useAuth from '../../hooks/useAuth'
 

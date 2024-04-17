@@ -59,7 +59,7 @@ const createAccessToken = (email, roles) => {
     process.env.ACCESS_TOKEN_SECRET,
     {
       algorithm: "HS256",
-      expiresIn: "10s",
+      expiresIn: "5m",
     }
   )
 }
@@ -89,18 +89,6 @@ const saveRefreshTokenToDb = async (email, token) => {
     console.log(error)
     throw error
   }
-}
-const handleErrors = (err) => {
-  console.log(err.message, err.code)
-  let errors = { email: "", password: "" }
-
-  // to do - duplicate email error
-  if (err.code === 11000) {
-    errors.email = "that email is already registered"
-    return errors
-  }
-
-  return errors
 }
 
 // authentication

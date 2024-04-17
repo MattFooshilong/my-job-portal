@@ -38,6 +38,7 @@ app.use("/api/", routes)
 app.use(verifyJWT)
 app.get("/user/:id", userController.getUser)
 app.post("/user/:id", userController.updateUser)
+app.post("/user-public-pref/:id", userController.updateUserPublicProfile)
 
 app.use(express.static(path.join(__dirname, "./client/build")))
 app.get("*", (req, res) => {

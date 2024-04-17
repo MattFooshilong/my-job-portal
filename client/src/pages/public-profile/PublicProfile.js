@@ -13,8 +13,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import '../../firebase/firebaseInit'
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection, updateDoc } from 'firebase/firestore'
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
+import { query, getFirestore, doc, onSnapshot, collection, updateDoc } from 'firebase/firestore'
+import useAuth from '../../hooks/useAuth'
+import dayjs from 'dayjs'
 
 const PublicProfile = () => {
   const [inputs, setInputs] = useState({
@@ -29,7 +31,6 @@ const PublicProfile = () => {
     endDate: '',
   })
   const [switches, setSwitches] = useState({
-    name: true,
     age: true,
     dob: true,
     jobTitle: true,
@@ -43,6 +44,8 @@ const PublicProfile = () => {
   const [preferencesSaved, setPreferencesSaved] = useState(false)
   const navigate = useNavigate()
   const db = getFirestore()
+  const axiosPrivate = useAxiosWithInterceptors()
+  const { auth } = useAuth()
 
   // for img upload
   const [imgPreview, setImgPreview] = useState('')
@@ -67,64 +70,50 @@ const PublicProfile = () => {
     }
   }
   const handleSubmit = async () => {
-    setPreferencesSaved(true)
     try {
-      await updateDoc(doc(db, 'users', 'admin'), {
-        publicProfilePref: {
-          age: age,
-          dob: dob,
-          jobTitle: jobTitle,
-          company: company,
-          companyLogo: companyLogo,
-          jobDescription: jobDescription,
-          startDate: startDate,
-          endDate: endDate,
-        },
-      })
+      const response = await axiosPrivate.post(`/user-public-pref/${auth.user.docId}`, switches)
+      const updated = response?.data?.updated
+      setPreferencesSaved(updated)
     } catch (err) {
-      console.log('err', err)
+      console.error(err)
     }
   }
+
   useEffect(() => {
-    const q = query(collection(db, 'users'))
-    const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-      const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const data = change.doc.data()
-          const publicProfilePref = data.publicProfilePref
-          console.log(data)
-
-          setSwitches({
-            age: publicProfilePref.age,
-            dob: publicProfilePref.dob,
-            jobTitle: publicProfilePref.jobTitle,
-            company: publicProfilePref.company,
-            companyLogo: publicProfilePref.companyLogo,
-            jobDescription: publicProfilePref.jobDescription,
-            startDate: publicProfilePref.startDate,
-            endDate: publicProfilePref.endDate,
-          })
-          setInputs({
-            name: data.name,
-            age: data.age,
-            dob: data.dob,
-            jobTitle: data.jobTitle,
-            company: data.company,
-            companyLogo: data.companyLogo,
-            jobDescription: data.jobDescription,
-            startDate: data.startDate,
-            endDate: data.endDate,
-          })
-          setAvatar(data.avatar)
-        }
-      })
-    })
-    return () => {
-      unsub()
+    const getUser = async () => {
+      try {
+        const response = await axiosPrivate.get(`/user/${auth.user.docId}`)
+        const data = response?.data
+        const publicProfilePref = data.publicProfilePref
+        setInputs({
+          name: data.name,
+          age: data.age,
+          dob: data.dob ? dayjs(data.dob).format('DD-MM-YYYY') : '',
+          jobTitle: data.jobTitle,
+          company: data.company,
+          companyLogo: data.companyLogo,
+          jobDescription: data.jobDescription,
+          startDate: data.startDate ? dayjs(data.startDate).format('DD-MM-YYYY') : '',
+          endDate: data.endDate ? dayjs(data.endDate).format('DD-MM-YYYY') : '',
+        })
+        setAvatar(data.avatar)
+        setSwitches({
+          age: publicProfilePref.age,
+          dob: publicProfilePref.dob,
+          jobTitle: publicProfilePref.jobTitle,
+          company: publicProfilePref.company,
+          companyLogo: publicProfilePref.companyLogo,
+          jobDescription: publicProfilePref.jobDescription,
+          startDate: publicProfilePref.startDate,
+          endDate: publicProfilePref.endDate,
+        })
+      } catch (err) {
+        console.error(err)
+      }
     }
-  }, [])
 
+    getUser()
+  }, [])
   return (
     <Container>
       <Card className={styles.card}>
@@ -174,6 +163,7 @@ const PublicProfile = () => {
                         className={styles.form__switch}
                         checked={switches[obj.value]}
                         onChange={() => {
+                          setPreferencesSaved(false)
                           setSwitches({ ...switches, [obj.value]: !switches[obj.value] })
                         }}
                       />
@@ -193,12 +183,12 @@ const PublicProfile = () => {
               </Card.Body>
               <div className="d-flex">
                 <h3>{inputs.name}</h3>
-                {age && <p className={styles.card__age}>{inputs.age}</p>}
+                {age && <p className={styles.card__age}>{inputs.age} years old</p>}
               </div>
               {dob && <p>Date of birth: {inputs.dob}</p>}
               <h3>Career</h3>
               {jobTitle && <h6 className="mb-0">{inputs.jobTitle}</h6>}
-              {<Image roundedCircle src={inputs.companyLogo || ''} width="100" height="100" alt="" style={{ objectFit: 'cover' }} />}
+              {inputs.companyLogo && <Image roundedCircle src={inputs.companyLogo || ''} width="100" height="100" alt="" style={{ objectFit: 'cover' }} />}
               {company && <p className="text-muted">{inputs.company}</p>}
               {jobDescription && (
                 <div className="mb-3">

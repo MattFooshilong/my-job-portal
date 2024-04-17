@@ -28,7 +28,7 @@ const updateUser = async (req, res) => {
   const showEndDate = req.body.showEndDate
   try {
     const docId = req.params.id
-    updateDoc(doc(db, "users", docId), {
+    await updateDoc(doc(db, "users", docId), {
       avatar: avatar,
       name: values.name,
       age: values.age,
@@ -56,4 +56,19 @@ const updateUser = async (req, res) => {
     throw error
   }
 }
-module.exports = { getUser, updateUser }
+
+const updateUserPublicProfile = async (req, res) => {
+  const switches = req.body
+  try {
+    const docId = req.params.id
+    await updateDoc(doc(db, "users", docId), {
+      publicProfilePref: switches,
+    })
+    res.json({ updated: true })
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+module.exports = { getUser, updateUser, updateUserPublicProfile }
