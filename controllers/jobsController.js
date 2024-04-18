@@ -1,5 +1,5 @@
 const { firebaseApp } = require("../firebaseServerInit/firebaseInit")
-const { getDocs, setDoc, getFirestore, query, collection, getCountFromServer, where, doc, updateDoc } = require("firebase/firestore")
+const { getDocs, getDoc, getFirestore, collection, doc } = require("firebase/firestore")
 const db = getFirestore(firebaseApp)
 
 const getAllJobs = async (req, res) => {
@@ -16,4 +16,23 @@ const getAllJobs = async (req, res) => {
     throw error
   }
 }
-module.exports = { getAllJobs }
+
+const getOneJob = async (req, res) => {
+  const jobId = req.params.jobId
+  try {
+    const docRef = doc(db, "jobs", `jobs-${jobId}`)
+    const docSnap = await getDoc(docRef)
+    if (docSnap.exists()) {
+      const job = docSnap.data()
+      res.json(job)
+    } else {
+      const job = {}
+      res.json(job)
+    }
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+module.exports = { getAllJobs, getOneJob }

@@ -12,7 +12,6 @@ import { faBuilding } from '@fortawesome/free-regular-svg-icons'
 import { faCheck, faBriefcase, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
 import Spinner from 'react-bootstrap/Spinner'
 import PropTypes from 'prop-types'
-import { getFirestore, collection, doc, setDoc, getDocs, updateDoc } from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom'
 import Toast from 'react-bootstrap/Toast'
 import ToastContainer from 'react-bootstrap/ToastContainer'
@@ -21,7 +20,6 @@ import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import useAuth from '../../hooks/useAuth'
 
 const Jobs = () => {
-  const db = getFirestore()
   const navigate = useNavigate()
   const axiosPrivate = useAxiosWithInterceptors()
   const { auth } = useAuth()
@@ -35,15 +33,15 @@ const Jobs = () => {
   const [applyingJob, setApplyingJob] = useState(false)
 
   //event handlers
-  const applyJob = async (jobID) => {
+  const applyJob = async (id) => {
     setApplyingJob(true)
     if (!auth.user) {
       navigate('/login')
       setApplyingJob(false)
     } else {
-      //set id to appliedJobs array in db
+      //push id to appliedJobs array in db
       const appliedJobsCopy = [...appliedJobs]
-      appliedJobsCopy.push(jobID)
+      appliedJobsCopy.push(id)
       const dataObject = {
         appliedJobs: appliedJobsCopy,
         email: auth.user.email,
@@ -52,7 +50,7 @@ const Jobs = () => {
         const response = await axiosPrivate.post(`/apply-job/${auth.user.userId}`, dataObject)
         const updated = response?.data?.updated
         setShowToast(updated)
-        setAppliedJobs([...appliedJobs, jobID])
+        setAppliedJobs([...appliedJobs, id])
         setApplyingJob(false)
       } catch (error) {
         console.log(error)
@@ -61,30 +59,30 @@ const Jobs = () => {
     }
   }
 
-  const addJob = async () => {
-    //for testing
-    await setDoc(doc(db, 'jobs', 'jobs-5'), {
-      jobTitle: 'Senior frontend developer',
-      companyName: 'Fiverr',
-      location: 'Australia (remote)',
-      isRecruiting: 'Actively recruiting',
-      type: 'Full-time',
-      noOfEmployees: '10000-50000',
-      jobDescription: 'You will join our team and you’ll be responsible for co-creating interactive computer vision and other various application on the web. We highly value innovation – and you will think along with us about our current business processes and implementations.',
-      skills: {
-        1: 'You have a bachelor’s or master’s degree in IT or science – or you have a similar degree',
-        2: 'You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)',
-        3: 'You have knowledge of Database implementations such as SQL or NoSQL',
-      },
-      tasks: {
-        1: 'You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc',
-        2: 'You will improve both performance and features of existing micro-services',
-        3: 'You are responsible for the correct implementation of the design and also code yourself',
-      },
-      companyDescription: 'This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).',
-      industry: 'Finance',
-    })
-  }
+  //  const addJob = async () => {
+  //    //for testing
+  //    await setDoc(doc(db, 'jobs', 'jobs-5'), {
+  //      jobTitle: 'Senior frontend developer',
+  //      companyName: 'Fiverr',
+  //      location: 'Australia (remote)',
+  //      isRecruiting: 'Actively recruiting',
+  //      type: 'Full-time',
+  //      noOfEmployees: '10000-50000',
+  //      jobDescription: 'You will join our team and you’ll be responsible for co-creating interactive computer vision and other various application on the web. We highly value innovation – and you will think along with us about our current business processes and implementations.',
+  //      skills: {
+  //        1: 'You have a bachelor’s or master’s degree in IT or science – or you have a similar degree',
+  //        2: 'You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)',
+  //        3: 'You have knowledge of Database implementations such as SQL or NoSQL',
+  //      },
+  //      tasks: {
+  //        1: 'You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc',
+  //        2: 'You will improve both performance and features of existing micro-services',
+  //        3: 'You are responsible for the correct implementation of the design and also code yourself',
+  //      },
+  //      companyDescription: 'This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).',
+  //      industry: 'Finance',
+  //    })
+  //  }
 
   useEffect(() => {
     const getJobs = async () => {
@@ -111,9 +109,8 @@ const Jobs = () => {
         setLoading(false)
       }
     }
-
-    if (auth.user) getUser()
     getJobs()
+    if (auth.user) getUser()
   }, [])
 
   return (

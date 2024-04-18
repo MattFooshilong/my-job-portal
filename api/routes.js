@@ -18,6 +18,7 @@ router.post("/login", authController.login)
 router.get("/logout", authController.logout)
 router.get("/refreshToken", refreshTokenController.refreshToken)
 router.get("/jobs", jobsController.getAllJobs)
+router.get("/job/:jobId", jobsController.getOneJob)
 
 router.get("/test-read-cookie", (req, res) => {
   res.status(200).send("cookie read")
