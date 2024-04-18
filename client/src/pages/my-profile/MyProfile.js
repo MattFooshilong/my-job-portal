@@ -72,7 +72,7 @@ const PublicProfile = () => {
           <Card className={styles.card}>
             <Card.Body>
               <Row className="d-flex justify-content-between">
-                <Col xs={{ order: 2, span: 12 }} sm={{ order: 1, span: 6 }}>
+                <Col style={{ paddingLeft: 0 }} xs={{ order: 2, span: 12 }} sm={{ order: 1, span: 6 }}>
                   {avatar ? <Image roundedCircle src={avatar} width="107" height="107" alt="" style={{ objectFit: 'cover' }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
                 </Col>
                 <Col xs={{ order: 1, span: 12 }} sm={{ order: 2, span: 6 }}>
@@ -86,7 +86,7 @@ const PublicProfile = () => {
               <h3>{name}</h3>
               {age && <p className={styles.card__age}>{inputs.age} years old</p>}
             </div>
-            <p className="mb-0">Hi I&apos;m a full stack developer and I have built dashboards with React, Typescript, Bootstrap on the frontend and Nodejs, SQL, Graphql for the backend</p>
+            <p className="mb-0">This is a profile summary - Hi I&apos;m a full stack developer and I have built dashboards with React, Typescript, Bootstrap on the frontend and Nodejs, SQL, Graphql for the backend</p>
             <small>Singapore</small>
 
             <p className="mb-0 mt-2">

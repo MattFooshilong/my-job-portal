@@ -17,13 +17,13 @@ const NavBar = () => {
     navigate('/')
   }
 
-  const userOnly = auth?.user?.roles.includes(2)
-  const adminOnly = auth?.user?.roles.includes(1)
+  const userOnly = auth?.user?.roles?.includes(2)
+  const adminOnly = auth?.user?.roles?.includes(1)
 
   return (
     <Navbar bg="light" expand="lg" collapseOnSelect className={styles.navbar}>
       <Container fluid className="px-sm-0 mx-sm-4">
-        <Navbar.Brand href="/">
+        <Navbar.Brand onClick={() => navigate('/')} className={styles.navBrand}>
           <Image src="/logo192.png" alt="" width="35" height="35" className="me-3" />
           My Job Portal
         </Navbar.Brand>
@@ -48,7 +48,10 @@ const NavBar = () => {
                 </div>
               </>
             ) : (
-              <Link to="/login">Login</Link>
+              <>
+                <Link to="/login">Login</Link>
+                <Link to="/signup">Sign up</Link>
+              </>
             )}
           </Nav>
         </Navbar.Collapse>

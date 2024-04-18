@@ -4,16 +4,13 @@ const jwt = require("jsonwebtoken")
 const db = getFirestore(firebaseApp)
 const bcrypt = require("bcrypt")
 
-let documentsCount = 0
 //const maxAgeInSeconds = 3 * 24 * 60 * 60 //3 days
 
-//get initial data from db
-const initialAuthControllerFunction = async () => {
+const countUsers = async () => {
   const userCollection = collection(db, "users")
   const result = await getCountFromServer(userCollection)
-  documentsCount = result.data().count
+  return result.data().count
 }
-initialAuthControllerFunction()
 
 //functions
 const getUserCredentials = async (email) => {
@@ -38,7 +35,8 @@ const getUserCredentials = async (email) => {
 
 const addUser = async (email, hashedPassword) => {
   try {
-    await setDoc(doc(db, "users", `user${documentsCount}`), {
+    let usersCount = await countUsers()
+    await setDoc(doc(db, "users", `user${usersCount}`), {
       email: email,
       password: hashedPassword,
       roles: [2], //manually add admin for now
@@ -52,8 +50,13 @@ const addUser = async (email, hashedPassword) => {
         startDate: true,
         endDate: true,
       },
+      appliedJobs: [],
     })
-    documentsCount++
+    return {
+      email,
+      roles: [2],
+      userId: `user${usersCount}`,
+    }
   } catch (error) {
     console.log(error)
     throw error
@@ -130,21 +133,20 @@ const signUp = async (req, res) => {
     const userCredentials = await getUserCredentials(email)
     //check duplicate email
     if (userCredentials.email) {
-      res.status(403).send({ message: "Email is already in use" })
-      return
+      delete userCredentials.password
+      return res.status(403).send({ message: "Email is already in use" })
     }
     let password = req.body.password
     const saltRounds = 10
     const salt = await bcrypt.genSalt(saltRounds)
     password = await bcrypt.hash(password, salt)
-    await addUser(email, password)
+    const user = await addUser(email, password)
     //log in and give refresh and access token
     const accessToken = createAccessToken(email, [2])
     const refreshToken = createRefreshToken(email)
     await saveRefreshTokenToDb(email, refreshToken)
     res.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 1 * 60 * 60 * 1000 })
-    delete userCredentials.password
-    res.status(201).json({ user: userCredentials, accessToken })
+    res.status(201).json({ user, accessToken })
   } catch (error) {
     res.status(500).send({ error })
   }

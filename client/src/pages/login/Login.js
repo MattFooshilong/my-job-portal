@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import useAuth from '../../hooks/useAuth'
 import { Formik, Form as FormikForm } from 'formik'
 import * as Yup from 'yup'
 import axios from 'axios'
@@ -10,6 +9,7 @@ import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import styles from './Login.module.scss'
 import { useNavigate, useLocation } from 'react-router-dom'
+import useAuth from '../../hooks/useAuth'
 
 const Login = () => {
   const [defaultInputs] = useState({

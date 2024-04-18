@@ -8,15 +8,20 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 import styles from './SignUp.module.scss'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import useAuth from '../../hooks/useAuth'
 
 const SignUp = () => {
-  const [inputs, setInputs] = useState({
+  const [defaultInputs] = useState({
     email: '',
     password: '',
   })
   const [err, setErr] = useState(false)
+  const { setAuth } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = location?.state?.from.pathname || '/' //where they came from
+
   const handleSubmit = async (values) => {
     const data = {
       email: values.email.toLowerCase().trim() || '',
@@ -24,9 +29,11 @@ const SignUp = () => {
     }
     try {
       const res = await axios.post('/api/signup', data)
-      const message = res.data.message
+      const accessToken = res?.data?.accessToken
+      const user = res?.data?.user
+      setAuth({ user, accessToken })
       setErr(false)
-      navigate('/jobs')
+      navigate(from, { replace: true })
     } catch (err) {
       console.log(err)
       setErr(true)
@@ -43,10 +50,10 @@ const SignUp = () => {
   return (
     <Container className="py-3 pt-sm-5">
       <Card className={`p-sm-5 p-4 mt-5 ${styles.card}`}>
-        <h4>Hi! Welcome to My Job Portal</h4>
+        <h4 className="text-center">Sign up for an account</h4>
         <Formik
           enableReinitialize
-          initialValues={inputs}
+          initialValues={defaultInputs}
           validationSchema={validationSchema}
           onSubmit={(values) => {
             handleSubmit(values)

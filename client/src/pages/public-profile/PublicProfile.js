@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
@@ -14,7 +14,6 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
 import '../../firebase/firebaseInit'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import { query, getFirestore, doc, onSnapshot, collection, updateDoc } from 'firebase/firestore'
 import useAuth from '../../hooks/useAuth'
 import dayjs from 'dayjs'
 
@@ -40,35 +39,13 @@ const PublicProfile = () => {
     startDate: true,
     endDate: true,
   })
-  const { age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = switches
   const [preferencesSaved, setPreferencesSaved] = useState(false)
   const navigate = useNavigate()
-  const db = getFirestore()
   const axiosPrivate = useAxiosWithInterceptors()
   const { auth } = useAuth()
 
-  // for img upload
-  const [imgPreview, setImgPreview] = useState('')
-  const [imgData, setImgData] = useState(undefined)
-  const imgInputRef = useRef(null)
   const [avatar, setAvatar] = useState('')
-  const handleImgPreview = () => {
-    if (imgPreview === '') {
-      return avatar
-    } else return imgPreview
-  }
-  const onFileChange = (event) => {
-    const fileType = event.target.accept
-    const file = event.target.files[0]
 
-    // if User actually selected a file
-    if (file !== undefined) {
-      if (fileType === 'image/*') {
-        setImgPreview(URL.createObjectURL(file))
-        setImgData(file)
-      }
-    }
-  }
   const handleSubmit = async () => {
     try {
       const response = await axiosPrivate.post(`/user-public-pref/${auth.user.userId}`, switches)
@@ -177,27 +154,24 @@ const PublicProfile = () => {
 
           <Col>
             <Card className={styles.card__col}>
-              <Card.Body>
-                {imgPreview !== '' || (avatar !== null && avatar !== '') ? <Image roundedCircle src={handleImgPreview()} width="107" height="107" alt="" style={{ objectFit: 'cover' }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
-                <input type="file" ref={imgInputRef} onChange={onFileChange} hidden accept="image/*" />
-              </Card.Body>
+              <Card.Body style={{ paddingLeft: 0 }}>{avatar ? <Image roundedCircle src={avatar} width="107" height="107" alt="" style={{ objectFit: 'cover' }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}</Card.Body>
               <div className="d-flex">
                 <h3>{inputs.name}</h3>
-                {age && <p className={styles.card__age}>{inputs.age} years old</p>}
+                {inputs.age && <p className={styles.card__age}>{inputs.age} years old</p>}
               </div>
-              {dob && <p>Date of birth: {inputs.dob}</p>}
+              {inputs.dob && <p>Date of birth: {inputs.dob}</p>}
               <h3>Career</h3>
-              {jobTitle && <h6 className="mb-0">{inputs.jobTitle}</h6>}
+              {inputs.jobTitle && <h6 className="mb-0">{inputs.jobTitle}</h6>}
               {inputs.companyLogo && <Image roundedCircle src={inputs.companyLogo || ''} width="100" height="100" alt="" style={{ objectFit: 'cover' }} />}
-              {company && <p className="text-muted">{inputs.company}</p>}
-              {jobDescription && (
+              {inputs.company && <p className="text-muted">{inputs.company}</p>}
+              {inputs.jobDescription && (
                 <div className="mb-3">
                   <h6 className="mb-0">Job Description:</h6>
                   <small>{inputs.jobDescription}</small>
                 </div>
               )}
-              {startDate && <p className="text-muted mb-0">From: {inputs.startDate} </p>}
-              {endDate && <p className="text-muted">To: {inputs.endDate}</p>}
+              {inputs.startDate && <p className="text-muted mb-0">From: {inputs.startDate} </p>}
+              {inputs.endDate && <p className="text-muted">To: {inputs.endDate}</p>}
             </Card>
           </Col>
         </Row>

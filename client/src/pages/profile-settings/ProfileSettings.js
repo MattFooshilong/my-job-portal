@@ -43,7 +43,6 @@ const ProfileSettings = () => {
 
   // for image upload
   const [imgPreview, setImgPreview] = useState('')
-  const [imgData, setImgData] = useState(undefined)
   const imgInputRef = useRef(null)
   const [avatar, setAvatar] = useState('')
   const [companyLogoUrl, setCompanyLogoUrl] = useState('')
@@ -59,7 +58,6 @@ const ProfileSettings = () => {
     const file = event.target.files[0]
     if (file !== undefined && fileType === 'image/*') {
       setImgPreview(URL.createObjectURL(file))
-      setImgData(file)
       try {
         //host img on firebase
         const storage = getStorage()
@@ -227,7 +225,7 @@ const ProfileSettings = () => {
               <Row>
                 <Col sm={6}>
                   <div>
-                    {imgPreview !== '' || (avatar !== null && avatar !== '') ? (
+                    {imgPreview !== '' || avatar ? (
                       <Image roundedCircle src={handleImgPreview()} width="107" height="107" alt="" style={{ objectFit: 'cover' }} />
                     ) : (
                       <Image
@@ -262,7 +260,6 @@ const ProfileSettings = () => {
                               className="text-white w-100"
                               onClick={() => {
                                 setImgPreview('')
-                                setImgData(undefined)
                                 setAvatar('')
                               }}
                             >

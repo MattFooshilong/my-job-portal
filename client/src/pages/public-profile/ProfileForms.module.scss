@@ -1,42 +1,41 @@
 .card {
-    padding: 5rem;
-    margin-top: 3rem;
+  padding: 5rem;
+  margin-top: 3rem;
 
-    &__col {
-        padding: 1rem;
-        border-radius: 10px;
-        border: 1px solid rgba(0, 0, 0, .125);
-        border-radius: 24px !important;
-        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .1);
-    }
+  &__col {
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 24px !important;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+  }
 
-    &__age {
-        padding-top: 8px;
-        color: grey;
-        padding-left: 8px;
-    }
-
+  &__age {
+    padding-top: 8px;
+    color: grey;
+    padding-left: 8px;
+  }
 }
 
 .form__switch {
-    input {
-        height: 30px !important;
-        width: 60px !important;
-    }
+  input {
+    height: 30px !important;
+    width: 60px !important;
+  }
 
-    label {
-        margin: auto;
-        height: 30px !important;
-        width: 60px !important;
-    }
+  label {
+    margin: auto;
+    height: 30px !important;
+    width: 60px !important;
+  }
 }
 
 .form__datepicker {
-    width: 266px;
+  width: 266px;
 }
 
 .col__end {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
