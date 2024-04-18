@@ -17,13 +17,19 @@ import { useNavigate } from 'react-router-dom'
 import Toast from 'react-bootstrap/Toast'
 import ToastContainer from 'react-bootstrap/ToastContainer'
 import axios from '../../config/axiosConfig'
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
+import useAuth from '../../hooks/useAuth'
 
 const Jobs = () => {
   const db = getFirestore()
   const navigate = useNavigate()
+  const axiosPrivate = useAxiosWithInterceptors()
+  const { auth } = useAuth()
 
   const [jobs, setJobs] = useState([])
   const [job, setJob] = useState({})
+  const [appliedJobs, setAppliedJobs] = useState([])
+
   const [loading, setLoading] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [applyingJob, setApplyingJob] = useState(false)
@@ -31,15 +37,27 @@ const Jobs = () => {
   //event handlers
   const applyJob = async (jobID) => {
     setApplyingJob(true)
-    const token = localStorage.getItem('token')
-    if (!token) {
+    if (!auth.user) {
       navigate('/login')
       setApplyingJob(false)
     } else {
-      const jobRef = doc(db, 'jobs', `jobs-${jobID}`)
-      await updateDoc(jobRef, { applied: true, status: 'InProgress' })
-      setShowToast(true)
-      setApplyingJob(false)
+      //set id to appliedJobs array in db
+      const appliedJobsCopy = [...appliedJobs]
+      appliedJobsCopy.push(jobID)
+      const dataObject = {
+        appliedJobs: appliedJobsCopy,
+        email: auth.user.email,
+      }
+      try {
+        const response = await axiosPrivate.post(`/apply-job/${auth.user.userId}`, dataObject)
+        const updated = response?.data?.updated
+        setShowToast(updated)
+        setAppliedJobs([...appliedJobs, jobID])
+        setApplyingJob(false)
+      } catch (error) {
+        console.log(error)
+        setApplyingJob(false)
+      }
     }
   }
 
@@ -68,44 +86,36 @@ const Jobs = () => {
     })
   }
 
-  //  useEffect(() => {
-  //    let isMounted = true
-  //    const controller = new AbortController()
-
-  //    const getJobs = async () => {
-  //      try {
-  //        const response = await axios.get('/api/jobs', {
-  //          signal: controller.signal,
-  //        })
-  //        if (isMounted) {
-  //          setJobs(response?.data)
-  //          setJob(response?.data[0])
-  //        }
-  //      } catch (err) {
-  //        console.error(err)
-  //      }
-  //    }
-
-  //    getJobs()
-
-  //    return () => {
-  //      isMounted = false
-  //      controller.abort()
-  //    }
-  //  }, [])
   useEffect(() => {
     const getJobs = async () => {
+      setLoading(true)
       try {
         const response = await axios.get('/api/jobs')
         setJobs(response?.data)
         setJob(response?.data[0])
+        setLoading(false)
       } catch (err) {
         console.error(err)
+        setLoading(false)
+      }
+    }
+    const getUser = async () => {
+      try {
+        setLoading(true)
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`)
+        const data = response?.data
+        setAppliedJobs(data.appliedJobs)
+        setLoading(false)
+      } catch (err) {
+        console.error(err)
+        setLoading(false)
       }
     }
 
+    if (auth.user) getUser()
     getJobs()
   }, [])
+
   return (
     <Container>
       {/* <Button onClick={() => addJob()}>Add job</Button> */}
@@ -141,7 +151,7 @@ const Jobs = () => {
                 </div>
               </Col>
               <Col sm={8}>
-                <EachJob job={job} applyJob={applyJob} applyingJob={applyingJob} />
+                <EachJob auth={auth} job={job} applyJob={applyJob} applyingJob={applyingJob} appliedJobs={appliedJobs} />
               </Col>
             </Row>
           </div>
@@ -151,7 +161,6 @@ const Jobs = () => {
               <Col className="pe-sm-0">
                 <div className={styles.custom__card}>
                   {jobs.length === 0 && <h6>Jobs not loaded!</h6>}
-
                   {jobs.map((ele, i) => {
                     return (
                       <Row className={styles.row_clickable} key={i} onClick={() => navigate('/job/' + ele.id)}>
@@ -180,7 +189,6 @@ const Jobs = () => {
               show={showToast}
               onClose={() => {
                 setShowToast(!showToast)
-                window.location.reload()
               }}
               delay={5000}
               autohide
@@ -189,7 +197,7 @@ const Jobs = () => {
                 <strong className="me-auto text-success">Success!</strong>
                 <small>Just now</small>
               </Toast.Header>
-              <Toast.Body>You&apos;ve successfully applied for the job! Refreshing page</Toast.Body>
+              <Toast.Body>You&apos;ve successfully applied for the job!</Toast.Body>
             </Toast>
           </ToastContainer>
         </>
@@ -198,8 +206,7 @@ const Jobs = () => {
   )
 }
 
-const EachJob = ({ job, applyJob, applyingJob }) => {
-  const token = localStorage.getItem('token')
+const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }) => {
   return (
     <>
       {Object.keys(job).length !== 0 && (
@@ -221,9 +228,9 @@ const EachJob = ({ job, applyJob, applyingJob }) => {
             {job?.noOfEmployees} employees
           </p>
           {/* check login or not then show application status */}
-          {token ? (
-            job.applied ? (
-              <Button variant="secondary" className="text-white mb-3">
+          {auth.user ? (
+            appliedJobs.includes(job.id) ? (
+              <Button variant="secondary" className="text-white mb-3" disabled>
                 Applied
               </Button>
             ) : (
@@ -279,8 +286,10 @@ const EachJob = ({ job, applyJob, applyingJob }) => {
   )
 }
 EachJob.propTypes = {
+  auth: PropTypes.object,
   job: PropTypes.object,
   applyJob: PropTypes.func.isRequired,
   applyingJob: PropTypes.bool,
+  appliedJobs: PropTypes.array,
 }
 export default Jobs

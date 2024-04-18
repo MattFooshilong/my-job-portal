@@ -5,7 +5,7 @@ const db = getFirestore(firebaseApp)
 const bcrypt = require("bcrypt")
 
 let documentsCount = 0
-const maxAgeInSeconds = 3 * 24 * 60 * 60 //3 days
+//const maxAgeInSeconds = 3 * 24 * 60 * 60 //3 days
 
 //get initial data from db
 const initialAuthControllerFunction = async () => {
@@ -24,7 +24,7 @@ const getUserCredentials = async (email) => {
     const credentials = {}
     snapshot.forEach((doc) => {
       const data = doc.data()
-      credentials.docId = doc?.id
+      credentials.userId = doc?.id
       credentials.email = data?.email
       credentials.password = data?.password
       credentials.roles = data?.roles
@@ -42,6 +42,16 @@ const addUser = async (email, hashedPassword) => {
       email: email,
       password: hashedPassword,
       roles: [2], //manually add admin for now
+      publicProfilePref: {
+        age: true,
+        dob: true,
+        jobTitle: true,
+        company: true,
+        companyLogo: true,
+        jobDescription: true,
+        startDate: true,
+        endDate: true,
+      },
     })
     documentsCount++
   } catch (error) {
@@ -80,11 +90,11 @@ const saveRefreshTokenToDb = async (email, token) => {
     const usersRef = collection(db, "users")
     const q = query(usersRef, where("email", "==", email))
     const snapshot = await getDocs(q)
-    let docID = ""
+    let userId = ""
     snapshot.forEach((doc) => {
-      docID = doc.id
+      userId = doc.id
     })
-    await updateDoc(doc(db, "users", docID), { refreshToken: token })
+    await updateDoc(doc(db, "users", userId), { refreshToken: token })
   } catch (error) {
     console.log(error)
     throw error

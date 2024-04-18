@@ -6,12 +6,10 @@ const dayjs = require("dayjs")
 const uploadImage = async (req, res) => {
   try {
     const file = req.file
-    console.log(file)
     const storage = getStorage()
     const imagesRef = ref(storage, `images/${dayjs().format("DD-MM-YYYY, hh:mm:ssA")}, ${file.originalname}`)
     await uploadBytesResumable(imagesRef, file)
     const url = await getDownloadURL(imagesRef)
-    console.log(`url: ${url}`)
     res.json(url)
   } catch (error) {
     console.log(error)

@@ -71,7 +71,7 @@ const PublicProfile = () => {
   }
   const handleSubmit = async () => {
     try {
-      const response = await axiosPrivate.post(`/user-public-pref/${auth.user.docId}`, switches)
+      const response = await axiosPrivate.post(`/user-public-pref/${auth.user.userId}`, switches)
       const updated = response?.data?.updated
       setPreferencesSaved(updated)
     } catch (err) {
@@ -82,7 +82,7 @@ const PublicProfile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await axiosPrivate.get(`/user/${auth.user.docId}`)
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`)
         const data = response?.data
         const publicProfilePref = data.publicProfilePref
         setInputs({

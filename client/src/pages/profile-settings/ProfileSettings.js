@@ -15,9 +15,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom'
-import { firebaseApp } from '../../firebase/firebaseInit'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { getFirestore } from 'firebase/firestore'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import useAuth from '../../hooks/useAuth'
 
@@ -39,7 +37,6 @@ const ProfileSettings = () => {
     else return false
   })
   const navigate = useNavigate()
-  const db = getFirestore(firebaseApp)
   const axiosPrivate = useAxiosWithInterceptors()
 
   const { auth } = useAuth()
@@ -128,7 +125,7 @@ const ProfileSettings = () => {
       showEndDate,
     }
     try {
-      const response = await axiosPrivate.post(`/user/${auth.user.docId}`, dataObject)
+      const response = await axiosPrivate.post(`/user/${auth.user.userId}`, dataObject)
       const updated = response?.data?.updated
       setProfileSaved(updated)
     } catch (err) {
@@ -184,7 +181,7 @@ const ProfileSettings = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await axiosPrivate.get(`/user/${auth.user.docId}`)
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`)
         const data = response?.data
         setInputs({
           name: data.name,

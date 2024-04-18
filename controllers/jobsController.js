@@ -8,7 +8,6 @@ const getAllJobs = async (req, res) => {
     const jobsArr = []
     snapshot.forEach((doc) => {
       const data = doc.data()
-      data.id = doc.id.slice(-1)
       jobsArr.push(data)
     })
     res.json(jobsArr)

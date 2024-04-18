@@ -25,7 +25,6 @@ const SignUp = () => {
     try {
       const res = await axios.post('/api/signup', data)
       const message = res.data.message
-      console.log('message: ', message)
       setErr(false)
       navigate('/jobs')
     } catch (err) {

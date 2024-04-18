@@ -41,7 +41,7 @@ const PublicProfile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await axiosPrivate.get(`/user/${auth.user.docId}`)
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`)
         const data = response?.data
         setInputs({
           ...inputs,

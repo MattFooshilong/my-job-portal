@@ -37,8 +37,10 @@ app.use("/api/", routes)
 //protected routes
 app.use(verifyJWT)
 app.get("/user/:id", userController.getUser)
-app.post("/user/:id", userController.updateUser)
+app.post("/user/:id", userController.updateProfileSettings)
 app.post("/user-public-pref/:id", userController.updateUserPublicProfile)
+app.post("/user-job-applications", userController.userJobApplications)
+app.post("/apply-job/:id", userController.updateUserApplyToJobs)
 
 app.use(express.static(path.join(__dirname, "./client/build")))
 app.get("*", (req, res) => {
