@@ -32,6 +32,8 @@ const ProfileSettings = () => {
     endDate: null,
   })
   const [profileSaved, setProfileSaved] = useState(false)
+  const [err, setErr] = useState(false)
+
   const [showEndDate, setShowEndDate] = useState(() => {
     if (inputs.name === '') return true
     else return false
@@ -116,18 +118,21 @@ const ProfileSettings = () => {
     }
   }
   const handleSubmit = async (values) => {
+    console.log(avatar)
     const dataObject = {
       values,
       companyLogoUrl,
-      avatar,
+      avatar: avatar,
       showEndDate,
     }
     try {
       const response = await axiosPrivate.post(`/user/${auth.user.userId}`, dataObject)
       const updated = response?.data?.updated
       setProfileSaved(updated)
+      setErr(false)
     } catch (err) {
       console.error(err)
+      setErr(true)
     }
   }
 
@@ -192,7 +197,7 @@ const ProfileSettings = () => {
           startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
           endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
         })
-        setAvatar(data.avatar)
+        setAvatar(data.avatar ?? '')
       } catch (err) {
         console.error(err)
       }
@@ -353,12 +358,13 @@ const ProfileSettings = () => {
                 </Row>
               )}
               <Row>
-                <Col sm={3}>
+                <Col>
                   {profileSaved && (
                     <Alert variant="success" className="mt-3">
                       Profile saved!
                     </Alert>
                   )}
+                  {err && <Alert variant="danger">Something went wrong</Alert>}
                 </Col>
               </Row>
               <Row>
