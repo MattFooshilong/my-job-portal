@@ -118,7 +118,6 @@ const ProfileSettings = () => {
     }
   }
   const handleSubmit = async (values) => {
-    console.log(avatar)
     const dataObject = {
       values,
       companyLogoUrl,
