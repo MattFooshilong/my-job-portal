@@ -40,6 +40,7 @@ const PublicProfile = () => {
     endDate: true,
   })
   const [preferencesSaved, setPreferencesSaved] = useState(false)
+  const [err, setErr] = useState(false)
   const navigate = useNavigate()
   const axiosPrivate = useAxiosWithInterceptors()
   const { auth } = useAuth()
@@ -51,8 +52,10 @@ const PublicProfile = () => {
       const response = await axiosPrivate.post(`/user-public-pref/${auth.user.userId}`, switches)
       const updated = response?.data?.updated
       setPreferencesSaved(updated)
+      setErr(false)
     } catch (err) {
       console.error(err)
+      setErr(true)
     }
   }
 
@@ -182,6 +185,7 @@ const PublicProfile = () => {
                 Preferences saved!
               </Alert>
             )}
+            {err && <Alert variant="danger">Something went wrong</Alert>}
             <Button onClick={() => handleSubmit()} variant="primary" type="button" className={'mt-3 w-100 text-white'}>
               Save
             </Button>
