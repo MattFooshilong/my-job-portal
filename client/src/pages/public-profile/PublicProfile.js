@@ -12,7 +12,6 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate, useLocation } from 'react-router-dom'
-import '../../firebase/firebaseInit'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import useAuth from '../../hooks/useAuth'
 import dayjs from 'dayjs'
@@ -124,6 +123,7 @@ const PublicProfile = () => {
                 <h2>Edit visibility</h2>
               </Col>
             </Row>
+            {/* switch buttons */}
             {[
               { value: 'age', label: 'Age' },
               { value: 'dob', label: 'Date of birth' },
