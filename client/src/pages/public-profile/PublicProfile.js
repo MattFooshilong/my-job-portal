@@ -164,21 +164,21 @@ const PublicProfile = () => {
               <Card.Body style={{ paddingLeft: 0 }}>{avatar ? <Image roundedCircle src={avatar} width="107" height="107" alt="" style={{ objectFit: 'cover' }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}</Card.Body>
               <div className="d-flex">
                 <h3>{inputs.name}</h3>
-                {inputs.age && <p className={styles.card__age}>{inputs.age} years old</p>}
+                {switches.age && inputs.age && <p className={styles.card__age}>{inputs.age} years old</p>}
               </div>
-              {inputs.dob && <p>Date of birth: {inputs.dob}</p>}
+              {switches.dob && inputs.dob && <p>Date of birth: {inputs.dob}</p>}
               <h3>Career</h3>
-              {inputs.jobTitle && <h6 className="mb-0">{inputs.jobTitle}</h6>}
-              {inputs.companyLogo && <Image roundedCircle src={inputs.companyLogo || ''} width="100" height="100" alt="" style={{ objectFit: 'cover' }} />}
-              {inputs.company && <p className="text-muted">{inputs.company}</p>}
-              {inputs.jobDescription && (
+              {switches.jobTitle && inputs.jobTitle && <h6 className="mb-0">{inputs.jobTitle}</h6>}
+              {switches.companyLogo && inputs.companyLogo && <Image roundedCircle src={inputs.companyLogo || ''} width="100" height="100" alt="" style={{ objectFit: 'cover' }} />}
+              {switches.company && inputs.company && <p className="text-muted">{inputs.company}</p>}
+              {switches.jobDescription && inputs.jobDescription && (
                 <div className="mb-3">
                   <h6 className="mb-0">Job Description:</h6>
                   <small>{inputs.jobDescription}</small>
                 </div>
               )}
-              {inputs.startDate && <p className="text-muted mb-0">From: {inputs.startDate} </p>}
-              {inputs.endDate && <p className="text-muted">To: {inputs.endDate}</p>}
+              {switches.startDate && inputs.startDate && <p className="text-muted mb-0">From: {inputs.startDate} </p>}
+              {switches.endDate && inputs.endDate && <p className="text-muted">To: {inputs.endDate}</p>}
             </Card>
           </Col>
         </Row>
