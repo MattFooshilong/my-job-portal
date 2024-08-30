@@ -10,15 +10,14 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
-import styles from './ProfileForms.module.scss'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { useNavigate } from 'react-router-dom'
-import '../../firebase/firebaseInit'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore'
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
+import useAuth from '../../hooks/useAuth'
 
 const ProfileSettings = () => {
   const [inputs, setInputs] = useState({
@@ -33,16 +32,20 @@ const ProfileSettings = () => {
     endDate: null,
   })
   const [profileSaved, setProfileSaved] = useState(false)
+  const [err, setErr] = useState(false)
+
   const [showEndDate, setShowEndDate] = useState(() => {
     if (inputs.name === '') return true
     else return false
   })
   const navigate = useNavigate()
-  const db = getFirestore()
+  const axiosPrivate = useAxiosWithInterceptors()
+
+  const { auth, setAuth } = useAuth()
+  const location = useLocation()
 
   // for image upload
   const [imgPreview, setImgPreview] = useState('')
-  const [imgData, setImgData] = useState(undefined)
   const imgInputRef = useRef(null)
   const [avatar, setAvatar] = useState('')
   const [companyLogoUrl, setCompanyLogoUrl] = useState('')
@@ -53,38 +56,34 @@ const ProfileSettings = () => {
       return avatar
     } else return imgPreview
   }
-  const onFileChange = async (event) => {
+  const uploadAvatar = async (event) => {
     const fileType = event.target.accept
     const file = event.target.files[0]
-    if (file !== undefined) {
-      if (fileType === 'image/*') {
-        setImgPreview(URL.createObjectURL(file))
-        setImgData(file)
+    if (file !== undefined && fileType === 'image/*') {
+      setImgPreview(URL.createObjectURL(file))
+      try {
         //host img on firebase
         const storage = getStorage()
-        const spaceRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY,hh:mm:ssA') + file.name}`)
-        await uploadBytesResumable(spaceRef, file).then(() => {})
-        await getDownloadURL(spaceRef)
-          .then((url) => {
-            setAvatar(url)
-          })
-          .catch((error) => {
-            switch (error.code) {
-              case 'storage/object-not-found':
-                // File doesn't exist
-                break
-              case 'storage/unauthorized':
-                // User doesn't have permission to access the object
-                break
-              case 'storage/canceled':
-                // User canceled the upload
-                break
-              // ...
-              case 'storage/unknown':
-                // Unknown error occurred, inspect the server response
-                break
-            }
-          })
+        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`)
+        await uploadBytesResumable(imagesRef, file)
+        const url = await getDownloadURL(imagesRef)
+        setAvatar(url)
+      } catch (error) {
+        switch (error.code) {
+          case 'storage/object-not-found':
+            // File doesn't exist
+            break
+          case 'storage/unauthorized':
+            // User doesn't have permission to access the object
+            break
+          case 'storage/canceled':
+            // User canceled the upload
+            break
+          // ...
+          case 'storage/unknown':
+            // Unknown error occurred, inspect the server response
+            break
+        }
       }
     }
   }
@@ -92,54 +91,49 @@ const ProfileSettings = () => {
     const fileType = event.target.accept
     const file = event.target.files[0]
 
-    if (file !== undefined) {
-      if (fileType === 'image/*') {
-        //host img on firebase
+    if (file !== undefined && fileType === 'image/*') {
+      //host img on firebase
+      try {
         const storage = getStorage()
-        const spaceRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY,hh:mm:ssA') + file.name}`)
-        await uploadBytesResumable(spaceRef, file).then(() => {})
-        await getDownloadURL(spaceRef)
-          .then((url) => {
-            setCompanyLogoUrl(url)
-          })
-          .catch((error) => {
-            switch (error.code) {
-              case 'storage/object-not-found':
-                // File doesn't exist
-                break
-              case 'storage/unauthorized':
-                // User doesn't have permission to access the object
-                break
-              case 'storage/canceled':
-                // User canceled the upload
-                break
-              // ...
-              case 'storage/unknown':
-                // Unknown error occurred, inspect the server response
-                break
-            }
-          })
+        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`)
+        await uploadBytesResumable(imagesRef, file)
+        const url = await getDownloadURL(imagesRef)
+        setCompanyLogoUrl(url)
+      } catch (error) {
+        switch (error.code) {
+          case 'storage/object-not-found':
+            // File doesn't exist
+            break
+          case 'storage/unauthorized':
+            // User doesn't have permission to access the object
+            break
+          case 'storage/canceled':
+            // User canceled the upload
+            break
+          // ...
+          case 'storage/unknown':
+            // Unknown error occurred, inspect the server response
+            break
+        }
       }
     }
   }
   const handleSubmit = async (values) => {
-    await setDoc(doc(db, 'myJobPortal', 'userProfile'), {
-      email: 'admin@gmail.com',
+    const dataObject = {
+      values,
+      companyLogoUrl,
       avatar: avatar,
-      name: values.name,
-      age: values.age,
-      dob: dayjs(values.dob).format('MM/DD/YYYY'),
-      jobTitle: values.jobTitle,
-      company: values.company,
-      companyLogo: companyLogoUrl,
-      jobDescription: values.jobDescription,
-      startDate: dayjs(values.startDate).format('MM/DD/YYYY'),
-      endDate: showEndDate ? dayjs(values.endDate).format('MM/DD/YYYY') : null,
-    })
-      .then(() => {
-        setProfileSaved(true)
-      })
-      .catch((err) => console.log('err', err))
+      showEndDate,
+    }
+    try {
+      const response = await axiosPrivate.post(`/user/${auth.user.userId}`, dataObject)
+      const updated = response?.data?.updated
+      setProfileSaved(updated)
+      setErr(false)
+    } catch (err) {
+      console.error(err)
+      setErr(true)
+    }
   }
 
   // validation
@@ -149,7 +143,7 @@ const ProfileSettings = () => {
   const validationSchema = Yup.object().shape({
     name: Yup.string()
       .required('required')
-      .matches(/^[a-zA-Z_ ]*$/, 'Please remove any numbers or special characters and try again'),
+      .matches(/^[a-zA-Z0-9_ ]*$/, 'Please remove any numbers or special characters and try again'),
     age: Yup.number().required('required').typeError('Age must be a number').positive('age must be greater than zero'),
     dob: Yup.date().nullable().required('required'),
     jobTitle: Yup.string()
@@ -186,46 +180,33 @@ const ProfileSettings = () => {
     )
   }
 
-  // useEffect(() => {
-  //     const getUserProfile = async () => {
-  //         const docRef = doc(db, 'myJobPortal', 'userProfile');
-  //         const docSnap = await getDoc(docRef);
-  //         if (docSnap.exists()) {
-  //             const data = docSnap.data()
-  //             setAvatar(data.avatar)
-  //         } else {
-  //             console.log('No such document!');
-  //         }
-  //     }
-  //     getUserProfile()
-  // }, [])
-
   // on load
   useEffect(() => {
-    const q = query(collection(db, 'myJobPortal'))
-    const unsub = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
-      const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const data = change.doc.data()
-          setInputs({
-            name: data.name,
-            age: data.age,
-            dob: isNaN(new Date(data.dob).valueOf()) ? new Date() : new Date(data.dob),
-            jobTitle: data.jobTitle,
-            company: data.company,
-            companyLogo: data.companyLogo,
-            jobDescription: data.jobDescription,
-            startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
-            endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
-          })
-          setAvatar(data.avatar)
-        }
-      })
-    })
-    return () => {
-      unsub()
+    const getUser = async () => {
+      try {
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`) //protected route, will throw an error if refreshToken is expired
+        const data = response?.data
+        setInputs({
+          name: data.name,
+          age: data.age,
+          dob: isNaN(new Date(data.dob).valueOf()) ? new Date() : new Date(data.dob),
+          jobTitle: data.jobTitle,
+          company: data.company,
+          companyLogo: data.companyLogo,
+          jobDescription: data.jobDescription,
+          startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
+          endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
+        })
+        setAvatar(data.avatar ?? '')
+      } catch (err) {
+        console.error(err)
+        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
+        setAuth({})
+        navigate('/login', { state: { from: location }, replace: true })
+      }
     }
+
+    getUser()
   }, [])
   return (
     <Container>
@@ -252,7 +233,7 @@ const ProfileSettings = () => {
               <Row>
                 <Col sm={6}>
                   <div>
-                    {imgPreview !== '' || (avatar !== null && avatar !== '') ? (
+                    {imgPreview !== '' || avatar ? (
                       <Image roundedCircle src={handleImgPreview()} width="107" height="107" alt="" style={{ objectFit: 'cover' }} />
                     ) : (
                       <Image
@@ -265,7 +246,7 @@ const ProfileSettings = () => {
                         }}
                       />
                     )}
-                    <input type="file" ref={imgInputRef} onChange={onFileChange} hidden accept="image/*" />
+                    <input type="file" ref={imgInputRef} onChange={uploadAvatar} hidden accept="image/*" name="avatar" />
                     <div className="mt-3">
                       <Col sm={12}>
                         <Row>
@@ -287,7 +268,6 @@ const ProfileSettings = () => {
                               className="text-white w-100"
                               onClick={() => {
                                 setImgPreview('')
-                                setImgData(undefined)
                                 setAvatar('')
                               }}
                             >
@@ -312,6 +292,7 @@ const ProfileSettings = () => {
               <Row>
                 <Col className="mb-3">
                   <label className="form-label">Date of birth</label>
+                  <br />
                   <DatePickerField name="dob" />
                   {errors.dob && touched.dob && <div className="err-message">{errors.dob}</div>}
                 </Col>
@@ -380,12 +361,13 @@ const ProfileSettings = () => {
                 </Row>
               )}
               <Row>
-                <Col sm={3}>
+                <Col>
                   {profileSaved && (
                     <Alert variant="success" className="mt-3">
                       Profile saved!
                     </Alert>
                   )}
+                  {err && <Alert variant="danger">Something went wrong</Alert>}
                 </Col>
               </Row>
               <Row>

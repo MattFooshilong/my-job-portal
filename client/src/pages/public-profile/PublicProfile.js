@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
@@ -11,266 +11,193 @@ import Alert from 'react-bootstrap/Alert'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import '../../firebase/firebaseInit'
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { query, getDoc, setDoc, getFirestore, doc, onSnapshot, collection } from 'firebase/firestore'
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
+import useAuth from '../../hooks/useAuth'
+import dayjs from 'dayjs'
 
 const PublicProfile = () => {
-    const [inputs, setInputs] = useState({
-        name: '',
-        age: '',
-        dob: '',
-        jobTitle: '',
-        company: '',
-        companyLogo: '',
-        jobDescription: '',
-        startDate: '',
-        endDate: ''
-    })
-    const [switches, setSwitches] = useState({
-        name: true,
-        age: true,
-        dob: true,
-        jobTitle: true,
-        company: true,
-        companyLogo: true,
-        jobDescription: true,
-        startDate: true,
-        endDate: true
-    })
-    const { age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = switches
-    const [preferencesSaved, setPreferencesSaved] = useState(false)
-    const navigate = useNavigate()
-    const db = getFirestore()
+  const [inputs, setInputs] = useState({
+    name: '',
+    age: '',
+    dob: '',
+    jobTitle: '',
+    company: '',
+    companyLogo: '',
+    jobDescription: '',
+    startDate: '',
+    endDate: '',
+  })
+  const [switches, setSwitches] = useState({
+    age: true,
+    dob: true,
+    jobTitle: true,
+    company: true,
+    companyLogo: true,
+    jobDescription: true,
+    startDate: true,
+    endDate: true,
+  })
+  const [preferencesSaved, setPreferencesSaved] = useState(false)
+  const [err, setErr] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const axiosPrivate = useAxiosWithInterceptors()
+  const { auth, setAuth } = useAuth()
 
-    // for img upload
-    const [imgPreview, setImgPreview] = useState('')
-    const [imgData, setImgData] = useState(undefined)
-    const imgInputRef = useRef(null)
-    const [avatar, setAvatar] = useState('')
-    const handleImgPreview = () => {
-        if (imgPreview === '') {
-            return avatar
-        } else return imgPreview
+  const [avatar, setAvatar] = useState('')
+
+  const handleSubmit = async () => {
+    try {
+      const response = await axiosPrivate.post(`/user-public-pref/${auth.user.userId}`, switches)
+      const updated = response?.data?.updated
+      setPreferencesSaved(updated)
+      setErr(false)
+    } catch (err) {
+      console.error(err)
+      setErr(true)
     }
-    const onFileChange = (event) => {
-        const fileType = event.target.accept
-        const file = event.target.files[0]
+  }
 
-        // if User actually selected a file
-        if (file !== undefined) {
-            if (fileType === 'image/*') {
-                setImgPreview(URL.createObjectURL(file))
-                setImgData(file)
-            }
-        }
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`) //protected route, will throw an error if refreshToken is expired
+        const data = response?.data
+        const publicProfilePref = data.publicProfilePref
+        setInputs({
+          name: data.name,
+          age: data.age,
+          dob: data.dob ? dayjs(data.dob).format('DD-MM-YYYY') : '',
+          jobTitle: data.jobTitle,
+          company: data.company,
+          companyLogo: data.companyLogo,
+          jobDescription: data.jobDescription,
+          startDate: data.startDate ? dayjs(data.startDate).format('DD-MM-YYYY') : '',
+          endDate: data.endDate ? dayjs(data.endDate).format('DD-MM-YYYY') : '',
+        })
+        setAvatar(data.avatar)
+        setSwitches({
+          age: publicProfilePref.age,
+          dob: publicProfilePref.dob,
+          jobTitle: publicProfilePref.jobTitle,
+          company: publicProfilePref.company,
+          companyLogo: publicProfilePref.companyLogo,
+          jobDescription: publicProfilePref.jobDescription,
+          startDate: publicProfilePref.startDate,
+          endDate: publicProfilePref.endDate,
+        })
+      } catch (err) {
+        console.error(err)
+        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
+        setAuth({})
+        navigate('/login', { state: { from: location }, replace: true })
+      }
     }
-    const handleSubmit = async () => {
 
-        setPreferencesSaved(true)
-        await setDoc(doc(db, 'users', 'userPublicProfile'), {
-            age: age,
-            dob: dob,
-            jobTitle: jobTitle,
-            company: company,
-            companyLogo: companyLogo,
-            jobDescription: jobDescription,
-            startDate: startDate,
-            endDate: endDate
-        })
-            .then(() => {
-                console.log('uploaded')
-            }).catch(err => console.log('err', err))
+    getUser()
+  }, [])
+  return (
+    <Container>
+      <Card className={styles.card}>
+        <Row>
+          <Col sm={3}>
+            <Button variant="link" className="text-black ps-0" onClick={() => navigate('/my-profile')}>
+              <FontAwesomeIcon icon={faArrowLeft} size="lg" className="me-2" />
+              My profile
+            </Button>
+          </Col>
+        </Row>
 
-    }
-    useEffect(() => {
-        const q = query(collection(db, 'users'))
-        const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-            const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const data = change.doc.data()
-                    setSwitches({
-                        age: data.age,
-                        dob: data.dob,
-                        jobTitle: data.jobTitle,
-                        company: data.company,
-                        companyLogo: data.companyLogo,
-                        jobDescription: data.jobDescription,
-                        startDate: data.startDate,
-                        endDate: data.endDate
-                    })
-                }
+        <h1>Public profile settings</h1>
+        <Row className="mb-2">
+          <Col sm={5}>
+            <p>You control your profile and limit what is shown to the public. Toggle your preferences on the left and your public profile is as on the right.</p>
+          </Col>
+        </Row>
 
-
-            })
-        })
-        return () => {
-            unsub()
-        }
-    }, [])
-    useEffect(() => {
-        const q = query(collection(db, 'myJobPortal'))
-        const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-            const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const data = change.doc.data()
-                    setInputs({
-                        name: data.name,
-                        age: data.age,
-                        dob: data.dob,
-                        jobTitle: data.jobTitle,
-                        company: data.company,
-                        companyLogo: data.companyLogo,
-                        jobDescription: data.jobDescription,
-                        startDate: data.startDate,
-                        endDate: data.endDate
-                    })
-                    setAvatar(data.avatar)
-
-                }
-
-
-            })
-        })
-        return () => {
-            unsub()
-        }
-    }, [])
-
-    return (
-        <Container>
-            <Card className={styles.card}>
-                <Row>
-                    <Col sm={3}>
-                        <Button variant="link" className='text-black ps-0' onClick={() => navigate('/my-profile')}><FontAwesomeIcon icon={faArrowLeft} size='lg' className='me-2' />My profile</Button>
-                    </Col>
+        <Row>
+          <Col sm={5}>
+            <Row>
+              <Col className={styles.col__end}>
+                <h2>Edit visibility</h2>
+              </Col>
+            </Row>
+            {[
+              { value: 'age', label: 'Age' },
+              { value: 'dob', label: 'Date of birth' },
+              { value: 'jobTitle', label: 'Job Title' },
+              { value: 'company', label: 'Company' },
+              { value: 'jobDescription', label: 'Job Description' },
+              { value: 'companyLogo', label: 'Company Logo' },
+              { value: 'startDate', label: 'Start Date' },
+              { value: 'endDate', label: 'End Date' },
+            ].map((obj, i) => {
+              return (
+                <Row key={i} className="mt-3">
+                  <Col sm={4}>
+                    <p>{obj.label}</p>
+                  </Col>
+                  <Col sm={3}>
+                    <Form.Group>
+                      <Form.Check
+                        type="switch"
+                        id="custom-switch"
+                        className={styles.form__switch}
+                        checked={switches[obj.value]}
+                        onChange={() => {
+                          setPreferencesSaved(false)
+                          setSwitches({ ...switches, [obj.value]: !switches[obj.value] })
+                        }}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col className="mt-1 ps-0">{switches[obj.value] && <span style={{ fontWeight: 'bold' }}>Public</span>}</Col>
                 </Row>
+              )
+            })}
+          </Col>
 
-                <h1>
-                    Public profile settings
-                </h1>
-                <Row className='mb-2'>
-                    <Col sm={5}>
-                        <p>
-                            You control your profile and limit what is shown to the public. Toggle your preferences on the left and your public profile is as on the right.
-                        </p>
-                    </Col>
-                </Row>
-
-                <Row>
-                    <Col sm={5}>
-                        <Row>
-                            <Col className={styles.col__end}>
-                                <h2>Edit visibility</h2>
-                            </Col>
-                        </Row>
-                        {[
-                            { value: 'age', label: 'Age' },
-                            { value: 'dob', label: 'Date of birth' },
-                            { value: 'jobTitle', label: 'Job Title' },
-                            { value: 'company', label: 'Company' },
-                            { value: 'jobDescription', label: 'Job Description' },
-                            { value: 'companyLogo', label: 'Company Logo' },
-                            { value: 'startDate', label: 'Start Date' },
-                            { value: 'endDate', label: 'End Date' },
-
-                        ].map((obj, i) => {
-                            return (
-                                <Row key={i} className='mt-3'>
-                                    <Col sm={4}>
-                                        <p>{obj.label}</p>
-                                    </Col>
-                                    <Col sm={3}>
-                                        <Form.Group>
-                                            <Form.Check
-                                                type="switch"
-                                                id="custom-switch"
-                                                className={styles.form__switch}
-                                                checked={switches[obj.value]}
-                                                onChange={() => {
-                                                    setSwitches({ ...switches, [obj.value]: !switches[obj.value] })
-                                                }}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col className='mt-1 ps-0'>
-                                        {switches[obj.value] && <span style={{ fontWeight: 'bold' }}>Public</span>}
-                                    </Col>
-                                </Row>
-
-                            )
-                        })}
-
-
-                    </Col>
-
-                    <Col >
-                        <Card className={styles.card__col}>
-                            <Card.Body>
-                                {(imgPreview !== '' || (avatar !== null && avatar !== '')) ? (
-                                    <Image
-                                        roundedCircle
-                                        src={handleImgPreview()}
-                                        width='107'
-                                        height='107'
-                                        alt=''
-                                        style={{ objectFit: 'cover' }}
-                                    />
-                                ) : <Image src='../images/profile-placeholder.png' alt='default-avatar' style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
-                                <input
-                                    type='file'
-                                    ref={imgInputRef}
-                                    onChange={onFileChange}
-                                    hidden
-                                    accept='image/*'
-                                />
-
-                            </Card.Body>
-                            <div className='d-flex'>
-                                <h3>{inputs.name}</h3>
-                                {age && <p className={styles.card__age}>{inputs.age}</p>}
-                            </div>
-                            {dob && <p>Date of birth: {inputs.dob}</p>}
-                            <h3>Career</h3>
-                            {jobTitle && <h6 className='mb-0'>{inputs.jobTitle}</h6>}
-                            {<Image
-                                roundedCircle
-                                src={inputs.companyLogo || ''}
-                                width='100'
-                                height='100'
-                                alt=''
-                                style={{ objectFit: 'cover' }}
-                            />}
-                            {company && <p className='text-muted'>{inputs.company}</p>}
-                            {jobDescription &&
-                                <div className='mb-3'>
-                                    <h6 className='mb-0'>Job Description:</h6>
-                                    <small >{inputs.jobDescription}</small>
-                                </div>
-                            }
-                            {startDate && <p className='text-muted mb-0'>From: {inputs.startDate} </p>}
-                            {endDate && <p className='text-muted'>To: {inputs.endDate}</p>}
-
-                        </Card>
-
-                    </Col>
-                </Row>
-                <Row>
-                    <Col sm={4}>
-                        {preferencesSaved && <Alert variant="success" className='mt-3'>Preferences saved!</Alert>}
-                        <Button onClick={() => handleSubmit()} variant="primary" type="button" className={'mt-3 w-100 text-white'}>Save</Button>
-                    </Col>
-                </Row>
-
-
+          <Col>
+            <Card className={styles.card__col}>
+              <Card.Body style={{ paddingLeft: 0 }}>{avatar ? <Image roundedCircle src={avatar} width="107" height="107" alt="" style={{ objectFit: 'cover' }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}</Card.Body>
+              <div className="d-flex">
+                <h3>{inputs.name}</h3>
+                {inputs.age && <p className={styles.card__age}>{inputs.age} years old</p>}
+              </div>
+              {inputs.dob && <p>Date of birth: {inputs.dob}</p>}
+              <h3>Career</h3>
+              {inputs.jobTitle && <h6 className="mb-0">{inputs.jobTitle}</h6>}
+              {inputs.companyLogo && <Image roundedCircle src={inputs.companyLogo || ''} width="100" height="100" alt="" style={{ objectFit: 'cover' }} />}
+              {inputs.company && <p className="text-muted">{inputs.company}</p>}
+              {inputs.jobDescription && (
+                <div className="mb-3">
+                  <h6 className="mb-0">Job Description:</h6>
+                  <small>{inputs.jobDescription}</small>
+                </div>
+              )}
+              {inputs.startDate && <p className="text-muted mb-0">From: {inputs.startDate} </p>}
+              {inputs.endDate && <p className="text-muted">To: {inputs.endDate}</p>}
             </Card>
-
-        </Container >
-
-    )
+          </Col>
+        </Row>
+        <Row>
+          <Col sm={4}>
+            {preferencesSaved && (
+              <Alert variant="success" className="mt-3">
+                Preferences saved!
+              </Alert>
+            )}
+            {err && <Alert variant="danger">Something went wrong</Alert>}
+            <Button onClick={() => handleSubmit()} variant="primary" type="button" className={'mt-3 w-100 text-white'}>
+              Save
+            </Button>
+          </Col>
+        </Row>
+      </Card>
+    </Container>
+  )
 }
 
 export default PublicProfile

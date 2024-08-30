@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Card from 'react-bootstrap/Card'
 import Image from 'react-bootstrap/Image'
@@ -11,54 +11,59 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare, faEnvelope } from '@fortawesome/free-regular-svg-icons'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faWhatsapp, faLinkedin } from '@fortawesome/free-brands-svg-icons'
-
-import { Link } from 'react-router-dom'
-import { query, getFirestore, onSnapshot, collection } from 'firebase/firestore'
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import useAuth from '../../hooks/useAuth'
+import dayjs from 'dayjs'
 
 const PublicProfile = () => {
   const [inputs, setInputs] = useState({
     name: 'Matt Foo',
     age: '22',
-    dob: '01/01/1980',
     jobTitle: 'Designer',
     company: 'Designer Pte Ltd',
-    companyLogo: '',
     jobDescription: 'Help to create mockups and design dashboard',
     startDate: '01/02/2022',
     endDate: '01/07/2022',
+    email: '',
+    whatsapp: '99998888',
   })
-  const { name, age, dob, jobTitle, company, companyLogo, jobDescription, startDate, endDate } = inputs
-  const db = getFirestore()
+  const { name, age, jobTitle, company, jobDescription, startDate, endDate, email, whatsapp } = inputs
+  const { auth, setAuth } = useAuth()
+  const axiosPrivate = useAxiosWithInterceptors()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   // avatar
   const [avatar, setAvatar] = useState('')
 
   // on load
   useEffect(() => {
-    const q = query(collection(db, 'myJobPortal'))
-    const unsub = onSnapshot(q, { includeMetadataChanges: false }, (snapshot) => {
-      const source = snapshot.metadata.fromCache ? 'local cache' : 'server'
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const data = change.doc.data()
-          setInputs({
-            name: data.name,
-            age: data.age,
-            dob: data.dob,
-            jobTitle: data.jobTitle,
-            company: data.company,
-            companyLogo: data.companyLogo,
-            jobDescription: data.jobDescription,
-            startDate: data.startDate,
-            endDate: data.endDate,
-          })
-          setAvatar(data.avatar)
-        }
-      })
-    })
-    return () => {
-      unsub()
+    const getUser = async () => {
+      try {
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`) //protected route, will throw an error if refreshToken is expired
+        const data = response?.data
+        setInputs({
+          ...inputs,
+          name: data.name,
+          age: data.age,
+          jobTitle: data.jobTitle,
+          company: data.company,
+          jobDescription: data.jobDescription,
+          startDate: data.startDate ? dayjs(data.startDate).format('DD-MM-YYYY') : '',
+          endDate: data.endDate ? dayjs(data.endDate).format('DD-MM-YYYY') : '',
+          email: data?.email,
+        })
+        setAvatar(data.avatar)
+      } catch (err) {
+        console.error(err)
+        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
+        setAuth({})
+        navigate('/login', { state: { from: location }, replace: true })
+      }
     }
+
+    getUser()
   }, [])
 
   return (
@@ -68,7 +73,7 @@ const PublicProfile = () => {
           <Card className={styles.card}>
             <Card.Body>
               <Row className="d-flex justify-content-between">
-                <Col xs={{ order: 2, span: 12 }} sm={{ order: 1, span: 6 }}>
+                <Col style={{ paddingLeft: 0 }} xs={{ order: 2, span: 12 }} sm={{ order: 1, span: 6 }}>
                   {avatar ? <Image roundedCircle src={avatar} width="107" height="107" alt="" style={{ objectFit: 'cover' }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
                 </Col>
                 <Col xs={{ order: 1, span: 12 }} sm={{ order: 2, span: 6 }}>
@@ -80,28 +85,28 @@ const PublicProfile = () => {
             </Card.Body>
             <div className="d-flex mb-0">
               <h3>{name}</h3>
-              {age && <p className={styles.card__age}>{inputs.age}</p>}
+              {age && <p className={styles.card__age}>{inputs.age} years old</p>}
             </div>
-            <p className="mb-0">Hi I&apos;m a full stack developer and I have built dashboards with React, Typescript, Bootstrap on the frontend and Nodejs, SQL, Graphql for the backend</p>
+            <p className="mb-0">This is a profile summary - Hi I&apos;m a full stack developer and I have built dashboards with React, Typescript, Bootstrap on the frontend and Nodejs, SQL, Graphql for the backend</p>
             <small>Singapore</small>
 
             <p className="mb-0 mt-2">
               <FontAwesomeIcon icon={faEnvelope} size="xl" className="me-2" />
-              shilongfoo@gmail.com
+              {email}
             </p>
             <p className="mb-0">
               <FontAwesomeIcon icon={faWhatsapp} size="xl" className="me-2" />
-              +65 83687202 (preferred)
+              +65 {whatsapp}
             </p>
             <a className="mb-3 text-black" href="https://www.linkedin.com/in/shilong-foo/">
               <FontAwesomeIcon icon={faLinkedin} size="xl" className="me-2" />
               https://www.linkedin.com/in/shilong-foo/
             </a>
             <h3>Career</h3>
-            {jobTitle && <h6 className="mb-0">{jobTitle}</h6>}
+            {jobTitle && <h6 className="mb-0">Job Title: {jobTitle}</h6>}
             {company && (
               <p className="mb-0">
-                {company}{' '}
+                Company: {company}{' '}
                 {startDate && (
                   <small className="mb-3 d-block">
                     {startDate} - {endDate ? endDate : 'Present'}

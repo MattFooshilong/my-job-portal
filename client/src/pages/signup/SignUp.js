@@ -7,14 +7,14 @@ import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
-import styles from './Login.module.scss'
+import styles from './SignUp.module.scss'
 import { useNavigate, useLocation } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
 
-const Login = () => {
+const SignUp = () => {
   const [defaultInputs] = useState({
-    email: 'user1@gmail.com',
-    password: 'Abc123!',
+    email: '',
+    password: '',
   })
   const [err, setErr] = useState(false)
   const { setAuth } = useAuth()
@@ -28,7 +28,7 @@ const Login = () => {
       password: values.password,
     }
     try {
-      const res = await axios.post('/api/login', data)
+      const res = await axios.post('/api/signup', data)
       const accessToken = res?.data?.accessToken
       const user = res?.data?.user
       setAuth({ user, accessToken })
@@ -39,7 +39,7 @@ const Login = () => {
       setErr(true)
     }
   }
-
+  //shift this to server-side
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Not a valid email').required('Required'),
     password: Yup.string()
@@ -50,7 +50,7 @@ const Login = () => {
   return (
     <Container className="py-3 pt-sm-5">
       <Card className={`p-sm-5 p-4 mt-5 ${styles.card}`}>
-        <h4>Hi! Welcome to My Job Portal</h4>
+        <h4 className="text-center">Sign up for an account</h4>
         <Formik
           enableReinitialize
           initialValues={defaultInputs}
@@ -72,9 +72,9 @@ const Login = () => {
                 <Form.Control type="password" placeholder="Password" name="password" value={values.password} onChange={handleChange} />
                 {errors.password && touched.password && <div className="err-message">{errors.password}</div>}
               </Form.Group>
-              {err && <Alert variant="danger">Incorrect email or password</Alert>}
+              {err && <Alert variant="danger">Something went wrong, please try again later</Alert>}
               <Button variant="primary" type="submit" className={'mt-3 w-100 text-white'}>
-                Login
+                Sign Up
               </Button>
             </FormikForm>
           )}
@@ -84,4 +84,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default SignUp

@@ -3,28 +3,27 @@ import Navbar from 'react-bootstrap/Navbar'
 import Container from 'react-bootstrap/Container'
 import Image from 'react-bootstrap/Image'
 import Nav from 'react-bootstrap/Nav'
-import NavDropdown from 'react-bootstrap/NavDropdown'
+import axios from 'axios'
 import styles from './Nav.module.scss'
-import { useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import useAuth from '../../hooks/useAuth'
 
 const NavBar = () => {
-  let location = useLocation()
+  const { auth, setAuth } = useAuth()
   const navigate = useNavigate()
-  const [token, setToken] = useState(null)
-  const logout = () => {
-    localStorage.clear()
+  const logout = async () => {
+    await axios.get('/api/logout').catch((err) => console.log(err))
+    setAuth({})
     navigate('/')
   }
-  useEffect(() => {
-    const temp = localStorage.getItem('token')
-    setToken(temp)
-  }, [location])
+
+  const userOnly = auth?.user?.roles?.includes(2)
+  const adminOnly = auth?.user?.roles?.includes(1)
+
   return (
     <Navbar bg="light" expand="lg" collapseOnSelect className={styles.navbar}>
       <Container fluid className="px-sm-0 mx-sm-4">
-        <Navbar.Brand href="/">
+        <Navbar.Brand onClick={() => navigate('/')} className={styles.navBrand}>
           <Image src="/logo192.png" alt="" width="35" height="35" className="me-3" />
           My Job Portal
         </Navbar.Brand>
@@ -32,23 +31,26 @@ const NavBar = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
           <Nav className={styles.nav}>
-            <Nav.Link href="/jobs">Jobs</Nav.Link>
-
-            {!token && <Nav.Link href="/login">Login</Nav.Link>}
-
-            {token && (
+            <Link to="/jobs">Jobs</Link>
+            {auth?.user ? (
               <>
-                <Nav.Link href="/job-applications">Job Applications</Nav.Link>
-                <Nav.Link href="/my-profile">My Profile</Nav.Link>
-                <Nav.Link href="/profile-settings">Profile Settings</Nav.Link>
-                <Nav.Link href="/public-profile">Edit Public Profile</Nav.Link>
-                <Nav.Link onClick={() => logout()}>Logout</Nav.Link>
-
-                {/* <NavDropdown title="Me" id="basic-nav-dropdown" align='end'>
-                                <NavDropdown.Item href="/my-profile">My Profile</NavDropdown.Item>
-                                <NavDropdown.Item href="/profile-settings">Profile Settings</NavDropdown.Item>
-                                <NavDropdown.Item href="/public-profile">Edit Public Profile</NavDropdown.Item>
-                            </NavDropdown> */}
+                {userOnly && (
+                  <>
+                    <Link to="/job-applications">Job Applications</Link>
+                    <Link to="/my-profile">My Profile</Link>
+                    <Link to="/profile-settings">Profile Settings</Link>
+                    <Link to="/public-profile">Edit Public Profile</Link>
+                  </>
+                )}
+                {adminOnly && <Link to="/admin-dashboard">Admin Dashboard</Link>}
+                <div className={styles.logoutButton} onClick={() => logout()}>
+                  Logout
+                </div>
+              </>
+            ) : (
+              <>
+                <Link to="/login">Login</Link>
+                <Link to="/signup">Sign up</Link>
               </>
             )}
           </Nav>
