@@ -41,7 +41,7 @@ const PublicProfile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await axiosPrivate.get(`/user/${auth.user.userId}`)
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`) //protected route, will throw an error if refreshToken is expired
         const data = response?.data
         setInputs({
           ...inputs,

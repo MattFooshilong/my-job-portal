@@ -7,13 +7,14 @@ import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import styles from './JobApplications.module.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 import Spinner from 'react-bootstrap/Spinner'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Form from 'react-bootstrap/Form'
 import useAuth from '../../hooks/useAuth'
 
 const JobApplications = () => {
   const navigate = useNavigate()
-  const { auth } = useAuth()
+  const location = useLocation()
+  const { auth, setAuth } = useAuth()
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('InProgress')
@@ -30,12 +31,15 @@ const JobApplications = () => {
           email: auth.user.email,
           status: status,
         }
-        const response = await axiosPrivate.post('/user-job-applications', dataObject)
+        const response = await axiosPrivate.post('/user-job-applications', dataObject) //protected route, will throw an error if refreshToken is expired
         setJobs(response.data?.jobDocuments)
         setLoading(false)
       } catch (error) {
         console.log(error)
         setLoading(false)
+        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
+        setAuth({})
+        navigate('/login', { state: { from: location }, replace: true })
       }
     }
     fetchData()

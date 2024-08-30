@@ -11,7 +11,7 @@ import Alert from 'react-bootstrap/Alert'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import '../../firebase/firebaseInit'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import useAuth from '../../hooks/useAuth'
@@ -42,8 +42,9 @@ const PublicProfile = () => {
   const [preferencesSaved, setPreferencesSaved] = useState(false)
   const [err, setErr] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
   const axiosPrivate = useAxiosWithInterceptors()
-  const { auth } = useAuth()
+  const { auth, setAuth } = useAuth()
 
   const [avatar, setAvatar] = useState('')
 
@@ -62,7 +63,7 @@ const PublicProfile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await axiosPrivate.get(`/user/${auth.user.userId}`)
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`) //protected route, will throw an error if refreshToken is expired
         const data = response?.data
         const publicProfilePref = data.publicProfilePref
         setInputs({
@@ -89,6 +90,9 @@ const PublicProfile = () => {
         })
       } catch (err) {
         console.error(err)
+        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
+        setAuth({})
+        navigate('/login', { state: { from: location }, replace: true })
       }
     }
 
