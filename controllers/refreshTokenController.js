@@ -44,7 +44,7 @@ const refreshToken = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       {
         algorithm: "HS256",
-        expiresIn: "5s",
+        expiresIn: "5m",
       }
     )
     res.json({ user: user, accessToken })
