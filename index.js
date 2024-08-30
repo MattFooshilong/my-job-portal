@@ -4,7 +4,7 @@ const bodyParser = require("body-parser")
 const cors = require("cors")
 const routes = require("./api/routes")
 const path = require("path")
-const verifyJWT = require("./middleware/verifyToken")
+const verifyAccessTokenJWT = require("./middleware/verifyAccessToken")
 const userController = require("./controllers/userController")
 
 // Globals
@@ -35,7 +35,7 @@ const corsAllowAll = {
 app.use(cors(corsOptions))
 app.use("/api/", routes)
 //protected routes
-app.use(verifyJWT)
+app.use(verifyAccessTokenJWT)
 app.get("/user/:id", userController.getUser)
 app.post("/user/:id", userController.updateProfileSettings)
 app.post("/user-public-pref/:id", userController.updateUserPublicProfile)

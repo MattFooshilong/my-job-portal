@@ -27,7 +27,6 @@ const Jobs = () => {
   const [jobs, setJobs] = useState([])
   const [job, setJob] = useState({})
   const [appliedJobs, setAppliedJobs] = useState([])
-
   const [loading, setLoading] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [applyingJob, setApplyingJob] = useState(false)

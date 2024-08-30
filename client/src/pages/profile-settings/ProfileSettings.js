@@ -14,7 +14,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import useAuth from '../../hooks/useAuth'
@@ -41,7 +41,8 @@ const ProfileSettings = () => {
   const navigate = useNavigate()
   const axiosPrivate = useAxiosWithInterceptors()
 
-  const { auth } = useAuth()
+  const { auth, setAuth } = useAuth()
+  const location = useLocation()
 
   // for image upload
   const [imgPreview, setImgPreview] = useState('')
@@ -199,6 +200,9 @@ const ProfileSettings = () => {
         setAvatar(data.avatar ?? '')
       } catch (err) {
         console.error(err)
+        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
+        setAuth({})
+        navigate('/login', { state: { from: location }, replace: true })
       }
     }
 

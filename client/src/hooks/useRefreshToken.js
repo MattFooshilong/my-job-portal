@@ -6,6 +6,7 @@ const useRefreshToken = () => {
   // send a new access token using the refresh token
   const refresh = async () => {
     const response = await axios.get('/api/refreshToken', { withCredentials: true })
+    //return the previous state but overwrite the accessToken with a new one
     setAuth((prev) => {
       return { ...prev, accessToken: response.data.accessToken }
     })
