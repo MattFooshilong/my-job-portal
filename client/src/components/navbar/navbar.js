@@ -7,13 +7,14 @@ import axios from 'axios'
 import styles from './Nav.module.scss'
 import { useNavigate, Link } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
+import useLogout from '../../hooks/useLogout'
 
 const NavBar = () => {
   const { auth, setAuth } = useAuth()
   const navigate = useNavigate()
-  const logout = async () => {
-    await axios.get('/api/logout').catch((err) => console.log(err))
-    setAuth({})
+  const logout = useLogout()
+  const signOut = async () => {
+    await logout()
     navigate('/')
   }
 
@@ -43,7 +44,7 @@ const NavBar = () => {
                   </>
                 )}
                 {adminOnly && <Link to="/admin-dashboard">Admin Dashboard</Link>}
-                <div className={styles.logoutButton} onClick={() => logout()}>
+                <div className={styles.logoutButton} onClick={() => signOut()}>
                   Logout
                 </div>
               </>

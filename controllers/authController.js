@@ -151,8 +151,39 @@ const signUp = async (req, res) => {
     res.status(500).send({ error })
   }
 }
+const findUserWithRefreshToken = async (refreshToken) => {
+  try {
+    const usersRef = collection(db, "users")
+    const q = query(usersRef, where("refreshToken", "==", refreshToken))
+    const snapshot = await getDocs(q)
+    const user = {}
+    snapshot.forEach((doc) => {
+      const data = doc.data()
+      user.userId = doc?.id
+      user.email = data.email
+      user.roles = data.roles
+    })
+    return user
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
 const logout = async (req, res) => {
-  res.cookie("jwt", "", { maxAge: 1 })
-  res.redirect("/")
+  const cookies = req.cookies
+  if (!cookies.jwt) return res.sendStatus(204)
+  const refreshToken = cookies.jwt
+
+  //is refreshToken in db?
+  const foundUser = await findUserWithRefreshToken(refreshToken)
+  //if no user/empty object
+  if (Object.keys(foundUser).length === 0) {
+    res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true })
+    res.sendStatus(204)
+  }
+  //delete refreshtoken in db
+  await saveRefreshTokenToDb(foundUser.email, "")
+  res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true })
+  res.sendStatus(204)
 }
 module.exports = { login, signUp, logout }

@@ -38,7 +38,6 @@ const JobApplications = () => {
         console.log(error)
         setLoading(false)
         //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        setAuth({})
         navigate('/login', { state: { from: location }, replace: true })
       }
     }

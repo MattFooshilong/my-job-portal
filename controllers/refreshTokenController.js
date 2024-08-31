@@ -11,6 +11,7 @@ const findUserWithRefreshToken = async (refreshToken) => {
     const user = {}
     snapshot.forEach((doc) => {
       const data = doc.data()
+      user.userId = doc?.id
       user.email = data.email
       user.roles = data.roles
     })
@@ -31,11 +32,8 @@ const refreshToken = async (req, res) => {
   if (!user.email) return res.sendStatus(403)
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err || decoded.email !== user.email) {
-      console.log("refresh token cannot")
-
       return res.sendStatus(403)
     }
-    console.log("refresh token valid")
     const accessToken = jwt.sign(
       {
         email: user.email,

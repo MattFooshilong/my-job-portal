@@ -201,8 +201,7 @@ const ProfileSettings = () => {
       } catch (err) {
         console.error(err)
         //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        setAuth({})
-        navigate('/login', { state: { from: location }, replace: true })
+        //navigate('/login', { state: { from: location }, replace: true })
       }
     }
 

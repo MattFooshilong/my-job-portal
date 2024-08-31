@@ -31,7 +31,7 @@ const SignUp = () => {
       const res = await axios.post('/api/signup', data)
       const accessToken = res?.data?.accessToken
       const user = res?.data?.user
-      setAuth({ user, accessToken })
+      setAuth({ user, roles: user.roles, accessToken })
       setErr(false)
       navigate(from, { replace: true })
     } catch (err) {
