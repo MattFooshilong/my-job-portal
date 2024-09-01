@@ -10,16 +10,15 @@ import useAuth from '../../hooks/useAuth'
 import useLogout from '../../hooks/useLogout'
 
 const NavBar = () => {
-  const { auth, setAuth } = useAuth()
+  const { auth } = useAuth()
   const navigate = useNavigate()
   const logout = useLogout()
   const signOut = async () => {
     await logout()
-    navigate('/')
   }
 
-  const userOnly = auth?.user?.roles?.includes(2)
-  const adminOnly = auth?.user?.roles?.includes(1)
+  const userOnly = auth?.roles?.includes(2)
+  const adminOnly = auth?.roles?.includes(1)
 
   return (
     <Navbar bg="light" expand="lg" collapseOnSelect className={styles.navbar}>

@@ -7,8 +7,9 @@ import Spinner from 'react-bootstrap/Spinner'
 const PersistLogin = () => {
   const [isLoading, setIsLoading] = useState(true)
   const refresh = useRefreshToken()
-  const { auth } = useAuth()
+  const { auth, persist } = useAuth()
   useEffect(() => {
+    let isMounted = true //fix memory leak (setting a set to a unmounted component)
     const verifyRefreshToken = async () => {
       try {
         //get a new access token and set in auth state
@@ -16,12 +17,13 @@ const PersistLogin = () => {
       } catch (err) {
         console.error(err)
       } finally {
-        setIsLoading(false)
+        isMounted && setIsLoading(false)
       }
     }
     //when user clicks refresh or comes back from another page (eg google), auth will have no accessToken
     //if no access token, get a new one
-    !auth?.accessToken ? verifyRefreshToken() : setIsLoading(false)
+    !auth?.accessToken && persist ? verifyRefreshToken() : setIsLoading(false)
+    return () => (isMounted = false)
   }, [])
   useEffect(() => {
     console.log(`isLoading: ${isLoading}`)
@@ -29,6 +31,7 @@ const PersistLogin = () => {
   }, [isLoading])
 
   //all the nested routes under PersistLogin in App.js will appear under here in Outlet
-  return <>{isLoading ? <Spinner animation="border" className="mt-5" /> : <Outlet />}</>
+  //if persist is false, upon refresh will kick user out to login page - for trust this device
+  return <>{!persist ? <Outlet /> : isLoading ? <Spinner animation="border" className="mt-5" /> : <Outlet />}</>
 }
 export default PersistLogin
