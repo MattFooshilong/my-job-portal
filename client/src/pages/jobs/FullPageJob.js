@@ -101,17 +101,14 @@ const FullPageJob = () => {
                 </Row>
                 <h3 className="mt-3">{job?.jobTitle}</h3>
                 <Row className="gx-0">
-                  <Col sm={4} md={3}>
+                  <p className="mb-0">
                     {job?.companyName},&nbsp; {job?.location}
-                  </Col>
-                  <Col sm={2} className="ms-sm-3">
-                    3 days ago
-                  </Col>
+                  </p>
+                  <p className="mb-0">3 days ago</p>
+                  <p className="mb-0">Over 100 applicants</p>
                 </Row>
-                <Row>
-                  <Col>Over 100 applicants</Col>
-                </Row>
-                <p className="mt-3">
+
+                <p className="mt-1 mb-1">
                   <FontAwesomeIcon icon={faBriefcase} size="xl" className="me-2" />
                   {job?.type}
                 </p>
@@ -158,7 +155,7 @@ const FullPageJob = () => {
                   <Card.Body>
                     <h4>About the company</h4>
                     <Row className="mt-3 mb-3">
-                      <Col xs={3} sm={1} className="me-4">
+                      <Col xs={2} md={1} className="me-4">
                         <Image src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                       </Col>
                       <Col>

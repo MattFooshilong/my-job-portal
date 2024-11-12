@@ -2,10 +2,11 @@ const { firebaseApp } = require("../firebaseServerInit/firebaseInit")
 const { getDoc, getFirestore, doc, updateDoc, getDocs, query, collectionGroup, where, collection, addDoc } = require("firebase/firestore")
 const db = getFirestore(firebaseApp)
 const dayjs = require("dayjs")
+const sanitize = require("xss")
 
 const getUser = async (req, res) => {
   try {
-    const userId = req.params.id
+    const userId = sanitize(req.params.id)
     const docSnap = await getDoc(doc(db, "users", userId))
     if (docSnap.exists()) {
       const data = docSnap.data()
@@ -23,6 +24,9 @@ const getUser = async (req, res) => {
 
 const updateProfileSettings = async (req, res) => {
   const values = req.body.values
+  Object.keys(values).forEach((key) => {
+    values[key] = sanitize(values[key])
+  })
   const avatar = req.body.avatar
   const companyLogoUrl = req.body.companyLogoUrl
   const showEndDate = req.body.showEndDate
@@ -50,7 +54,7 @@ const updateProfileSettings = async (req, res) => {
 const updateUserPublicProfile = async (req, res) => {
   const switches = req.body
   try {
-    const userId = req.params.id
+    const userId = sanitize(req.params.id)
     await updateDoc(doc(db, "users", userId), {
       publicProfilePref: switches,
     })
@@ -65,7 +69,7 @@ const updateUserApplyToJobs = async (req, res) => {
   const { appliedJobs } = req.body
   const { email } = req.body
   try {
-    const userId = req.params.id
+    const userId = sanitize(req.params.id)
     await updateDoc(doc(db, "users", userId), {
       appliedJobs: appliedJobs,
     })

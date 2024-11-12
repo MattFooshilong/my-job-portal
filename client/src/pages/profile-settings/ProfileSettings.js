@@ -30,6 +30,7 @@ const ProfileSettings = () => {
     jobDescription: '',
     startDate: '',
     endDate: null,
+    csrfToken: '',
   })
   const [profileSaved, setProfileSaved] = useState(false)
   const [err, setErr] = useState(false)
@@ -185,6 +186,7 @@ const ProfileSettings = () => {
     const getUser = async () => {
       try {
         const response = await axiosPrivate.get(`/user/${auth.user.userId}`) //protected route, will throw an error if refreshToken is expired
+        const antiCSRFRes = await axiosPrivate.get('/antiCSRF')
         const data = response?.data
         setInputs({
           name: data.name,
@@ -196,6 +198,7 @@ const ProfileSettings = () => {
           jobDescription: data.jobDescription,
           startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
           endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
+          csrfToken: antiCSRFRes.data.csrfToken,
         })
         setAvatar(data.avatar ?? '')
       } catch (err) {
@@ -222,13 +225,14 @@ const ProfileSettings = () => {
         <Formik
           enableReinitialize
           initialValues={inputs}
-          validationSchema={validationSchema}
+          //  validationSchema={validationSchema}
           onSubmit={(values) => {
             handleSubmit(values)
           }}
         >
           {({ values, handleChange, errors, touched }) => (
             <FormikForm>
+              <input type="hidden" name="csrfToken" value={values.csrfToken} onChange={handleChange} />
               <Row>
                 <Col sm={6}>
                   <div>

@@ -1,6 +1,7 @@
 const { firebaseApp } = require("../firebaseServerInit/firebaseInit")
 const { getDocs, getDoc, getFirestore, collection, doc } = require("firebase/firestore")
 const db = getFirestore(firebaseApp)
+const sanitize = require("xss")
 
 const getAllJobs = async (req, res) => {
   try {
@@ -18,7 +19,8 @@ const getAllJobs = async (req, res) => {
 }
 
 const getOneJob = async (req, res) => {
-  const jobId = req.params.jobId
+  const jobId = sanitize(req.params.jobId)
+
   try {
     const docRef = doc(db, "jobs", `jobs-${jobId}`)
     const docSnap = await getDoc(docRef)

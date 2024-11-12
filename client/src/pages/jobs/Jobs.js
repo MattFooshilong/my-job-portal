@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Card from 'react-bootstrap/Card'
 import Image from 'react-bootstrap/Image'
@@ -92,7 +92,7 @@ const Jobs = () => {
         setJob(response?.data[0])
         setLoading(false)
       } catch (err) {
-        console.error(err)
+        console.error('loading jobs error: ', err)
         setLoading(false)
       }
     }
@@ -120,7 +120,7 @@ const Jobs = () => {
       ) : (
         <>
           {/* Desktop */}
-          <div className="d-none d-sm-block">
+          <div className="d-none d-lg-block">
             <Row>
               <Col className="pe-sm-0">
                 <div className={styles.custom__card}>
@@ -128,7 +128,7 @@ const Jobs = () => {
                   {jobs.map((ele, i) => {
                     return (
                       <Row className={styles.row_clickable} key={i} onClick={() => setJob(ele)}>
-                        <Col xs={4} sm={3}>
+                        <Col xs={4} xl={3}>
                           <Image src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                         </Col>
                         <Col>
@@ -152,7 +152,7 @@ const Jobs = () => {
             </Row>
           </div>
           {/* mobile */}
-          <div className="d-block d-sm-none">
+          <div className="d-block d-lg-none">
             <Row>
               <Col className="pe-sm-0">
                 <div className={styles.custom__card}>
@@ -160,7 +160,7 @@ const Jobs = () => {
                   {jobs.map((ele, i) => {
                     return (
                       <Row className={styles.row_clickable} key={i} onClick={() => navigate('/job/' + ele.id)}>
-                        <Col xs={4} sm={3}>
+                        <Col xs={3}>
                           <Image src={`/images/company${i}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                         </Col>
                         <Col>
@@ -208,14 +208,14 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }) => {
       {Object.keys(job).length !== 0 && (
         <div className={styles.custom__card}>
           <h3 className="mt-3">{job?.jobTitle}</h3>
-          <Row sm={4} className="gx-0">
-            <Col sm={4}>
+          <Row className="gx-0">
+            <p className="mb-0">
               {job?.companyName},&nbsp; {job?.location}
-            </Col>
-            <Col sm={2}>3 days ago</Col>
-            <Col>Over 100 applicants</Col>
+            </p>
+            <p className="mb-0">3 days ago</p>
+            <p className="mb-0">Over 100 applicants</p>
           </Row>
-          <p className="mt-3">
+          <p className="mt-1 mb-1">
             <FontAwesomeIcon icon={faBriefcase} size="xl" className="me-2" />
             {job?.type}
           </p>
@@ -262,7 +262,7 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }) => {
             <Card.Body>
               <h4>About the company</h4>
               <Row className="mt-3 mb-3">
-                <Col xs={3} sm={1} className="me-4">
+                <Col xs={3} lg={2} xl={1} className="me-4">
                   <Image src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                 </Col>
                 <Col>

@@ -3,7 +3,6 @@ const router = express.Router()
 const authController = require("../controllers/authController")
 const refreshTokenController = require("../controllers/refreshTokenController")
 const jobsController = require("../controllers/jobsController")
-const userController = require("../controllers/userController")
 
 const cookieParser = require("cookie-parser")
 router.use(cookieParser())
@@ -12,6 +11,10 @@ router.use(cookieParser())
 router.get("/", (req, res) => {
   console.log("testing")
   res.status(200).send("welcome")
+})
+router.post("/testcsrf", (req, res) => {
+  console.log("testcsrf fn in req.body.csrfToken: ", req.body.csrfToken)
+  res.status(200).send("csrf successful")
 })
 router.post("/signup", authController.signUp)
 router.post("/login", authController.login)

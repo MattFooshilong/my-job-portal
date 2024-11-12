@@ -25,10 +25,10 @@ const PersistLogin = () => {
     !auth?.accessToken && persist ? verifyRefreshToken() : setIsLoading(false)
     return () => (isMounted = false)
   }, [])
-  useEffect(() => {
-    console.log(`isLoading: ${isLoading}`)
-    console.log(`aT: ${JSON.stringify(auth?.accessToken)}`)
-  }, [isLoading])
+  //  useEffect(() => {
+  //    console.log(`isLoading: ${isLoading}`)
+  //    console.log(`aT: ${JSON.stringify(auth?.accessToken)}`)
+  //  }, [isLoading])
 
   //all the nested routes under PersistLogin in App.js will appear under here in Outlet
   //if persist is false, upon refresh will kick user out to login page - for trust this device

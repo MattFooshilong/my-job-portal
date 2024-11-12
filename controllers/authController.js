@@ -72,7 +72,7 @@ const createAccessToken = (email, roles) => {
     process.env.ACCESS_TOKEN_SECRET,
     {
       algorithm: "HS256",
-      expiresIn: "5m",
+      expiresIn: "10m",
     }
   )
 }
@@ -122,7 +122,7 @@ const login = async (req, res) => {
   // saving refreshToken with current user
   await saveRefreshTokenToDb(email, refreshToken)
   // send refreshToken back in a cookie
-  res.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 1 * 60 * 60 * 1000 })
+  res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
   delete userCredentials.password
   res.status(201).json({ user: userCredentials, accessToken })
 }
@@ -145,7 +145,7 @@ const signUp = async (req, res) => {
     const accessToken = createAccessToken(email, [2])
     const refreshToken = createRefreshToken(email)
     await saveRefreshTokenToDb(email, refreshToken)
-    res.cookie("jwt", refreshToken, { httpOnly: true, secure: true, sameSite: "None", maxAge: 1 * 60 * 60 * 1000 })
+    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
     res.status(201).json({ user, accessToken })
   } catch (error) {
     res.status(500).send({ error })
@@ -171,19 +171,20 @@ const findUserWithRefreshToken = async (refreshToken) => {
 }
 const logout = async (req, res) => {
   const cookies = req.cookies
-  if (!cookies.jwt) return res.sendStatus(204)
-  const refreshToken = cookies.jwt
+  res.clearCookie("cookieCsrfToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
+  if (!cookies.refreshToken) return res.sendStatus(204)
+  const refreshToken = cookies.refreshToken
 
   //is refreshToken in db?
   const foundUser = await findUserWithRefreshToken(refreshToken)
   //if no user/empty object
   if (Object.keys(foundUser).length === 0) {
-    res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true })
+    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
     res.sendStatus(204)
   }
   //delete refreshtoken in db
   await saveRefreshTokenToDb(foundUser.email, "")
-  res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true })
+  res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
   res.sendStatus(204)
 }
 module.exports = { login, signUp, logout }

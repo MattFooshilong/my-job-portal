@@ -6,10 +6,18 @@ const routes = require("./api/routes")
 const path = require("path")
 const verifyAccessTokenJWT = require("./middleware/verifyAccessToken")
 const userController = require("./controllers/userController")
+const csrfController = require("./controllers/csrfController")
+const cookieParser = require("cookie-parser")
 
 // Globals
 const app = express()
+app.use(cookieParser())
 const port = 3001
+//CSP
+//app.use(function (req, res, next) {
+//  res.setHeader("Content-Security-Policy-Report-Only", "default-src 'self'; font-src 'self'; img-src 'self'; script-src 'self'; style-src 'self'; frame-src 'self'")
+//  next()
+//})
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -28,16 +36,20 @@ const corsOptions = {
 }
 
 const corsAllowAll = {
-  origin: "http://localhost:3000",
   optionsSuccessStatus: 200,
   credentials: true,
 }
 app.use(cors(corsOptions))
+
+//public routes
 app.use("/api/", routes)
 //protected routes
 app.use(verifyAccessTokenJWT)
 app.get("/user/:id", userController.getUser)
-app.post("/user/:id", userController.updateProfileSettings)
+app.get("/antiCSRF", csrfController.generateCSRFToken, (req, res) => {
+  res.json({ csrfToken: req.csrfToken })
+})
+app.post("/user/:id", csrfController.validateCSRFToken, userController.updateProfileSettings)
 app.post("/user-public-pref/:id", userController.updateUserPublicProfile)
 app.post("/user-job-applications", userController.userJobApplications)
 app.post("/apply-job/:id", userController.updateUserApplyToJobs)
