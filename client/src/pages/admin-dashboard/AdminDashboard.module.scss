@@ -1,0 +1,37 @@
+.custom__card {
+  padding: 1.5rem;
+  margin-top: 1rem;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+.status {
+  color: grey;
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+.statusCount {
+  border-right-style: solid;
+  border-right-color: rgb(215, 215, 215);
+  font-size: 2rem;
+}
+.statusCountFontSizeOnly {
+  font-size: 2rem;
+}
+.table {
+  margin-top: 2rem;
+  border-radius: 12px;
+  overflow: hidden; /* Ensures corners are clipped */
+  vertical-align: middle;
+  font-weight: 600;
+}
+.table th {
+  background-color: rgb(57 57 57);
+  color: white;
+
+  padding: 0.7rem 1.5rem;
+}
+.table td {
+  padding: 0.7rem 1.5rem;
+}

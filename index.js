@@ -7,6 +7,7 @@ const path = require("path")
 const verifyAccessTokenJWT = require("./middleware/verifyAccessToken")
 const userController = require("./controllers/userController")
 const csrfController = require("./controllers/csrfController")
+const jobsController = require("./controllers/jobsController")
 const cookieParser = require("cookie-parser")
 
 // Globals
@@ -53,6 +54,8 @@ app.post("/user/:id", csrfController.validateCSRFToken, userController.updatePro
 app.post("/user-public-pref/:id", userController.updateUserPublicProfile)
 app.post("/user-job-applications", userController.userJobApplications)
 app.post("/apply-job/:id", userController.updateUserApplyToJobs)
+app.get("/get-jobs-where-there-is-application", jobsController.getJobsWhereThereIsApplication)
+app.post("/update-job/:jobId", jobsController.updateJob)
 
 app.use(express.static(path.join(__dirname, "./client/build")))
 app.get("*", (req, res) => {

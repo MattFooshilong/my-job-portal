@@ -1,5 +1,5 @@
 const { firebaseApp } = require("../firebaseServerInit/firebaseInit")
-const { getDocs, getDoc, getFirestore, collection, doc } = require("firebase/firestore")
+const { getDocs, getDoc, getFirestore, collection, doc, collectionGroup, query, where, updateDoc } = require("firebase/firestore")
 const db = getFirestore(firebaseApp)
 const sanitize = require("xss")
 
@@ -37,4 +37,71 @@ const getOneJob = async (req, res) => {
   }
 }
 
-module.exports = { getAllJobs, getOneJob }
+const getJobsWhereThereIsApplication = async (req, res) => {
+  try {
+    // get all job applications
+    const q = query(collectionGroup(db, "jobSeekers"))
+    const querySnapshot = await getDocs(q)
+    const applications = []
+    const result = []
+    querySnapshot.forEach((doc) => {
+      const data = doc.data()
+      data.docRef = doc.ref
+      applications.push(data)
+    })
+    // fetch find company name and job title for each application
+    await Promise.all(
+      applications.map(async (application) => {
+        const parentCollectionRef = application.docRef.parent
+        const immediateParentDocumentRef = parentCollectionRef.parent
+        const jobDocSnap = await getDoc(immediateParentDocumentRef)
+        const obj = { ...application }
+        if (jobDocSnap.exists()) {
+          const data = jobDocSnap.data()
+          obj.jobTitle = data.jobTitle
+          obj.companyName = data.companyName
+          obj.jobId = data.id
+        }
+        // get applicant info for each application
+        const usersRef = collection(db, "users")
+        const q = query(usersRef, where("email", "==", obj.email))
+        const userSnapshot = await getDocs(q)
+        userSnapshot.forEach((doc) => {
+          const data = doc.data()
+          obj.applicantName = data.name
+        })
+        delete obj.docRef
+        result.push(obj)
+      })
+    )
+    res.json(result)
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+const updateJob = async (req, res) => {
+  // Get a reference to the subcollection
+  const jobSeekersRef = collection(db, "jobs", `jobs-${req.params.jobId}`, "jobSeekers")
+  const q = query(jobSeekersRef, where("email", "==", req.body.email))
+
+  try {
+    const querySnapshot = await getDocs(q)
+    let jobApplicationId = ""
+    querySnapshot.forEach((doc) => {
+      jobApplicationId = doc.id
+    })
+    const jobApplicationRef = doc(db, "jobs", `jobs-${req.params.jobId}`, "jobSeekers", jobApplicationId)
+
+    await updateDoc(jobApplicationRef, {
+      jobStatus: req.body.approveOrReject,
+    })
+    res.json({ statusUpdated: true })
+  } catch (error) {
+    res.json({ statusUpdated: false })
+    console.error("Error fetching subcollection documents: ", error)
+  }
+}
+
+module.exports = { getAllJobs, getOneJob, getJobsWhereThereIsApplication, updateJob }

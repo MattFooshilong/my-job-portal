@@ -19,7 +19,7 @@ import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons'
 
 const Login = () => {
   const [defaultInputs] = useState({
-    email: 'user1@gmail.com',
+    email: 'admin@gmail.com',
     password: 'Abc123!',
   })
   const [err, setErr] = useState(false)
