@@ -68,7 +68,7 @@ app.listen(process.env.PORT || port, () => console.log(`Server listening on port
 // This overrides the default error handler, and must be called last
 app.use((err, req, res, next) => {
   console.error(err.message)
-  res.status(405).send(err.message)
+  res.status(403).send(err.message)
 })
 
 module.exports = app
