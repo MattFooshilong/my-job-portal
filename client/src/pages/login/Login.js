@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Formik, Form as FormikForm } from 'formik'
 import * as Yup from 'yup'
-import axios from 'axios'
+import axios from '../../config/axiosConfig'
 import Container from 'react-bootstrap/Container'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
