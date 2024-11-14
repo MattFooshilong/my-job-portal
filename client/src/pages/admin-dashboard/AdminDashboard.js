@@ -7,9 +7,12 @@ import dayjs from 'dayjs'
 import Dropdown from 'react-bootstrap/Dropdown'
 import Spinner from 'react-bootstrap/Spinner'
 import Badge from 'react-bootstrap/Badge'
+import Form from 'react-bootstrap/Form'
+import InputGroup from 'react-bootstrap/InputGroup'
+import Stack from 'react-bootstrap/Stack'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCalendar, faUser, fa, faBuilding } from '@fortawesome/free-regular-svg-icons'
-import { faBriefcase, faList } from '@fortawesome/free-solid-svg-icons'
+import { faCalendar, faUser, faBuilding } from '@fortawesome/free-regular-svg-icons'
+import { faBriefcase, faClose, faList, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useState, useEffect } from 'react'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -19,6 +22,8 @@ const AdminDashboard = () => {
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(false)
   const [updatingJob, setUpdatingJob] = useState(false)
+  const [filteredData, setFilteredData] = useState([])
+  const [filteredStatus, setFilteredStatus] = useState('')
 
   const axiosPrivate = useAxiosWithInterceptors()
   const navigate = useNavigate()
@@ -40,12 +45,29 @@ const AdminDashboard = () => {
     }
   }
 
+  const filterStatus = (status) => {
+    if (status === '') {
+      setFilteredData(applications)
+      setFilteredStatus('')
+    } else {
+      const filtered = applications.filter((ele) => ele.jobStatus === status)
+      setFilteredData(filtered)
+      setFilteredStatus(status)
+    }
+  }
+  // search by applicant name, company name or job title
+  const filterBySearch = (e) => {
+    const text = e.target.value.toLowerCase()
+    const filtered = applications.filter((ele) => ele.applicantName.toLowerCase().includes(text) || ele.companyName.toLowerCase().includes(text) || ele.jobTitle.toLowerCase().includes(text))
+    setFilteredData(filtered)
+  }
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
         const response = await axiosPrivate.get('/get-jobs-where-there-is-application') //protected route, will throw an error if refreshToken is expired
         setApplications(response.data)
+        setFilteredData(response.data) // none filtered at first
         setLoading(false)
       } catch (error) {
         console.log(error)
@@ -67,7 +89,7 @@ const AdminDashboard = () => {
               <h3>Job Applications</h3>
             </Col>
           </Row>
-          <Row>
+          <Row className="mb-4">
             <Col lg={6}>
               <div className={styles.custom__card}>
                 <Row className="mb-4">
@@ -77,19 +99,47 @@ const AdminDashboard = () => {
                 </Row>
                 <Row>
                   <Col className="pe-0">
-                    <p className={styles.status}>Pending</p>
+                    <p className={styles.status}>In Progress</p>
                     <div className={styles.statusCount}>{applications.filter((ele) => ele.jobStatus === 'InProgress').length}</div>
                   </Col>
                   <Col className="pe-0">
-                    <p className={styles.status}>Approved</p>
+                    <p className={styles.status}>Successful</p>
                     <div className={styles.statusCount}>{applications.filter((ele) => ele.jobStatus === 'Successful').length}</div>
                   </Col>
                   <Col className="pe-0">
-                    <p className={styles.status}>Rejected</p>
+                    <p className={styles.status}>Unsuccessful</p>
                     <div className={styles.statusCountFontSizeOnly}>{applications.filter((ele) => ele.jobStatus === 'Unsuccessful').length}</div>
                   </Col>
                 </Row>
               </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col lg={6}>
+              <Stack direction="horizontal" gap={3}>
+                <InputGroup>
+                  <InputGroup.Text id="searchText">
+                    <FontAwesomeIcon icon={faSearch} className="me-1" />
+                  </InputGroup.Text>
+                  <Form.Control placeholder="Search" aria-label="search" aria-describedby="basic-addon1" onChange={(e) => filterBySearch(e)} />
+                </InputGroup>
+                <Dropdown>
+                  <Dropdown.Toggle variant="secondary" id="status-filter" size="sm" className={styles.statusFilter}>
+                    Status
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => filterStatus('Successful')}>Successful</Dropdown.Item>
+                    <Dropdown.Item onClick={() => filterStatus('Unsuccessful')}>Unsuccessful</Dropdown.Item>
+                    <Dropdown.Item onClick={() => filterStatus('InProgress')}>In Progress</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+                {filteredStatus !== '' && (
+                  <Badge pill bg="secondary" onClick={() => filterStatus('')} style={{ cursor: 'pointer' }}>
+                    <FontAwesomeIcon icon={faClose} className="me-1" />
+                    {filteredStatus}
+                  </Badge>
+                )}
+              </Stack>
             </Col>
           </Row>
 
@@ -123,7 +173,7 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {applications.map((ele, i) => {
+              {filteredData.map((ele, i) => {
                 return (
                   <tr key={i}>
                     <td>{today}</td>
@@ -137,9 +187,9 @@ const AdminDashboard = () => {
                           Select
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
-                          <Dropdown.Item onClick={() => updateJobStatus(ele, 'Successful')}>{updatingJob ? <Spinner animation="border" className="mt-5" /> : 'Approve'}</Dropdown.Item>
-                          <Dropdown.Item onClick={() => updateJobStatus(ele, 'Unsuccessful')}>{updatingJob ? <Spinner animation="border" className="mt-5" /> : 'Reject'}</Dropdown.Item>
-                          <Dropdown.Item onClick={() => updateJobStatus(ele, 'InProgress')}>{updatingJob ? <Spinner animation="border" className="mt-5" /> : 'Pending'}</Dropdown.Item>
+                          <Dropdown.Item onClick={() => updateJobStatus(ele, 'Successful')}>{updatingJob ? <Spinner animation="border" className="mt-5" /> : 'Successful'}</Dropdown.Item>
+                          <Dropdown.Item onClick={() => updateJobStatus(ele, 'Unsuccessful')}>{updatingJob ? <Spinner animation="border" className="mt-5" /> : 'Unsuccessful'}</Dropdown.Item>
+                          <Dropdown.Item onClick={() => updateJobStatus(ele, 'InProgress')}>{updatingJob ? <Spinner animation="border" className="mt-5" /> : 'InProgress'}</Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>
                     </td>
