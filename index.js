@@ -40,7 +40,7 @@ const corsAllowAll = {
   optionsSuccessStatus: 200,
   credentials: true,
 }
-app.use(cors(corsOptions))
+app.use(cors(corsAllowAll))
 
 //public routes
 app.use("/api/", routes)
