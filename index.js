@@ -22,14 +22,14 @@ const port = 3001
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-const allowedOrigins = ["http://localhost:3000", "http://localhost:3001/", "https://my-job-portal.vercel.app/"]
+const allowedOrigins = ["http://localhost:3000", "http://localhost:3001/", "https://my-job-portal.vercel.app"]
 
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV == "staging") {
       callback(null, true)
     } else {
-      callback(new Error("Not allowed by CORSSSSSSSSSSSSS"))
+      callback(new Error(`origin: ${origin}`))
     }
   },
   optionsSuccessStatus: 200,
