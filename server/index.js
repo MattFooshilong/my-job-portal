@@ -21,9 +21,9 @@ const port = 3001
 //})
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.get("/", (req, res) => {
-  res.send("Server up")
-})
+//app.get("/", (req, res) => {
+//  res.send("Server up")
+//})
 
 const allowedOrigins = ["http://localhost:3000", "http://localhost:3001/", "https://my-job-portal-client.vercel.app"]
 
