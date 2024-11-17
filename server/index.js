@@ -21,11 +21,11 @@ const port = 3001
 //})
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-//app.get("/", (req, res) => {
-//  res.send("Server up")
-//})
+app.get("/", (req, res) => {
+  res.send("Server up")
+})
 
-const allowedOrigins = ["http://localhost:3000", "http://localhost:3001/", "https://my-job-portal-client.vercel.app"]
+const allowedOrigins = ["http://localhost:3000", "https://my-job-portal-client.vercel.app"]
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -58,6 +58,8 @@ app.post("/user-public-pref/:id", userController.updateUserPublicProfile)
 app.post("/user-job-applications", userController.userJobApplications)
 app.post("/apply-job/:id", userController.updateUserApplyToJobs)
 app.get("/get-jobs-where-there-is-application", jobsController.getJobsWhereThereIsApplication)
+app.get("/check-logged-in", jobsController.getJobsWhereThereIsApplication)
+
 app.post("/update-job/:jobId", jobsController.updateJob)
 
 app.use(express.static(path.join(__dirname, "./client/build")))

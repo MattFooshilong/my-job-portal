@@ -15,6 +15,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import useAuth from '../../hooks/useAuth'
 import dayjs from 'dayjs'
+import useLogout from '../../hooks/useLogout'
 
 const PublicProfile = () => {
   const [inputs, setInputs] = useState({
@@ -43,7 +44,8 @@ const PublicProfile = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const axiosPrivate = useAxiosWithInterceptors()
-  const { auth, setAuth } = useAuth()
+  const { auth } = useAuth()
+  const logout = useLogout()
 
   const [avatar, setAvatar] = useState('')
 
@@ -89,8 +91,12 @@ const PublicProfile = () => {
         })
       } catch (err) {
         console.error(err)
-        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        navigate('/login', { state: { from: location }, replace: true })
+        try {
+          await logout() // Will throw if logout fails
+        } catch (logoutError) {
+          console.error('Error during logout:', logoutError)
+          // Handle logout-specific errors here
+        }
       }
     }
 

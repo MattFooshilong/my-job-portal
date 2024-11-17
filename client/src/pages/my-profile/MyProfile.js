@@ -12,9 +12,10 @@ import { faPenToSquare, faEnvelope } from '@fortawesome/free-regular-svg-icons'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { faWhatsapp, faLinkedin } from '@fortawesome/free-brands-svg-icons'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
 import dayjs from 'dayjs'
+import useLogout from '../../hooks/useLogout'
 
 const PublicProfile = () => {
   const [inputs, setInputs] = useState({
@@ -29,10 +30,9 @@ const PublicProfile = () => {
     whatsapp: '99998888',
   })
   const { name, age, jobTitle, company, jobDescription, startDate, endDate, email, whatsapp } = inputs
-  const { auth, setAuth } = useAuth()
+  const { auth } = useAuth()
   const axiosPrivate = useAxiosWithInterceptors()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const logout = useLogout()
 
   // avatar
   const [avatar, setAvatar] = useState('')
@@ -57,8 +57,12 @@ const PublicProfile = () => {
         setAvatar(data.avatar)
       } catch (err) {
         console.error(err)
-        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        navigate('/login', { state: { from: location }, replace: true })
+        try {
+          await logout() // Will throw if logout fails
+        } catch (logoutError) {
+          console.error('Error during logout:', logoutError)
+          // Handle logout-specific errors here
+        }
       }
     }
 

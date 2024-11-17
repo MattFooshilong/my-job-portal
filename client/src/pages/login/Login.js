@@ -11,6 +11,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
+import Spinner from 'react-bootstrap/Spinner'
 import styles from './Login.module.scss'
 import { useNavigate, useLocation } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
@@ -19,16 +20,19 @@ import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons'
 
 const Login = () => {
   const [defaultInputs] = useState({
-    email: 'admin@gmail.com',
+    email: 'user1@gmail.com',
     password: 'Abc123!',
   })
   const [err, setErr] = useState(false)
+  const [loading, setLoading] = useState(false)
   const { setAuth, persist, setPersist } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = location?.state?.from.pathname || '/' //where they came from
 
   const handleSubmit = async (values) => {
+    setLoading(true)
+
     const data = {
       email: values.email.toLowerCase().trim() || '',
       password: values.password,
@@ -39,10 +43,12 @@ const Login = () => {
       const user = res?.data?.user
       setAuth({ user, roles: user.roles, accessToken })
       setErr(false)
+      setLoading(false)
       navigate(from, { replace: true })
     } catch (err) {
       console.log(err)
       setErr(true)
+      setLoading(false)
     }
   }
 
@@ -86,7 +92,7 @@ const Login = () => {
               </Form.Group>
               {err && <Alert variant="danger">Incorrect email or password</Alert>}
               <Button variant="primary" type="submit" className={'mt-3 w-100 text-white'}>
-                Login
+                {loading ? <Spinner animation="border" size="sm" /> : 'Login'}
               </Button>
               <Row>
                 <Col className={styles.persistCheck}>

@@ -43,7 +43,7 @@ const App = () => {
               <Route path="/job-applications" element={<JobApplications />} />
             </Route>
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
-              <Route path="admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
             </Route>
           </Route>
 

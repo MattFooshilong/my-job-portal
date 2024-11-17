@@ -72,7 +72,7 @@ const createAccessToken = (email, roles) => {
     process.env.ACCESS_TOKEN_SECRET,
     {
       algorithm: "HS256",
-      expiresIn: "10m",
+      expiresIn: "2s",
     }
   )
 }
@@ -84,7 +84,7 @@ const createRefreshToken = (email) => {
     process.env.REFRESH_TOKEN_SECRET,
     {
       algorithm: "HS256",
-      expiresIn: "1d",
+      expiresIn: "5s",
     }
   )
 }
@@ -170,21 +170,26 @@ const findUserWithRefreshToken = async (refreshToken) => {
   }
 }
 const logout = async (req, res) => {
-  const cookies = req.cookies
-  res.clearCookie("cookieCsrfToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
-  if (!cookies.refreshToken) return res.sendStatus(204)
-  const refreshToken = cookies.refreshToken
-
-  //is refreshToken in db?
-  const foundUser = await findUserWithRefreshToken(refreshToken)
-  //if no user/empty object
-  if (Object.keys(foundUser).length === 0) {
-    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
-    res.sendStatus(204)
+  try {
+    const cookies = req.cookies
+    res.clearCookie("cookieCsrfToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
+    if (!cookies.refreshToken) return res.sendStatus(204)
+    const refreshToken = cookies.refreshToken
+    //is refreshToken in db?
+    const foundUser = await findUserWithRefreshToken(refreshToken)
+    //if no user/empty object
+    if (Object.keys(foundUser).length === 0) {
+      res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
+      res.sendStatus(204)
+    } else {
+      //delete refreshtoken in db
+      await saveRefreshTokenToDb(foundUser.email, "")
+      res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
+      res.sendStatus(204)
+    }
+  } catch (error) {
+    console.log(error)
+    throw error
   }
-  //delete refreshtoken in db
-  await saveRefreshTokenToDb(foundUser.email, "")
-  res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
-  res.sendStatus(204)
 }
 module.exports = { login, signUp, logout }

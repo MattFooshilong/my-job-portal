@@ -18,6 +18,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import useAuth from '../../hooks/useAuth'
+import useLogout from '../../hooks/useLogout'
 
 const ProfileSettings = () => {
   const [inputs, setInputs] = useState({
@@ -34,6 +35,7 @@ const ProfileSettings = () => {
   })
   const [profileSaved, setProfileSaved] = useState(false)
   const [err, setErr] = useState(false)
+  const logout = useLogout()
 
   const [showEndDate, setShowEndDate] = useState(() => {
     if (inputs.name === '') return true
@@ -42,8 +44,7 @@ const ProfileSettings = () => {
   const navigate = useNavigate()
   const axiosPrivate = useAxiosWithInterceptors()
 
-  const { auth, setAuth } = useAuth()
-  const location = useLocation()
+  const { auth } = useAuth()
 
   // for image upload
   const [imgPreview, setImgPreview] = useState('')
@@ -203,8 +204,12 @@ const ProfileSettings = () => {
         setAvatar(data.avatar ?? '')
       } catch (err) {
         console.error(err)
-        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        //navigate('/login', { state: { from: location }, replace: true })
+        try {
+          await logout() // Will throw if logout fails
+        } catch (logoutError) {
+          console.error('Error during logout:', logoutError)
+          // Handle logout-specific errors here
+        }
       }
     }
 

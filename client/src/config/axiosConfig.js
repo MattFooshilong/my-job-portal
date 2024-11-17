@@ -1,8 +1,9 @@
 import axios from 'axios'
-const BASE_URL = 'https://my-job-portal-server.vercel.app'
+const BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://my-job-portal-server.vercel.app'
 
 export default axios.create({
   baseURL: BASE_URL,
+  withCredentials: true,
 })
 export const axiosPrivate = axios.create({
   baseURL: BASE_URL,

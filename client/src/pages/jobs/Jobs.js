@@ -22,7 +22,7 @@ import useAuth from '../../hooks/useAuth'
 const Jobs = () => {
   const navigate = useNavigate()
   const axiosPrivate = useAxiosWithInterceptors()
-  const { auth } = useAuth()
+  const { auth, setAuth } = useAuth()
 
   const [jobs, setJobs] = useState([])
   const [job, setJob] = useState({})
@@ -106,10 +106,17 @@ const Jobs = () => {
       } catch (err) {
         console.error(err)
         setLoading(false)
+        try {
+          await axios('/api/logout', { withCredentials: true })
+          //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
+          setAuth({})
+        } catch (err) {
+          console.error(err)
+        }
       }
     }
     getJobs()
-    if (auth.user) getUser()
+    if (auth?.user) getUser()
   }, [])
 
   return (

@@ -15,7 +15,6 @@ const NavBar = () => {
   const signOut = async () => {
     await logout()
   }
-
   const userOnly = auth?.roles?.includes(2)
   const adminOnly = auth?.roles?.includes(1)
 

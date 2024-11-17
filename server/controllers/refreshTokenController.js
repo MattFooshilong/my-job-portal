@@ -25,13 +25,15 @@ const findUserWithRefreshToken = async (refreshToken) => {
 //if refresh token is valid issue a new access token
 const refreshToken = async (req, res) => {
   const cookies = req.cookies
-  if (!cookies.jwt) return res.sendStatus(401)
-  const refreshToken = cookies.jwt
+  if (!cookies.refreshToken) return res.sendStatus(401)
+  const refreshToken = cookies.refreshToken
   //find user with that refresh token
   const user = await findUserWithRefreshToken(refreshToken)
   if (!user.email) return res.sendStatus(403)
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err || decoded.email !== user.email) {
+      console.log(`refreshToken expired: ${err}`)
+
       return res.sendStatus(403)
     }
     const accessToken = jwt.sign(
@@ -42,7 +44,7 @@ const refreshToken = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       {
         algorithm: "HS256",
-        expiresIn: "10m",
+        expiresIn: "5s",
       }
     )
     res.json({ user: user, accessToken })

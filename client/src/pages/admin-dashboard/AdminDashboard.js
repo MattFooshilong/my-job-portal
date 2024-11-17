@@ -15,7 +15,7 @@ import { faCalendar, faUser, faBuilding } from '@fortawesome/free-regular-svg-ic
 import { faBriefcase, faClose, faList, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useState, useEffect } from 'react'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import { useNavigate, useLocation } from 'react-router-dom'
+import useLogout from '../../hooks/useLogout'
 
 const AdminDashboard = () => {
   const today = dayjs().format('DD-MM-YYYY')
@@ -24,10 +24,8 @@ const AdminDashboard = () => {
   const [updatingJob, setUpdatingJob] = useState(false)
   const [filteredData, setFilteredData] = useState([])
   const [filteredStatus, setFilteredStatus] = useState('')
-
+  const logout = useLogout()
   const axiosPrivate = useAxiosWithInterceptors()
-  const navigate = useNavigate()
-  const location = useLocation()
 
   const updateJobStatus = async (details, approveOrReject) => {
     setUpdatingJob(true)
@@ -70,10 +68,13 @@ const AdminDashboard = () => {
         setFilteredData(response.data) // none filtered at first
         setLoading(false)
       } catch (error) {
-        console.log(error)
         setLoading(false)
-        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        navigate('/login', { state: { from: location }, replace: true })
+        try {
+          await logout() // Will throw if logout fails
+        } catch (logoutError) {
+          console.error('Error during logout:', logoutError)
+          // Handle logout-specific errors here
+        }
       }
     }
     fetchData()

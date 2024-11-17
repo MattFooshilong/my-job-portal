@@ -7,18 +7,19 @@ import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import styles from './JobApplications.module.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 import Spinner from 'react-bootstrap/Spinner'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Form from 'react-bootstrap/Form'
 import useAuth from '../../hooks/useAuth'
+import useLogout from '../../hooks/useLogout'
 
 const JobApplications = () => {
   const navigate = useNavigate()
-  const location = useLocation()
-  const { auth, setAuth } = useAuth()
+  const { auth } = useAuth()
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('InProgress')
   const axiosPrivate = useAxiosWithInterceptors()
+  const logout = useLogout()
 
   //event handlers
   // on load
@@ -37,8 +38,12 @@ const JobApplications = () => {
       } catch (error) {
         console.log(error)
         setLoading(false)
-        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        navigate('/login', { state: { from: location }, replace: true })
+        try {
+          await logout() // Will throw if logout fails
+        } catch (logoutError) {
+          console.error('Error during logout:', logoutError)
+          // Handle logout-specific errors here
+        }
       }
     }
     fetchData()
