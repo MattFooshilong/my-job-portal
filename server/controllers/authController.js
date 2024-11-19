@@ -178,10 +178,15 @@ const logout = async (req, res) => {
     //is refreshToken in db?
     const foundUser = await findUserWithRefreshToken(refreshToken)
     //if no user/empty object
+    console.log("found user:", foundUser)
     if (Object.keys(foundUser).length === 0) {
+      console.log("foundUser.length === 0:")
+
       res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
       res.sendStatus(204)
     } else {
+      console.log("foundUser.length else block :")
+
       //delete refreshtoken in db
       await saveRefreshTokenToDb(foundUser.email, "")
       res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 1 * 60 * 60 * 1000 })
