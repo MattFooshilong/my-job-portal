@@ -14,7 +14,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
 import useAuth from '../../hooks/useAuth'
@@ -230,7 +230,7 @@ const ProfileSettings = () => {
         <Formik
           enableReinitialize
           initialValues={inputs}
-          //  validationSchema={validationSchema}
+          validationSchema={validationSchema}
           onSubmit={(values) => {
             handleSubmit(values)
           }}

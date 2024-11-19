@@ -35,7 +35,7 @@ const AdminDashboard = () => {
     }
     try {
       const response = await axiosPrivate.post(`/update-job/${details.jobId}`, dataObject)
-      const statusUpdated = response?.data?.statusUpdated
+      const statusUpdated = response?.data?.statusUpdated //do smth later perhaps?
       setUpdatingJob(false)
     } catch (error) {
       setUpdatingJob(false)

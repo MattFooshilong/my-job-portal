@@ -17,7 +17,7 @@ const useRefreshToken = () => {
       return response.data.accessToken
     } catch (error) {
       console.error('useRefreshToken error:', error)
-      //return Promise.reject(error)
+      return Promise.reject(error)
     }
   }
   return refresh

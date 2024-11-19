@@ -47,7 +47,7 @@ const useAxiosWithInterceptors = () => {
             return axiosPrivate(prevRequest) //call the request again but this time with the new accessToken
           } catch (refreshError) {
             console.error('Token refresh failed:', refreshError)
-            //return Promise.reject(refreshError) // Forward the refresh error
+            return Promise.reject(refreshError) // Forward the refresh error
           }
         }
         // Any status codes that falls outside the range of 2xx cause this function to trigger
