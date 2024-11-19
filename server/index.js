@@ -30,6 +30,7 @@ const allowedOrigins = ["http://localhost:3000", "https://my-job-portal-client.v
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV == "staging") {
+      console.log("origin: ", origin)
       callback(null, true)
     } else {
       callback(new Error(`origin: ${origin}`))
