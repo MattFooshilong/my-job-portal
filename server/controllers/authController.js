@@ -72,7 +72,7 @@ const createAccessToken = (email, roles) => {
     process.env.ACCESS_TOKEN_SECRET,
     {
       algorithm: "HS256",
-      expiresIn: "10m",
+      expiresIn: "1d",
     }
   )
 }
@@ -84,7 +84,7 @@ const createRefreshToken = (email) => {
     process.env.REFRESH_TOKEN_SECRET,
     {
       algorithm: "HS256",
-      expiresIn: "1d",
+      expiresIn: "2d",
     }
   )
 }
