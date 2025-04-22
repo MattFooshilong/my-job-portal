@@ -1,26 +1,27 @@
-import React from 'react'
-import { Routes, Route } from 'react-router-dom'
-import Login from './pages/login/Login'
-import SignUp from './pages/signup/SignUp'
-import Nav from './components/navbar/navbar'
-import PublicProfile from './pages/public-profile/PublicProfile'
-import ProfileSettings from './pages/profile-settings/ProfileSettings'
-import MyProfile from './pages/my-profile/MyProfile'
-import Jobs from './pages/jobs/Jobs'
-import FullPageJob from './pages/jobs/FullPageJob'
-import JobApplications from './pages/job-applications/JobApplications'
-import Layout from './Layout'
-import Missing from './pages/missing/Missing'
-import RequireAuth from './components/RequireAuth'
-import Unauthorized from './pages/unauthorized/Unauthorized'
-import AdminDashboard from './pages/admin-dashboard/AdminDashboard'
-import PersistLogin from './components/PersistLogin'
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Login from './pages/login/Login';
+import SignUp from './pages/signup/SignUp';
+import Nav from './components/navbar/navbar';
+import PublicProfile from './pages/public-profile/PublicProfile';
+import ProfileSettings from './pages/profile-settings/ProfileSettings';
+import MyProfile from './pages/my-profile/MyProfile';
+import Jobs from './pages/jobs/Jobs';
+import FullPageJob from './pages/jobs/FullPageJob';
+import JobApplications from './pages/job-applications/JobApplications';
+import Layout from './Layout';
+import Missing from './pages/missing/Missing';
+import RequireAuth from './components/RequireAuth';
+import Unauthorized from './pages/unauthorized/Unauthorized';
+import AdminDashboard from './pages/admin-dashboard/AdminDashboard';
+import PersistLogin from './components/PersistLogin';
+import Login2 from './pages/login copy/Login';
 
 const App = () => {
   const ROLES = {
     Admin: 1,
     User: 2,
-  }
+  };
 
   return (
     <>
@@ -29,6 +30,8 @@ const App = () => {
         <Route path="/" element={<Layout />}>
           {/* public routes */}
           <Route path="/login" element={<Login />} />
+
+          <Route path="/login2" element={<Login2 />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/" element={<Jobs />} />
           <Route path="/jobs" element={<Jobs />} />
@@ -52,7 +55,7 @@ const App = () => {
         </Route>
       </Routes>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

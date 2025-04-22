@@ -1,0 +1,18 @@
+.card {
+  max-width: 500px;
+  margin: auto;
+}
+.persistCheck {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.persistCheck label {
+  margin: 0;
+}
+[type='checkbox'] {
+  height: 20px;
+  width: 20px;
+  margin: 0 5px 2px 2px;
+}

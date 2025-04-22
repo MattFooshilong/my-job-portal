@@ -5,7 +5,8 @@
     },
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
+		"plugin:@typescript-eslint/recommended"
     ],
     "overrides": [],
     "parserOptions": {
@@ -13,7 +14,8 @@
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react",
+		"@typescript-eslint"
     ],
     "rules": {
         "react/react-in-jsx-scope": "off",
@@ -21,11 +23,8 @@
         "quotes": [
             "error",
             "single"
-        ],
-        "semi": [
-            "error",
-            "never"
         ]
+
     },
     "globals": {
         "React": true,
@@ -34,5 +33,6 @@
         "process": true,
         "JSX": true,
         "module": true
-    }
+    },
+	"parser": "@typescript-eslint/parser"
 }

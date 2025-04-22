@@ -1,84 +1,84 @@
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import styles from './AdminDashboard.module.scss'
-import Table from 'react-bootstrap/Table'
-import dayjs from 'dayjs'
-import Dropdown from 'react-bootstrap/Dropdown'
-import Spinner from 'react-bootstrap/Spinner'
-import Badge from 'react-bootstrap/Badge'
-import Form from 'react-bootstrap/Form'
-import InputGroup from 'react-bootstrap/InputGroup'
-import Stack from 'react-bootstrap/Stack'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCalendar, faUser, faBuilding } from '@fortawesome/free-regular-svg-icons'
-import { faBriefcase, faClose, faList, faSearch } from '@fortawesome/free-solid-svg-icons'
-import { useState, useEffect } from 'react'
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import useLogout from '../../hooks/useLogout'
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import styles from './AdminDashboard.module.scss';
+import Table from 'react-bootstrap/Table';
+import dayjs from 'dayjs';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Spinner from 'react-bootstrap/Spinner';
+import Badge from 'react-bootstrap/Badge';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Stack from 'react-bootstrap/Stack';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendar, faUser, faBuilding } from '@fortawesome/free-regular-svg-icons';
+import { faBriefcase, faClose, faList, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { useState, useEffect } from 'react';
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
+import useLogout from '../../hooks/useLogout';
 
 const AdminDashboard = () => {
-  const today = dayjs().format('DD-MM-YYYY')
-  const [applications, setApplications] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [updatingJob, setUpdatingJob] = useState(false)
-  const [filteredData, setFilteredData] = useState([])
-  const [filteredStatus, setFilteredStatus] = useState('')
-  const logout = useLogout()
-  const axiosPrivate = useAxiosWithInterceptors()
+  const today = dayjs().format('DD-MM-YYYY');
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [updatingJob, setUpdatingJob] = useState(false);
+  const [filteredData, setFilteredData] = useState([]);
+  const [filteredStatus, setFilteredStatus] = useState('');
+  const logout = useLogout();
+  const axiosPrivate = useAxiosWithInterceptors();
 
   const updateJobStatus = async (details, approveOrReject) => {
-    setUpdatingJob(true)
+    setUpdatingJob(true);
     const dataObject = {
       email: details.email,
       approveOrReject,
-    }
+    };
     try {
-      const response = await axiosPrivate.post(`/update-job/${details.jobId}`, dataObject)
-      const statusUpdated = response?.data?.statusUpdated //do smth later perhaps?
-      setUpdatingJob(false)
+      const response = await axiosPrivate.post(`/update-job/${details.jobId}`, dataObject);
+      const statusUpdated = response?.data?.statusUpdated; //do smth later perhaps?
+      setUpdatingJob(false);
     } catch (error) {
-      setUpdatingJob(false)
-      console.log(error)
+      setUpdatingJob(false);
+      console.log(error);
     }
-  }
+  };
 
   const filterStatus = (status) => {
     if (status === '') {
-      setFilteredData(applications)
-      setFilteredStatus('')
+      setFilteredData(applications);
+      setFilteredStatus('');
     } else {
-      const filtered = applications.filter((ele) => ele.jobStatus === status)
-      setFilteredData(filtered)
-      setFilteredStatus(status)
+      const filtered = applications.filter((ele) => ele.jobStatus === status);
+      setFilteredData(filtered);
+      setFilteredStatus(status);
     }
-  }
+  };
   // search by applicant name, company name or job title
   const filterBySearch = (e) => {
-    const text = e.target.value.toLowerCase()
-    const filtered = applications.filter((ele) => ele.applicantName.toLowerCase().includes(text) || ele.companyName.toLowerCase().includes(text) || ele.jobTitle.toLowerCase().includes(text))
-    setFilteredData(filtered)
-  }
+    const text = e.target.value.toLowerCase();
+    const filtered = applications.filter((ele) => ele.applicantName.toLowerCase().includes(text) || ele.companyName.toLowerCase().includes(text) || ele.jobTitle.toLowerCase().includes(text));
+    setFilteredData(filtered);
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true)
-        const response = await axiosPrivate.get('/get-jobs-where-there-is-application') //protected route, will throw an error if refreshToken is expired
-        setApplications(response.data)
-        setFilteredData(response.data) // none filtered at first
-        setLoading(false)
+        setLoading(true);
+        const response = await axiosPrivate.get('/get-jobs-where-there-is-application'); //protected route, will throw an error if refreshToken is expired
+        setApplications(response.data);
+        setFilteredData(response.data); // none filtered at first
+        setLoading(false);
       } catch (error) {
-        setLoading(false)
+        setLoading(false);
         try {
-          await logout() // Will throw if logout fails
+          await logout(); // Will throw if logout fails
         } catch (logoutError) {
-          console.error('Error during logout:', logoutError)
+          console.error('Error during logout:', logoutError);
           // Handle logout-specific errors here
         }
       }
-    }
-    fetchData()
-  }, [updatingJob])
+    };
+    fetchData();
+  }, [updatingJob]);
   return (
     <Container>
       {loading ? (
@@ -195,14 +195,14 @@ const AdminDashboard = () => {
                       </Dropdown>
                     </td>
                   </tr>
-                )
+                );
               })}
             </tbody>
           </Table>
         </>
       )}
     </Container>
-  )
-}
+  );
+};
 
-export default AdminDashboard
+export default AdminDashboard;
