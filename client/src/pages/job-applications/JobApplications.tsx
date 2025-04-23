@@ -1,25 +1,40 @@
-import { useState, useEffect } from 'react'
-import Container from 'react-bootstrap/Container'
-import Image from 'react-bootstrap/Image'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import styles from './JobApplications.module.scss'
-import 'react-datepicker/dist/react-datepicker.css'
-import Spinner from 'react-bootstrap/Spinner'
-import { useNavigate } from 'react-router-dom'
-import Form from 'react-bootstrap/Form'
-import useAuth from '../../hooks/useAuth'
-import useLogout from '../../hooks/useLogout'
+import { useState, useEffect } from 'react';
+import Container from 'react-bootstrap/Container';
+import Image from 'react-bootstrap/Image';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
+import styles from './JobApplications.module.scss';
+import 'react-datepicker/dist/react-datepicker.css';
+import Spinner from 'react-bootstrap/Spinner';
+import { useNavigate } from 'react-router-dom';
+import Form from 'react-bootstrap/Form';
+import useAuth from '../../hooks/useAuth';
+import useLogout from '../../hooks/useLogout';
+
+type JobApplication = {
+  jobDescription: string;
+  companyName: string;
+  isRecruiting: string;
+  tasks: Record<string, string>;
+  type: string;
+  skills: Record<string, string>;
+  jobTitle: string;
+  industry: string;
+  noOfEmployees: string;
+  location: string;
+  companyDescription: string;
+  id: number;
+};
 
 const JobApplications = () => {
-  const navigate = useNavigate()
-  const { auth } = useAuth()
-  const [jobs, setJobs] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState('InProgress')
-  const axiosPrivate = useAxiosWithInterceptors()
-  const logout = useLogout()
+  const navigate = useNavigate();
+  const { auth } = useAuth();
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('InProgress');
+  const axiosPrivate = useAxiosWithInterceptors();
+  const logout = useLogout();
 
   //event handlers
   // on load
@@ -27,27 +42,27 @@ const JobApplications = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         const dataObject = {
           email: auth.user.email,
           status: status,
-        }
-        const response = await axiosPrivate.post('/user-job-applications', dataObject) //protected route, will throw an error if refreshToken is expired
-        setJobs(response.data?.jobDocuments)
-        setLoading(false)
+        };
+        const response = await axiosPrivate.post('/user-job-applications', dataObject); //protected route, will throw an error if refreshToken is expired
+        setJobs(response.data?.jobDocuments);
+        setLoading(false);
       } catch (error) {
-        console.log(error)
-        setLoading(false)
+        console.log(error);
+        setLoading(false);
         try {
-          await logout() // Will throw if logout fails
+          await logout(); // Will throw if logout fails
         } catch (logoutError) {
-          console.error('Error during logout:', logoutError)
+          console.error('Error during logout:', logoutError);
           // Handle logout-specific errors here
         }
       }
-    }
-    fetchData()
-  }, [status])
+    };
+    fetchData();
+  }, [status]);
 
   return (
     <Container>
@@ -71,7 +86,7 @@ const JobApplications = () => {
                       </Col>
                     </Row>
                   )}
-                  {jobs.map((ele, i) => {
+                  {jobs.map((ele: JobApplication, i) => {
                     return (
                       <Row className={styles.row_clickable} key={i} onClick={() => navigate('/job/' + ele.id)}>
                         <Col xs={4} sm={2}>
@@ -84,7 +99,7 @@ const JobApplications = () => {
                           <small className="d-block mb-2 mt-2">Applied 3 days ago</small>
                         </Col>
                       </Row>
-                    )
+                    );
                   })}
                 </div>
               </Col>
@@ -93,7 +108,7 @@ const JobApplications = () => {
         </>
       )}
     </Container>
-  )
-}
+  );
+};
 
-export default JobApplications
+export default JobApplications;

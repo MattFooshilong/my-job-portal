@@ -1,146 +1,189 @@
-import { useState, useRef, useEffect } from 'react'
-import { Formik, Form as FormikForm, useField, useFormikContext } from 'formik'
-import * as Yup from 'yup'
-import dayjs from 'dayjs'
-import Container from 'react-bootstrap/Container'
-import Card from 'react-bootstrap/Card'
-import Form from 'react-bootstrap/Form'
-import Image from 'react-bootstrap/Image'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import Button from 'react-bootstrap/Button'
-import Alert from 'react-bootstrap/Alert'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { useNavigate } from 'react-router-dom'
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import useAuth from '../../hooks/useAuth'
-import useLogout from '../../hooks/useLogout'
+import { useState, useRef, useEffect } from 'react';
+import { Formik, Form as FormikForm, FormikProps, useField, useFormikContext } from 'formik';
+import * as Yup from 'yup';
+import dayjs from 'dayjs';
+import Container from 'react-bootstrap/Container';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Image from 'react-bootstrap/Image';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
+import useAuth from '../../hooks/useAuth';
+import useLogout from '../../hooks/useLogout';
+import { FirebaseError } from 'firebase/app';
+import { FC } from 'react';
+
+type HandleSubmitValues = {
+  name: string;
+  age: string;
+  dob: Date | null;
+  jobTitle: string;
+  company: string;
+  companyLogo: string;
+  jobDescription: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  csrfToken: string;
+};
+type InputTypes = {
+  name: string;
+  age: string;
+  dob: Date | null;
+  jobTitle: string;
+  company: string;
+  companyLogo: string;
+  jobDescription: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  csrfToken: string;
+};
+type DatePickerFieldProps = {
+  name: string;
+  [key: string]: any; //allows more props in the future
+};
+type FormFieldKeys = 'jobTitle' | 'company' | 'jobDescription';
+type Headers = {
+  value: FormFieldKeys;
+  label: string;
+};
 
 const ProfileSettings = () => {
-  const [inputs, setInputs] = useState({
+  const [inputs, setInputs] = useState<InputTypes>({
     name: '',
     age: '',
-    dob: '',
+    dob: null,
     jobTitle: '',
     company: '',
     companyLogo: '',
     jobDescription: '',
-    startDate: '',
+    startDate: null,
     endDate: null,
     csrfToken: '',
-  })
-  const [profileSaved, setProfileSaved] = useState(false)
-  const [err, setErr] = useState(false)
-  const logout = useLogout()
+  });
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [err, setErr] = useState(false);
+  const logout = useLogout();
 
   const [showEndDate, setShowEndDate] = useState(() => {
-    if (inputs.name === '') return true
-    else return false
-  })
-  const navigate = useNavigate()
-  const axiosPrivate = useAxiosWithInterceptors()
+    if (inputs.name === '') return true;
+    else return false;
+  });
+  const navigate = useNavigate();
+  const axiosPrivate = useAxiosWithInterceptors();
 
-  const { auth } = useAuth()
+  const { auth } = useAuth();
 
   // for image upload
-  const [imgPreview, setImgPreview] = useState('')
-  const imgInputRef = useRef(null)
-  const [avatar, setAvatar] = useState('')
-  const [companyLogoUrl, setCompanyLogoUrl] = useState('')
+  const [imgPreview, setImgPreview] = useState('');
+  const imgInputRef = useRef<HTMLInputElement | null>(null);
+  const [avatar, setAvatar] = useState('');
+  const [companyLogoUrl, setCompanyLogoUrl] = useState('');
 
   // event handlers
   const handleImgPreview = () => {
     if (imgPreview === '') {
-      return avatar
-    } else return imgPreview
-  }
-  const uploadAvatar = async (event) => {
-    const fileType = event.target.accept
-    const file = event.target.files[0]
+      return avatar;
+    } else return imgPreview;
+  };
+  const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileType = event.target.accept;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
     if (file !== undefined && fileType === 'image/*') {
-      setImgPreview(URL.createObjectURL(file))
+      setImgPreview(URL.createObjectURL(file));
       try {
         //host img on firebase
-        const storage = getStorage()
-        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`)
-        await uploadBytesResumable(imagesRef, file)
-        const url = await getDownloadURL(imagesRef)
-        setAvatar(url)
+        const storage = getStorage();
+        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`);
+        await uploadBytesResumable(imagesRef, file);
+        const url = await getDownloadURL(imagesRef);
+        setAvatar(url);
       } catch (error) {
-        switch (error.code) {
-          case 'storage/object-not-found':
-            // File doesn't exist
-            break
-          case 'storage/unauthorized':
-            // User doesn't have permission to access the object
-            break
-          case 'storage/canceled':
-            // User canceled the upload
-            break
-          // ...
-          case 'storage/unknown':
-            // Unknown error occurred, inspect the server response
-            break
+        if (error instanceof FirebaseError) {
+          switch (error.code) {
+            case 'storage/object-not-found':
+              // File doesn't exist
+              break;
+            case 'storage/unauthorized':
+              // User doesn't have permission to access the object
+              break;
+            case 'storage/canceled':
+              // User canceled the upload
+              break;
+            // ...
+            case 'storage/unknown':
+              // Unknown error occurred, inspect the server response
+              break;
+          }
         }
       }
     }
-  }
-  const onCompanyLogoUpload = async (event) => {
-    const fileType = event.target.accept
-    const file = event.target.files[0]
-
+  };
+  const onCompanyLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileType = event.target.accept;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
     if (file !== undefined && fileType === 'image/*') {
       //host img on firebase
       try {
-        const storage = getStorage()
-        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`)
-        await uploadBytesResumable(imagesRef, file)
-        const url = await getDownloadURL(imagesRef)
-        setCompanyLogoUrl(url)
+        const storage = getStorage();
+        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`);
+        await uploadBytesResumable(imagesRef, file);
+        const url = await getDownloadURL(imagesRef);
+        setCompanyLogoUrl(url);
       } catch (error) {
-        switch (error.code) {
-          case 'storage/object-not-found':
-            // File doesn't exist
-            break
-          case 'storage/unauthorized':
-            // User doesn't have permission to access the object
-            break
-          case 'storage/canceled':
-            // User canceled the upload
-            break
-          // ...
-          case 'storage/unknown':
-            // Unknown error occurred, inspect the server response
-            break
+        if (error instanceof FirebaseError) {
+          switch (error.code) {
+            case 'storage/object-not-found':
+              // File doesn't exist
+              break;
+            case 'storage/unauthorized':
+              // User doesn't have permission to access the object
+              break;
+            case 'storage/canceled':
+              // User canceled the upload
+              break;
+            // ...
+            case 'storage/unknown':
+              // Unknown error occurred, inspect the server response
+              break;
+          }
         }
       }
     }
-  }
-  const handleSubmit = async (values) => {
+  };
+  const handleSubmit = async (values: HandleSubmitValues) => {
     const dataObject = {
       values,
       companyLogoUrl,
       avatar: avatar,
       showEndDate,
-    }
+    };
     try {
-      const response = await axiosPrivate.post(`/user/${auth.user.userId}`, dataObject)
-      const updated = response?.data?.updated
-      setProfileSaved(updated)
-      setErr(false)
+      const response = await axiosPrivate.post(`/user/${auth.user.userId}`, dataObject);
+      const updated = response?.data?.updated;
+      setProfileSaved(updated);
+      setErr(false);
     } catch (err) {
-      console.error(err)
-      setErr(true)
+      console.error(err);
+      setErr(true);
     }
-  }
+  };
 
   // validation
-  function formatDate(date) {
-    return new Date(date).toLocaleDateString()
+  function formatDate(date: string | Date) {
+    return new Date(date).toLocaleDateString();
   }
   const validationSchema = Yup.object().shape({
     name: Yup.string()
@@ -160,35 +203,35 @@ const ProfileSettings = () => {
     startDate: Yup.date().nullable().required('required'),
     endDate: Yup.date()
       .nullable()
-      .min(Yup.ref('startDate'), ({ min }) => `Date needs to be before ${formatDate(min)}`),
-  })
+      .min(Yup.ref('startDate'), ({ min }) => `End date needs to be after ${formatDate(min)}`),
+  });
 
   // date picker
-  const DatePickerField = ({ ...props }) => {
-    const { setFieldValue } = useFormikContext()
-    const [field] = useField(props)
+  const DatePickerField: FC<DatePickerFieldProps> = ({ ...props }) => {
+    const { setFieldValue } = useFormikContext();
+    const [field] = useField(props);
     return (
       <DatePicker
         dateFormat="dd-MM-yyyy"
         {...field}
         {...props}
         selected={(field.value && new Date(field.value)) || null}
-        onChange={(val) => {
-          setFieldValue(field.name, val)
+        onChange={(val: Date | null) => {
+          setFieldValue(field.name, val);
         }}
         className="form-control"
         placeholderText="Select date"
       />
-    )
-  }
+    );
+  };
 
   // on load
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await axiosPrivate.get(`/user/${auth.user.userId}`) //protected route, will throw an error if refreshToken is expired
-        const antiCSRFRes = await axiosPrivate.get('/antiCSRF')
-        const data = response?.data
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`); //protected route, will throw an error if refreshToken is expired
+        const antiCSRFRes = await axiosPrivate.get('/antiCSRF');
+        const data = response?.data;
         setInputs({
           name: data.name,
           age: data.age,
@@ -200,21 +243,21 @@ const ProfileSettings = () => {
           startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
           endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
           csrfToken: antiCSRFRes.data.csrfToken,
-        })
-        setAvatar(data.avatar ?? '')
+        });
+        setAvatar(data.avatar ?? '');
       } catch (err) {
-        console.error(err)
+        console.error(err);
         try {
-          await logout() // Will throw if logout fails
+          await logout(); // Will throw if logout fails
         } catch (logoutError) {
-          console.error('Error during logout:', logoutError)
+          console.error('Error during logout:', logoutError);
           // Handle logout-specific errors here
         }
       }
-    }
+    };
 
-    getUser()
-  }, [])
+    getUser();
+  }, []);
   return (
     <Container>
       <Card className="mt-5 p-3 p-sm-5">
@@ -231,11 +274,11 @@ const ProfileSettings = () => {
           enableReinitialize
           initialValues={inputs}
           validationSchema={validationSchema}
-          onSubmit={(values) => {
-            handleSubmit(values)
+          onSubmit={(values: HandleSubmitValues) => {
+            handleSubmit(values);
           }}
         >
-          {({ values, handleChange, errors, touched }) => (
+          {({ values, handleChange, errors, touched }: FormikProps<HandleSubmitValues>) => (
             <FormikForm>
               <input type="hidden" name="csrfToken" value={values.csrfToken} onChange={handleChange} />
               <Row>
@@ -263,7 +306,7 @@ const ProfileSettings = () => {
                               variant="primary"
                               className="text-white w-100"
                               onClick={() => {
-                                if (imgInputRef !== null && imgInputRef.current !== null) imgInputRef.current.click()
+                                if (imgInputRef !== null && imgInputRef.current !== null) imgInputRef.current.click();
                               }}
                             >
                               Upload
@@ -275,8 +318,8 @@ const ProfileSettings = () => {
                               variant="secondary"
                               className="text-white w-100"
                               onClick={() => {
-                                setImgPreview('')
-                                setAvatar('')
+                                setImgPreview('');
+                                setAvatar('');
                               }}
                             >
                               Remove
@@ -314,11 +357,13 @@ const ProfileSettings = () => {
                   </Form.Group>
                 </Col>
               </Row>
-              {[
-                { value: 'jobTitle', label: 'Job Title' },
-                { value: 'company', label: 'Company' },
-                { value: 'jobDescription', label: 'Job Description' },
-              ].map((obj, i) => {
+              {(
+                [
+                  { value: 'jobTitle', label: 'Job Title' },
+                  { value: 'company', label: 'Company' },
+                  { value: 'jobDescription', label: 'Job Description' },
+                ] as Headers[]
+              ).map((obj, i) => {
                 return (
                   <Row key={i}>
                     <Col>
@@ -329,7 +374,7 @@ const ProfileSettings = () => {
                       </Form.Group>
                     </Col>
                   </Row>
-                )
+                );
               })}
               <Row>
                 <Col className="mb-3">
@@ -354,8 +399,8 @@ const ProfileSettings = () => {
                   className="mb-3"
                   checked={!showEndDate}
                   onChange={() => {
-                    setShowEndDate(!showEndDate)
-                    setInputs({ ...inputs, endDate: '' })
+                    setShowEndDate(!showEndDate);
+                    setInputs({ ...inputs, endDate: null });
                   }}
                 />
               </div>
@@ -390,7 +435,7 @@ const ProfileSettings = () => {
         </Formik>
       </Card>
     </Container>
-  )
-}
+  );
+};
 
-export default ProfileSettings
+export default ProfileSettings;
