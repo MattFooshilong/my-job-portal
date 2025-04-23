@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Login from './pages/login/Login';
 import SignUp from './pages/signup/SignUp';
 import Nav from './components/navbar/navbar';
 import PublicProfile from './pages/public-profile/PublicProfile';
@@ -15,7 +14,7 @@ import RequireAuth from './components/RequireAuth';
 import Unauthorized from './pages/unauthorized/Unauthorized';
 import AdminDashboard from './pages/admin-dashboard/AdminDashboard';
 import PersistLogin from './components/PersistLogin';
-import Login2 from './pages/loginCopy/Login.tsx';
+import Login from './pages/login/Login.tsx';
 
 const App = () => {
   const ROLES = {
@@ -30,8 +29,6 @@ const App = () => {
         <Route path="/" element={<Layout />}>
           {/* public routes */}
           <Route path="/login" element={<Login />} />
-
-          <Route path="/login2" element={<Login2 />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/" element={<Jobs />} />
           <Route path="/jobs" element={<Jobs />} />

@@ -2,8 +2,20 @@ import { createContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import type AppProps from '../config/AppProps';
 
+type User = {
+  userId: string;
+  email: string;
+  roles: number[];
+};
+
+type authType = {
+  user: User;
+  roles: number[];
+  accessToken: string;
+};
+
 interface AuthContextValue {
-  auth: any;
+  auth: authType | Record<string, never>;
   setAuth: React.Dispatch<React.SetStateAction<any>>;
   persist: boolean;
   setPersist: React.Dispatch<React.SetStateAction<boolean>>;
@@ -11,9 +23,13 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue>({
   auth: {},
-  setAuth: () => {},
+  setAuth: () => {
+    //do nothing
+  },
   persist: false,
-  setPersist: () => {},
+  setPersist: () => {
+    //do nothing
+  },
 });
 
 export const AuthProvider = ({ children }: AppProps) => {
