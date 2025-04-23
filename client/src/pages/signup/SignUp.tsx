@@ -1,51 +1,56 @@
-import { useState } from 'react'
-import { Formik, Form as FormikForm } from 'formik'
-import * as Yup from 'yup'
-import axios from '../../config/axiosConfig'
-import Container from 'react-bootstrap/Container'
-import Card from 'react-bootstrap/Card'
-import Form from 'react-bootstrap/Form'
-import Button from 'react-bootstrap/Button'
-import Alert from 'react-bootstrap/Alert'
-import styles from './SignUp.module.scss'
-import { useNavigate, useLocation } from 'react-router-dom'
-import useAuth from '../../hooks/useAuth'
+import { useState } from 'react';
+import { Formik, Form as FormikForm } from 'formik';
+import * as Yup from 'yup';
+import axios from '../../config/axiosConfig';
+import Container from 'react-bootstrap/Container';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
+import styles from './SignUp.module.scss';
+import { useNavigate, useLocation } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
+
+type ValuesType = {
+  email: string;
+  password: string;
+};
 
 const SignUp = () => {
   const [defaultInputs] = useState({
     email: '',
     password: '',
-  })
-  const [err, setErr] = useState(false)
-  const { setAuth } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const from = location?.state?.from.pathname || '/' //where they came from
+  });
+  const [err, setErr] = useState(false);
+  const { setAuth } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location?.state?.from.pathname || '/'; //where they came from
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values: ValuesType) => {
     const data = {
       email: values.email.toLowerCase().trim() || '',
       password: values.password,
-    }
+    };
     try {
-      const res = await axios.post('/api/signup', data)
-      const accessToken = res?.data?.accessToken
-      const user = res?.data?.user
-      setAuth({ user, roles: user.roles, accessToken })
-      setErr(false)
-      navigate(from, { replace: true })
+      const res = await axios.post('/api/signup', data);
+      const accessToken = res?.data?.accessToken;
+      const user = res?.data?.user;
+      setAuth({ user, roles: user.roles, accessToken });
+      setErr(false);
+      navigate(from, { replace: true });
     } catch (err) {
-      console.log(err)
-      setErr(true)
+      console.log(err);
+      setErr(true);
     }
-  }
+  };
   //shift this to server-side
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Not a valid email').required('Required'),
     password: Yup.string()
       .required('Required')
       .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{4,}$/, 'Password must contain one digit, one lowercase, one uppercase and a special character'),
-  })
+  });
 
   return (
     <Container className="py-3 pt-sm-5">
@@ -56,7 +61,7 @@ const SignUp = () => {
           initialValues={defaultInputs}
           validationSchema={validationSchema}
           onSubmit={(values) => {
-            handleSubmit(values)
+            handleSubmit(values);
           }}
         >
           {({ values, handleChange, errors, touched }) => (
@@ -81,7 +86,7 @@ const SignUp = () => {
         </Formik>
       </Card>
     </Container>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;

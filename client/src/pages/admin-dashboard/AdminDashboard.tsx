@@ -17,6 +17,17 @@ import { useState, useEffect } from 'react';
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
 import useLogout from '../../hooks/useLogout';
 
+type JobStatus = 'Successful' | 'Unsuccessful' | 'InProgress';
+
+type ApplicationData = {
+  applicantName: string;
+  companyName: string;
+  email: string;
+  jobId: number;
+  jobStatus: JobStatus;
+  jobTitle: string;
+};
+
 const AdminDashboard = () => {
   const today = dayjs().format('DD-MM-YYYY');
   const [applications, setApplications] = useState([]);
@@ -27,7 +38,7 @@ const AdminDashboard = () => {
   const logout = useLogout();
   const axiosPrivate = useAxiosWithInterceptors();
 
-  const updateJobStatus = async (details, approveOrReject) => {
+  const updateJobStatus = async (details: ApplicationData, approveOrReject: string) => {
     setUpdatingJob(true);
     const dataObject = {
       email: details.email,
@@ -43,20 +54,20 @@ const AdminDashboard = () => {
     }
   };
 
-  const filterStatus = (status) => {
+  const filterStatus = (status: string) => {
     if (status === '') {
       setFilteredData(applications);
       setFilteredStatus('');
     } else {
-      const filtered = applications.filter((ele) => ele.jobStatus === status);
+      const filtered = applications.filter((ele: ApplicationData) => ele.jobStatus === status);
       setFilteredData(filtered);
       setFilteredStatus(status);
     }
   };
   // search by applicant name, company name or job title
-  const filterBySearch = (e) => {
+  const filterBySearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value.toLowerCase();
-    const filtered = applications.filter((ele) => ele.applicantName.toLowerCase().includes(text) || ele.companyName.toLowerCase().includes(text) || ele.jobTitle.toLowerCase().includes(text));
+    const filtered = applications.filter((ele: ApplicationData) => ele.applicantName.toLowerCase().includes(text) || ele.companyName.toLowerCase().includes(text) || ele.jobTitle.toLowerCase().includes(text));
     setFilteredData(filtered);
   };
   useEffect(() => {
@@ -101,15 +112,15 @@ const AdminDashboard = () => {
                 <Row>
                   <Col className="pe-0">
                     <p className={styles.status}>In Progress</p>
-                    <div className={styles.statusCount}>{applications.filter((ele) => ele.jobStatus === 'InProgress').length}</div>
+                    <div className={styles.statusCount}>{applications.filter((ele: ApplicationData) => ele.jobStatus === 'InProgress').length}</div>
                   </Col>
                   <Col className="pe-0">
                     <p className={styles.status}>Successful</p>
-                    <div className={styles.statusCount}>{applications.filter((ele) => ele.jobStatus === 'Successful').length}</div>
+                    <div className={styles.statusCount}>{applications.filter((ele: ApplicationData) => ele.jobStatus === 'Successful').length}</div>
                   </Col>
                   <Col className="pe-0">
                     <p className={styles.status}>Unsuccessful</p>
-                    <div className={styles.statusCountFontSizeOnly}>{applications.filter((ele) => ele.jobStatus === 'Unsuccessful').length}</div>
+                    <div className={styles.statusCountFontSizeOnly}>{applications.filter((ele: ApplicationData) => ele.jobStatus === 'Unsuccessful').length}</div>
                   </Col>
                 </Row>
               </div>
@@ -122,7 +133,7 @@ const AdminDashboard = () => {
                   <InputGroup.Text id="searchText">
                     <FontAwesomeIcon icon={faSearch} className="me-1" />
                   </InputGroup.Text>
-                  <Form.Control placeholder="Search" aria-label="search" aria-describedby="basic-addon1" onChange={(e) => filterBySearch(e)} />
+                  <Form.Control placeholder="Search name /company name/ job title" aria-label="search" aria-describedby="basic-addon1" onChange={(e: React.ChangeEvent<HTMLInputElement>) => filterBySearch(e)} />
                 </InputGroup>
                 <Dropdown>
                   <Dropdown.Toggle variant="secondary" id="status-filter" size="sm" className={styles.statusFilter}>
@@ -174,7 +185,7 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((ele, i) => {
+              {filteredData.map((ele: ApplicationData, i) => {
                 return (
                   <tr key={i}>
                     <td>{today}</td>

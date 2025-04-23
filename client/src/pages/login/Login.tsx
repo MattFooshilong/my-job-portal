@@ -18,7 +18,7 @@ import useAuth from '../../hooks/useAuth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 
-type valuesType = {
+type ValuesType = {
   email: string;
   password: string;
 };
@@ -34,7 +34,7 @@ const Login = () => {
   const location = useLocation();
   const from = location?.state?.from.pathname || '/'; //where they came from
 
-  const handleSubmit = async (values: valuesType) => {
+  const handleSubmit = async (values: ValuesType) => {
     setLoading(true);
 
     const data = {
