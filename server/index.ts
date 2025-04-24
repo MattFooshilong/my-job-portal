@@ -1,15 +1,16 @@
 require("dotenv").config()
-const express = require("express")
-const bodyParser = require("body-parser")
-const cors = require("cors")
-const routes = require("./api/routes")
-const path = require("path")
-const verifyAccessTokenJWT = require("./middleware/verifyAccessToken")
-const userController = require("./controllers/userController")
-const csrfController = require("./controllers/csrfController")
-const jobsController = require("./controllers/jobsController")
-const cookieParser = require("cookie-parser")
-
+import express from "express"
+import bodyParser from "body-parser"
+import cors from "cors"
+import routes from "./api/routes"
+import path from "path"
+import verifyAccessTokenJWT from "./middleware/verifyAccessToken"
+import userController from "./controllers/userController"
+import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfController"
+import jobsController from "./controllers/jobsController"
+import cookieParser from "cookie-parser"
+import { Request, Response, NextFunction } from "express"
+import { ExtendedRequest } from "./types/extendedTypes"
 // Globals
 const app = express()
 app.use(cookieParser())
@@ -51,10 +52,10 @@ app.use("/api/", routes)
 //protected routes
 app.use(verifyAccessTokenJWT)
 app.get("/user/:id", userController.getUser)
-app.get("/antiCSRF", csrfController.generateCSRFToken, (req, res) => {
+app.get("/antiCSRF", generateCSRFToken, (req, res) => {
   res.json({ csrfToken: req.csrfToken })
 })
-app.post("/user/:id", csrfController.validateCSRFToken, userController.updateProfileSettings)
+app.post("/user/:id", validateCSRFToken, userController.updateProfileSettings)
 app.post("/user-public-pref/:id", userController.updateUserPublicProfile)
 app.post("/user-job-applications", userController.userJobApplications)
 app.post("/apply-job/:id", userController.updateUserApplyToJobs)
