@@ -1,90 +1,106 @@
-import { useState, useRef, useEffect } from 'react'
-import Container from 'react-bootstrap/Container'
-import Card from 'react-bootstrap/Card'
-import Image from 'react-bootstrap/Image'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import Button from 'react-bootstrap/Button'
-import styles from './Jobs.module.scss'
-import 'react-datepicker/dist/react-datepicker.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBuilding } from '@fortawesome/free-regular-svg-icons'
-import { faBriefcase, faArrowUpRightFromSquare, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import Spinner from 'react-bootstrap/Spinner'
-import { useParams, useNavigate } from 'react-router-dom'
-import Toast from 'react-bootstrap/Toast'
-import ToastContainer from 'react-bootstrap/ToastContainer'
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import useAuth from '../../hooks/useAuth'
+import { useState, useRef, useEffect } from 'react';
+import Container from 'react-bootstrap/Container';
+import Card from 'react-bootstrap/Card';
+import Image from 'react-bootstrap/Image';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import styles from './Jobs.module.scss';
+import 'react-datepicker/dist/react-datepicker.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding } from '@fortawesome/free-regular-svg-icons';
+import { faBriefcase, faArrowUpRightFromSquare, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import Spinner from 'react-bootstrap/Spinner';
+import { useParams, useNavigate } from 'react-router-dom';
+import Toast from 'react-bootstrap/Toast';
+import ToastContainer from 'react-bootstrap/ToastContainer';
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
+import useAuth from '../../hooks/useAuth';
+
+type JobType = {
+  companyDescription: string;
+  companyName: string;
+  id: number;
+  industry: string;
+  isRecruiting: string;
+  jobDescription: string;
+  jobTitle: string;
+  location: string;
+  noOfEmployees: string;
+  skills: Record<number, string>;
+  tasks: Record<number, string>;
+  type: string;
+};
 
 const FullPageJob = () => {
-  const param = useParams()
-  const jobId = param.id !== undefined ? param.id : ''
-  const [loading, setLoading] = useState(false)
-  const [job, setJob] = useState({})
-  const navigate = useNavigate()
-  const [applyingJob, setApplyingJob] = useState(false)
-  const [showToast, setShowToast] = useState(false)
-  const [appliedJobs, setAppliedJobs] = useState([])
-  const axiosPrivate = useAxiosWithInterceptors()
-  const { auth } = useAuth()
+  const param = useParams();
+  const jobId = param.id !== undefined ? param.id : '';
+  const [loading, setLoading] = useState(false);
+  const [job, setJob] = useState<JobType | Record<string, never>>({});
+  const navigate = useNavigate();
+  const [applyingJob, setApplyingJob] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [appliedJobs, setAppliedJobs] = useState<number[]>([]);
+  const axiosPrivate = useAxiosWithInterceptors();
+  const { auth } = useAuth();
   //event handlers
-  const applyJob = async (id) => {
-    setApplyingJob(true)
+  const applyJob = async (id: number) => {
+    setApplyingJob(true);
     if (!auth.user) {
-      navigate('/login')
-      setApplyingJob(false)
+      navigate('/login');
+      setApplyingJob(false);
     } else {
       //push id to appliedJobs array in db
-      const appliedJobsCopy = [...appliedJobs]
-      appliedJobsCopy.push(id)
+      const appliedJobsCopy = [...appliedJobs];
+      appliedJobsCopy.push(id);
       const dataObject = {
         appliedJobs: appliedJobsCopy,
         email: auth.user.email,
-      }
+      };
       try {
-        const response = await axiosPrivate.post(`/apply-job/${auth.user.userId}`, dataObject)
-        const updated = response?.data?.updated
-        setShowToast(updated)
-        setAppliedJobs([...appliedJobs, id])
-        setApplyingJob(false)
+        const response = await axiosPrivate.post(`/apply-job/${auth.user.userId}`, dataObject);
+        const updated = response?.data?.updated;
+        setShowToast(updated);
+        setAppliedJobs([...appliedJobs, id]);
+        setApplyingJob(false);
       } catch (error) {
-        console.log(error)
-        setApplyingJob(false)
+        console.log(error);
+        setApplyingJob(false);
       }
     }
-  }
+  };
   // on load
   useEffect(() => {
     const getJob = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const response = await axiosPrivate.get(`/api/job/${jobId}`)
-        setJob(response?.data)
-        setLoading(false)
+        const response = await axiosPrivate.get(`/api/job/${jobId}`);
+        setJob(response?.data);
+        setLoading(false);
       } catch (err) {
-        console.error(err)
-        setLoading(false)
+        console.error(err);
+        setLoading(false);
       }
-    }
+    };
 
     const getUser = async () => {
       try {
-        setLoading(true)
-        const response = await axiosPrivate.get(`/user/${auth.user.userId}`)
-        const data = response?.data
-        setAppliedJobs(data.appliedJobs)
-        setLoading(false)
+        setLoading(true);
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`);
+        const data = response?.data;
+        setAppliedJobs(data.appliedJobs);
+        setLoading(false);
       } catch (err) {
-        console.error(err)
-        setLoading(false)
+        console.error(err);
+        setLoading(false);
       }
-    }
-    getJob()
-    if (auth.user) getUser()
-  }, [])
+    };
+    getJob();
+    if (auth.user) getUser();
+  }, []);
   return (
     <>
+      {console.log(job)}
       {loading ? (
         <Spinner animation="border" className="mt-5" />
       ) : (
@@ -178,8 +194,8 @@ const FullPageJob = () => {
         <Toast
           show={showToast}
           onClose={() => {
-            setShowToast(!showToast)
-            window.location.reload()
+            setShowToast(!showToast);
+            window.location.reload();
           }}
           delay={5000}
           autohide
@@ -192,7 +208,7 @@ const FullPageJob = () => {
         </Toast>
       </ToastContainer>
     </>
-  )
-}
+  );
+};
 
-export default FullPageJob
+export default FullPageJob;

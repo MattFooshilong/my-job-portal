@@ -1,5 +1,4 @@
 import { createContext, useState } from 'react';
-import PropTypes from 'prop-types';
 import type AppProps from '../config/AppProps';
 
 type User = {
@@ -42,7 +41,5 @@ export const AuthProvider = ({ children }: AppProps) => {
 
   return <AuthContext.Provider value={{ auth, setAuth, persist, setPersist }}>{children}</AuthContext.Provider>;
 };
-AuthProvider.propTypes = {
-  children: PropTypes.any,
-};
+
 export default AuthContext;

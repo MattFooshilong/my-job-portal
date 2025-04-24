@@ -1,62 +1,93 @@
-import { useState, useEffect } from 'react'
-import Container from 'react-bootstrap/Container'
-import Card from 'react-bootstrap/Card'
-import Image from 'react-bootstrap/Image'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import Button from 'react-bootstrap/Button'
-import styles from './Jobs.module.scss'
-import 'react-datepicker/dist/react-datepicker.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBuilding } from '@fortawesome/free-regular-svg-icons'
-import { faCheck, faBriefcase, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
-import Spinner from 'react-bootstrap/Spinner'
-import PropTypes from 'prop-types'
-import { useNavigate } from 'react-router-dom'
-import Toast from 'react-bootstrap/Toast'
-import ToastContainer from 'react-bootstrap/ToastContainer'
-import axios from '../../config/axiosConfig'
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import useAuth from '../../hooks/useAuth'
+import { useState, useEffect } from 'react';
+import Container from 'react-bootstrap/Container';
+import Card from 'react-bootstrap/Card';
+import Image from 'react-bootstrap/Image';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import styles from './Jobs.module.scss';
+import 'react-datepicker/dist/react-datepicker.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding } from '@fortawesome/free-regular-svg-icons';
+import { faCheck, faBriefcase, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import Spinner from 'react-bootstrap/Spinner';
+import { useNavigate } from 'react-router-dom';
+import Toast from 'react-bootstrap/Toast';
+import ToastContainer from 'react-bootstrap/ToastContainer';
+import axios from '../../config/axiosConfig';
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
+import useAuth from '../../hooks/useAuth';
+
+type JobType = {
+  companyDescription: string;
+  companyName: string;
+  id: number;
+  industry: string;
+  isRecruiting: string;
+  jobDescription: string;
+  jobTitle: string;
+  location: string;
+  noOfEmployees: string;
+  skills: Record<number, string>;
+  tasks: Record<number, string>;
+  type: string;
+};
+type User = {
+  userId: string;
+  email: string;
+  roles: number[];
+};
+type authType = {
+  user: User;
+  roles: number[];
+  accessToken: string;
+};
+type EachJob = {
+  auth: authType | Record<string, never>;
+  job: JobType | Record<string, never>;
+  applyJob: (id: number) => Promise<void>;
+  applyingJob: boolean;
+  appliedJobs: number[];
+};
 
 const Jobs = () => {
-  const navigate = useNavigate()
-  const axiosPrivate = useAxiosWithInterceptors()
-  const { auth, setAuth } = useAuth()
+  const navigate = useNavigate();
+  const axiosPrivate = useAxiosWithInterceptors();
+  const { auth, setAuth } = useAuth();
 
-  const [jobs, setJobs] = useState([])
-  const [job, setJob] = useState({})
-  const [appliedJobs, setAppliedJobs] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [showToast, setShowToast] = useState(false)
-  const [applyingJob, setApplyingJob] = useState(false)
+  const [jobs, setJobs] = useState([]);
+  const [job, setJob] = useState({});
+  const [appliedJobs, setAppliedJobs] = useState<number[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [applyingJob, setApplyingJob] = useState(false);
 
   //event handlers
-  const applyJob = async (id) => {
-    setApplyingJob(true)
+  const applyJob = async (id: number) => {
+    setApplyingJob(true);
     if (!auth.user) {
-      navigate('/login')
-      setApplyingJob(false)
+      navigate('/login');
+      setApplyingJob(false);
     } else {
       //push id to appliedJobs array in db
-      const appliedJobsCopy = [...appliedJobs]
-      appliedJobsCopy.push(id)
+      const appliedJobsCopy = [...appliedJobs];
+      appliedJobsCopy.push(id);
       const dataObject = {
         appliedJobs: appliedJobsCopy,
         email: auth.user.email,
-      }
+      };
       try {
-        const response = await axiosPrivate.post(`/apply-job/${auth.user.userId}`, dataObject)
-        const updated = response?.data?.updated
-        setShowToast(updated)
-        setAppliedJobs([...appliedJobs, id])
-        setApplyingJob(false)
+        const response = await axiosPrivate.post(`/apply-job/${auth.user.userId}`, dataObject);
+        const updated = response?.data?.updated;
+        setShowToast(updated);
+        setAppliedJobs([...appliedJobs, id]);
+        setApplyingJob(false);
       } catch (error) {
-        console.log(error)
-        setApplyingJob(false)
+        console.log(error);
+        setApplyingJob(false);
       }
     }
-  }
+  };
 
   //  const addJob = async () => {
   //    //for testing
@@ -85,39 +116,39 @@ const Jobs = () => {
 
   useEffect(() => {
     const getJobs = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const response = await axios.get('/api/jobs')
-        setJobs(response?.data)
-        setJob(response?.data[0])
-        setLoading(false)
+        const response = await axios.get('/api/jobs');
+        setJobs(response?.data);
+        setJob(response?.data[0]);
+        setLoading(false);
       } catch (err) {
-        console.error('loading jobs error: ', err)
-        setLoading(false)
+        console.error('loading jobs error: ', err);
+        setLoading(false);
       }
-    }
+    };
     const getUser = async () => {
       try {
-        setLoading(true)
-        const response = await axiosPrivate.get(`/user/${auth.user.userId}`)
-        const data = response?.data
-        setAppliedJobs(data.appliedJobs)
-        setLoading(false)
+        setLoading(true);
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`);
+        const data = response?.data;
+        setAppliedJobs(data.appliedJobs);
+        setLoading(false);
       } catch (err) {
-        console.error(err)
-        setLoading(false)
+        console.error(err);
+        setLoading(false);
         try {
-          await axios('/api/logout', { withCredentials: true })
+          await axios('/api/logout', { withCredentials: true });
           //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-          setAuth({})
+          setAuth({});
         } catch (err) {
-          console.error(err)
+          console.error(err);
         }
       }
-    }
-    getJobs()
-    if (auth?.user) getUser()
-  }, [])
+    };
+    getJobs();
+    if (auth?.user) getUser();
+  }, []);
 
   return (
     <Container>
@@ -132,7 +163,7 @@ const Jobs = () => {
               <Col className="pe-sm-0">
                 <div className={styles.custom__card}>
                   {jobs.length === 0 && <h6>Jobs not loaded!</h6>}
-                  {jobs.map((ele, i) => {
+                  {jobs.map((ele: JobType, i) => {
                     return (
                       <Row className={styles.row_clickable} key={i} onClick={() => setJob(ele)}>
                         <Col xs={4} xl={3}>
@@ -149,7 +180,7 @@ const Jobs = () => {
                           </small>
                         </Col>
                       </Row>
-                    )
+                    );
                   })}
                 </div>
               </Col>
@@ -164,7 +195,7 @@ const Jobs = () => {
               <Col className="pe-sm-0">
                 <div className={styles.custom__card}>
                   {jobs.length === 0 && <h6>Jobs not loaded!</h6>}
-                  {jobs.map((ele, i) => {
+                  {jobs.map((ele: JobType, i) => {
                     return (
                       <Row className={styles.row_clickable} key={i} onClick={() => navigate('/job/' + ele.id)}>
                         <Col xs={3}>
@@ -181,7 +212,7 @@ const Jobs = () => {
                           </small>
                         </Col>
                       </Row>
-                    )
+                    );
                   })}
                 </div>
               </Col>
@@ -191,7 +222,7 @@ const Jobs = () => {
             <Toast
               show={showToast}
               onClose={() => {
-                setShowToast(!showToast)
+                setShowToast(!showToast);
               }}
               delay={5000}
               autohide
@@ -206,10 +237,10 @@ const Jobs = () => {
         </>
       )}
     </Container>
-  )
-}
+  );
+};
 
-const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }) => {
+const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJob) => {
   return (
     <>
       {Object.keys(job).length !== 0 && (
@@ -286,13 +317,7 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }) => {
         </div>
       )}
     </>
-  )
-}
-EachJob.propTypes = {
-  auth: PropTypes.object,
-  job: PropTypes.object,
-  applyJob: PropTypes.func.isRequired,
-  applyingJob: PropTypes.bool,
-  appliedJobs: PropTypes.array,
-}
-export default Jobs
+  );
+};
+
+export default Jobs;
