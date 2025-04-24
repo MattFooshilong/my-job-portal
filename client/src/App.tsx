@@ -14,7 +14,7 @@ import RequireAuth from './components/RequireAuth';
 import Unauthorized from './pages/unauthorized/Unauthorized';
 import AdminDashboard from './pages/admin-dashboard/AdminDashboard';
 import PersistLogin from './components/PersistLogin';
-import Login from './pages/login/Login.tsx';
+import Login from './pages/login/Login';
 
 const App = () => {
   const ROLES = {

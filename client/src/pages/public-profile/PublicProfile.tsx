@@ -1,21 +1,26 @@
-import { useState, useEffect } from 'react'
-import Container from 'react-bootstrap/Container'
-import Card from 'react-bootstrap/Card'
-import Form from 'react-bootstrap/Form'
-import Image from 'react-bootstrap/Image'
-import Row from 'react-bootstrap/Row'
-import Col from 'react-bootstrap/Col'
-import Button from 'react-bootstrap/Button'
-import styles from './ProfileForms.module.scss'
-import Alert from 'react-bootstrap/Alert'
-import 'react-datepicker/dist/react-datepicker.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { useNavigate, useLocation } from 'react-router-dom'
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors'
-import useAuth from '../../hooks/useAuth'
-import dayjs from 'dayjs'
-import useLogout from '../../hooks/useLogout'
+import { useState, useEffect } from 'react';
+import Container from 'react-bootstrap/Container';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Image from 'react-bootstrap/Image';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import styles from './ProfileForms.module.scss';
+import Alert from 'react-bootstrap/Alert';
+import 'react-datepicker/dist/react-datepicker.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate, useLocation } from 'react-router-dom';
+import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
+import useAuth from '../../hooks/useAuth';
+import dayjs from 'dayjs';
+import useLogout from '../../hooks/useLogout';
+type AllowedKeys = 'age' | 'dob' | 'jobTitle' | 'company' | 'jobDescription' | 'companyLogo' | 'startDate' | 'endDate';
+type Headers = {
+  value: AllowedKeys;
+  label: string;
+};
 
 const PublicProfile = () => {
   const [inputs, setInputs] = useState({
@@ -28,7 +33,7 @@ const PublicProfile = () => {
     jobDescription: '',
     startDate: '',
     endDate: '',
-  })
+  });
   const [switches, setSwitches] = useState({
     age: true,
     dob: true,
@@ -38,35 +43,35 @@ const PublicProfile = () => {
     jobDescription: true,
     startDate: true,
     endDate: true,
-  })
-  const [preferencesSaved, setPreferencesSaved] = useState(false)
-  const [err, setErr] = useState(false)
-  const navigate = useNavigate()
-  const location = useLocation()
-  const axiosPrivate = useAxiosWithInterceptors()
-  const { auth } = useAuth()
-  const logout = useLogout()
+  });
+  const [preferencesSaved, setPreferencesSaved] = useState(false);
+  const [err, setErr] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const axiosPrivate = useAxiosWithInterceptors();
+  const { auth } = useAuth();
+  const logout = useLogout();
 
-  const [avatar, setAvatar] = useState('')
+  const [avatar, setAvatar] = useState('');
 
   const handleSubmit = async () => {
     try {
-      const response = await axiosPrivate.post(`/user-public-pref/${auth.user.userId}`, switches)
-      const updated = response?.data?.updated
-      setPreferencesSaved(updated)
-      setErr(false)
+      const response = await axiosPrivate.post(`/user-public-pref/${auth.user.userId}`, switches);
+      const updated = response?.data?.updated;
+      setPreferencesSaved(updated);
+      setErr(false);
     } catch (err) {
-      console.error(err)
-      setErr(true)
+      console.error(err);
+      setErr(true);
     }
-  }
+  };
 
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await axiosPrivate.get(`/user/${auth.user.userId}`) //protected route, will throw an error if refreshToken is expired
-        const data = response?.data
-        const publicProfilePref = data.publicProfilePref
+        const response = await axiosPrivate.get(`/user/${auth.user.userId}`); //protected route, will throw an error if refreshToken is expired
+        const data = response?.data;
+        const publicProfilePref = data.publicProfilePref;
         setInputs({
           name: data.name,
           age: data.age,
@@ -77,8 +82,8 @@ const PublicProfile = () => {
           jobDescription: data.jobDescription,
           startDate: data.startDate ? dayjs(data.startDate).format('DD-MM-YYYY') : '',
           endDate: data.endDate ? dayjs(data.endDate).format('DD-MM-YYYY') : '',
-        })
-        setAvatar(data.avatar)
+        });
+        setAvatar(data.avatar);
         setSwitches({
           age: publicProfilePref.age,
           dob: publicProfilePref.dob,
@@ -88,20 +93,20 @@ const PublicProfile = () => {
           jobDescription: publicProfilePref.jobDescription,
           startDate: publicProfilePref.startDate,
           endDate: publicProfilePref.endDate,
-        })
+        });
       } catch (err) {
-        console.error(err)
+        console.error(err);
         try {
-          await logout() // Will throw if logout fails
+          await logout(); // Will throw if logout fails
         } catch (logoutError) {
-          console.error('Error during logout:', logoutError)
+          console.error('Error during logout:', logoutError);
           // Handle logout-specific errors here
         }
       }
-    }
+    };
 
-    getUser()
-  }, [])
+    getUser();
+  }, []);
   return (
     <Container>
       <Card className={styles.card}>
@@ -129,16 +134,18 @@ const PublicProfile = () => {
               </Col>
             </Row>
             {/* switch buttons */}
-            {[
-              { value: 'age', label: 'Age' },
-              { value: 'dob', label: 'Date of birth' },
-              { value: 'jobTitle', label: 'Job Title' },
-              { value: 'company', label: 'Company' },
-              { value: 'jobDescription', label: 'Job Description' },
-              { value: 'companyLogo', label: 'Company Logo' },
-              { value: 'startDate', label: 'Start Date' },
-              { value: 'endDate', label: 'End Date' },
-            ].map((obj, i) => {
+            {(
+              [
+                { value: 'age', label: 'Age' },
+                { value: 'dob', label: 'Date of birth' },
+                { value: 'jobTitle', label: 'Job Title' },
+                { value: 'company', label: 'Company' },
+                { value: 'jobDescription', label: 'Job Description' },
+                { value: 'companyLogo', label: 'Company Logo' },
+                { value: 'startDate', label: 'Start Date' },
+                { value: 'endDate', label: 'End Date' },
+              ] as Headers[]
+            ).map((obj, i) => {
               return (
                 <Row key={i} className="mt-3">
                   <Col sm={4}>
@@ -152,15 +159,15 @@ const PublicProfile = () => {
                         className={styles.form__switch}
                         checked={switches[obj.value]}
                         onChange={() => {
-                          setPreferencesSaved(false)
-                          setSwitches({ ...switches, [obj.value]: !switches[obj.value] })
+                          setPreferencesSaved(false);
+                          setSwitches({ ...switches, [obj.value]: !switches[obj.value] });
                         }}
                       />
                     </Form.Group>
                   </Col>
                   <Col className="mt-1 ps-0">{switches[obj.value] && <span style={{ fontWeight: 'bold' }}>Public</span>}</Col>
                 </Row>
-              )
+              );
             })}
           </Col>
 
@@ -202,7 +209,7 @@ const PublicProfile = () => {
         </Row>
       </Card>
     </Container>
-  )
-}
+  );
+};
 
-export default PublicProfile
+export default PublicProfile;

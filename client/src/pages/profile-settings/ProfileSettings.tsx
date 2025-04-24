@@ -50,9 +50,9 @@ type DatePickerFieldProps = {
   name: string;
   [key: string]: any; //allows more props in the future
 };
-type FormFieldKeys = 'jobTitle' | 'company' | 'jobDescription';
+type AllowedKeys = 'jobTitle' | 'company' | 'jobDescription';
 type Headers = {
-  value: FormFieldKeys;
+  value: AllowedKeys;
   label: string;
 };
 
