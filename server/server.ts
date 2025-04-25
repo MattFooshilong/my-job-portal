@@ -47,6 +47,8 @@ const corsAllowAll = {
   optionsSuccessStatus: 200,
   credentials: true,
 }
+app.options("*", cors(corsOptions)) // Handles preflight requests
+
 app.use(cors(corsOptions))
 
 //public routes
