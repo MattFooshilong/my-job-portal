@@ -3,15 +3,29 @@ import { getDocs, getDoc, getFirestore, collection, doc, collectionGroup, query,
 import sanitize from "xss"
 import { Request, Response } from "express"
 
+type Job = {
+  jobDescription: string
+  companyDescription: string
+  type: string
+  noOfEmployees: string
+  skills: Record<string, string>
+  companyName: string
+  location: string
+  industry: string
+  jobTitle: string
+  id: number
+  isRecruiting: string
+  tasks: Record<string, string>
+}
+
 const db = getFirestore(firebaseApp)
 
 const getAllJobs = async (req: Request, res: Response) => {
   try {
     const snapshot = await getDocs(collection(db, "jobs"))
-    const jobsArr = []
+    const jobsArr = [] as Job[]
     snapshot.forEach((doc) => {
-      console.log(doc)
-      const data = doc.data()
+      const data = doc.data() as Job
       jobsArr.push(data)
     })
     res.json(jobsArr)
