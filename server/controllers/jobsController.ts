@@ -1,13 +1,16 @@
-const { firebaseApp } = require("../firebaseServerInit/firebaseInit")
-const { getDocs, getDoc, getFirestore, collection, doc, collectionGroup, query, where, updateDoc } = require("firebase/firestore")
-const db = getFirestore(firebaseApp)
-const sanitize = require("xss")
+import { firebaseApp } from "../firebaseServerInit/firebaseInit"
+import { getDocs, getDoc, getFirestore, collection, doc, collectionGroup, query, where, updateDoc } from "firebase/firestore"
+import sanitize from "xss"
+import { Request, Response } from "express"
 
-const getAllJobs = async (req, res) => {
+const db = getFirestore(firebaseApp)
+
+const getAllJobs = async (req: Request, res: Response) => {
   try {
     const snapshot = await getDocs(collection(db, "jobs"))
     const jobsArr = []
     snapshot.forEach((doc) => {
+      console.log(doc)
       const data = doc.data()
       jobsArr.push(data)
     })
@@ -18,7 +21,7 @@ const getAllJobs = async (req, res) => {
   }
 }
 
-const getOneJob = async (req, res) => {
+const getOneJob = async (req: Request, res: Response) => {
   const jobId = sanitize(req.params.jobId)
 
   try {
@@ -37,7 +40,7 @@ const getOneJob = async (req, res) => {
   }
 }
 
-const getJobsWhereThereIsApplication = async (req, res) => {
+const getJobsWhereThereIsApplication = async (req: Request, res: Response) => {
   try {
     // get all job applications
     const q = query(collectionGroup(db, "jobSeekers"))
@@ -81,7 +84,7 @@ const getJobsWhereThereIsApplication = async (req, res) => {
   }
 }
 
-const updateJob = async (req, res) => {
+const updateJob = async (req: Request, res: Response) => {
   // Get a reference to the subcollection
   const jobSeekersRef = collection(db, "jobs", `jobs-${req.params.jobId}`, "jobSeekers")
   const q = query(jobSeekersRef, where("email", "==", req.body.email))
@@ -104,4 +107,4 @@ const updateJob = async (req, res) => {
   }
 }
 
-module.exports = { getAllJobs, getOneJob, getJobsWhereThereIsApplication, updateJob }
+export { getAllJobs, getOneJob, getJobsWhereThereIsApplication, updateJob }

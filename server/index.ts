@@ -10,7 +10,7 @@ import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfControll
 import jobsController from "./controllers/jobsController"
 import cookieParser from "cookie-parser"
 import { Request, Response, NextFunction } from "express"
-import { ExtendedRequest } from "./types/extendedTypes"
+
 // Globals
 const app = express()
 app.use(cookieParser())
