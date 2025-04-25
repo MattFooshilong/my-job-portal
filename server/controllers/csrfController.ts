@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express"
 //anti-csrf token
-const generateCSRFToken = (req: Request, res: Response, next: NextFunction) => {
+const generateCSRFToken = (req: Request, res: Response, next: NextFunction): void => {
   const csrfToken = crypto.randomUUID()
   req.csrfToken = csrfToken
   res.cookie("cookieCsrfToken", csrfToken, { httpOnly: true, secure: true, sameSite: "strict", maxAge: 1 * 60 * 60 * 1000 })

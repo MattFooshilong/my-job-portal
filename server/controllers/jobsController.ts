@@ -1,5 +1,5 @@
 import { firebaseApp } from "../firebaseServerInit/firebaseInit"
-import { getDocs, getDoc, getFirestore, collection, doc, collectionGroup, query, where, updateDoc } from "firebase/firestore"
+import { getDocs, getDoc, getFirestore, collection, doc, collectionGroup, query, where, updateDoc, DocumentReference, DocumentData } from "firebase/firestore"
 import sanitize from "xss"
 import { Request, Response } from "express"
 
@@ -16,6 +16,16 @@ type Job = {
   id: number
   isRecruiting: string
   tasks: Record<string, string>
+}
+
+type Application = {
+  jobStatus: string
+  email: string
+  docRef?: DocumentReference
+  jobTitle?: string
+  companyName?: string
+  jobId?: number
+  applicantName?: string
 }
 
 const db = getFirestore(firebaseApp)
@@ -59,36 +69,38 @@ const getJobsWhereThereIsApplication = async (req: Request, res: Response) => {
     // get all job applications
     const q = query(collectionGroup(db, "jobSeekers"))
     const querySnapshot = await getDocs(q)
-    const applications = []
-    const result = []
+    const applications = [] as Application[]
+    const result = [] as Application[]
     querySnapshot.forEach((doc) => {
-      const data = doc.data()
+      const data = doc.data() as Application
       data.docRef = doc.ref
       applications.push(data)
     })
     // fetch find company name and job title for each application
     await Promise.all(
       applications.map(async (application) => {
-        const parentCollectionRef = application.docRef.parent
-        const immediateParentDocumentRef = parentCollectionRef.parent
-        const jobDocSnap = await getDoc(immediateParentDocumentRef)
-        const obj = { ...application }
-        if (jobDocSnap.exists()) {
-          const data = jobDocSnap.data()
-          obj.jobTitle = data.jobTitle
-          obj.companyName = data.companyName
-          obj.jobId = data.id
+        if (application.docRef) {
+          const jobSeekersCollectionRef = application.docRef.parent
+          const jobDocumentRef = jobSeekersCollectionRef.parent as DocumentReference
+          const jobDocSnap = await getDoc(jobDocumentRef)
+          const obj = { ...application }
+          if (jobDocSnap.exists()) {
+            const data = jobDocSnap.data()
+            obj.jobTitle = data.jobTitle
+            obj.companyName = data.companyName
+            obj.jobId = data.id
+          }
+          // get applicant info for each application
+          const usersRef = collection(db, "users")
+          const q = query(usersRef, where("email", "==", obj.email))
+          const userSnapshot = await getDocs(q)
+          userSnapshot.forEach((doc) => {
+            const data = doc.data()
+            obj.applicantName = data.name
+          })
+          delete obj.docRef
+          result.push(obj)
         }
-        // get applicant info for each application
-        const usersRef = collection(db, "users")
-        const q = query(usersRef, where("email", "==", obj.email))
-        const userSnapshot = await getDocs(q)
-        userSnapshot.forEach((doc) => {
-          const data = doc.data()
-          obj.applicantName = data.name
-        })
-        delete obj.docRef
-        result.push(obj)
       })
     )
     res.json(result)

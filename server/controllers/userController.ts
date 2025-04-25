@@ -1,10 +1,27 @@
-const { firebaseApp } = require("../firebaseServerInit/firebaseInit")
-const { getDoc, getFirestore, doc, updateDoc, getDocs, query, collectionGroup, where, collection, addDoc } = require("firebase/firestore")
-const db = getFirestore(firebaseApp)
-const dayjs = require("dayjs")
-const sanitize = require("xss")
+import { firebaseApp } from "../firebaseServerInit/firebaseInit"
+import { getDoc, getFirestore, doc, updateDoc, getDocs, query, collectionGroup, where, collection, addDoc, DocumentReference, DocumentData, DocumentSnapshot } from "firebase/firestore"
+import dayjs from "dayjs"
+import sanitize from "xss"
+import { Request, Response } from "express"
 
-const getUser = async (req, res) => {
+type InfoOfAppliedJob = {
+  jobDescription: string
+  companyName: string
+  isRecruiting: string
+  tasks: Record<string, string>
+  type: string
+  skills: Record<string, string>
+  jobTitle: string
+  industry: string
+  noOfEmployees: string
+  location: string
+  companyDescription: string
+  id: number
+}
+
+const db = getFirestore(firebaseApp)
+
+const getUser = async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = sanitize(req.params.id)
     const docSnap = await getDoc(doc(db, "users", userId))
@@ -22,7 +39,7 @@ const getUser = async (req, res) => {
   }
 }
 
-const updateProfileSettings = async (req, res) => {
+const updateProfileSettings = async (req: Request, res: Response) => {
   const values = req.body.values
   Object.keys(values).forEach((key) => {
     values[key] = sanitize(values[key])
@@ -51,7 +68,7 @@ const updateProfileSettings = async (req, res) => {
   }
 }
 
-const updateUserPublicProfile = async (req, res) => {
+const updateUserPublicProfile = async (req: Request, res: Response) => {
   const switches = req.body
   try {
     const userId = sanitize(req.params.id)
@@ -65,7 +82,7 @@ const updateUserPublicProfile = async (req, res) => {
   }
 }
 
-const updateUserApplyToJobs = async (req, res) => {
+const updateUserApplyToJobs = async (req: Request, res: Response) => {
   const { appliedJobs } = req.body
   const { email } = req.body
   try {
@@ -87,34 +104,34 @@ const updateUserApplyToJobs = async (req, res) => {
   }
 }
 
-const userJobApplications = async (req, res) => {
+const userJobApplications = async (req: Request, res: Response) => {
   const status = req.body.status
   const email = req.body.email
-  const parentsPromises = []
+  const getAppliedJobsPromises: Promise<DocumentSnapshot<DocumentData, DocumentData>>[] = []
 
   try {
     //go to console, indexes - single field - add jobSeekers (subcollection) and email (field) - to execute collectionGroup query
     const q = query(collectionGroup(db, "jobSeekers"), where("email", "==", email), where("jobStatus", "==", status))
     const querySnapshot = await getDocs(q)
     querySnapshot.forEach((doc) => {
+      //doc.data() - { email: 'user1@gmail.com', jobStatus: 'Successful' }
       const docRef = doc.ref
-      //find jobs collection documents
-      const parentCollectionRef = docRef.parent
-      const immediateParentDocumentRef = parentCollectionRef.parent
-      parentsPromises.push(getDoc(immediateParentDocumentRef))
+      const jobSeekersCollectionRef = docRef.parent
+      //Example: jobs-0's reference
+      const jobDocumentRef = jobSeekersCollectionRef.parent
+      if (jobDocumentRef) getAppliedJobsPromises.push(getDoc(jobDocumentRef))
     })
-
     // fetch jobs info
-    const arrayOfParentsDocumentSnapshots = await Promise.all(parentsPromises)
-    const jobDocuments = []
-    arrayOfParentsDocumentSnapshots.forEach((doc) => {
-      const data = doc.data()
-      jobDocuments.push(data)
+    const appliedJobsSnapshots = await Promise.all(getAppliedJobsPromises)
+    const infoOfAppliedJobs = [] as InfoOfAppliedJob[]
+    appliedJobsSnapshots.forEach((doc) => {
+      const data = doc.data() as InfoOfAppliedJob
+      infoOfAppliedJobs.push(data)
     })
-    res.json({ jobDocuments })
+    res.json({ infoOfAppliedJobs })
   } catch (error) {
     console.log(error)
     throw error
   }
 }
-module.exports = { getUser, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, userJobApplications }
+export { getUser, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, userJobApplications }

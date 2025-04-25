@@ -48,7 +48,7 @@ const JobApplications = () => {
           status: status,
         };
         const response = await axiosPrivate.post('/user-job-applications', dataObject); //protected route, will throw an error if refreshToken is expired
-        setJobs(response.data?.jobDocuments);
+        setJobs(response.data?.infoOfAppliedJobs);
         setLoading(false);
       } catch (error) {
         console.log(error);

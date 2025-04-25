@@ -4,10 +4,10 @@ import bodyParser from "body-parser"
 import cors from "cors"
 import routes from "./api/routes"
 import path from "path"
-import verifyAccessTokenJWT from "./middleware/verifyAccessToken"
-import userController from "./controllers/userController"
+import { verifyAccessToken } from "./middleware/verifyAccessToken"
+import { getUser, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, userJobApplications } from "./controllers/userController"
 import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfController"
-import jobsController from "./controllers/jobsController"
+import { getJobsWhereThereIsApplication, updateJob } from "./controllers/jobsController"
 import cookieParser from "cookie-parser"
 import { Request, Response, NextFunction } from "express"
 
@@ -22,19 +22,19 @@ const port = 3001
 //})
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("Server up")
 })
 
 const allowedOrigins = ["http://localhost:3000", "https://my-job-portal-client.vercel.app"]
 
-const corsOptions = {
+const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV == "staging") {
+    if ((origin && allowedOrigins.indexOf(origin) !== -1) || process.env.NODE_ENV == "staging") {
       console.log("origin: ", origin)
-      callback(null, true)
+      return callback(null, true)
     } else {
-      callback(new Error(`origin: ${origin}`))
+      return callback(new Error(`origin: ${origin}`))
     }
   },
   optionsSuccessStatus: 200,
@@ -50,19 +50,18 @@ app.use(cors(corsOptions))
 //public routes
 app.use("/api/", routes)
 //protected routes
-app.use(verifyAccessTokenJWT)
-app.get("/user/:id", userController.getUser)
-app.get("/antiCSRF", generateCSRFToken, (req, res) => {
+app.use(verifyAccessToken)
+app.get("/user/:id", getUser)
+app.get("/antiCSRF", generateCSRFToken, (req: Request, res: Response) => {
   res.json({ csrfToken: req.csrfToken })
 })
-app.post("/user/:id", validateCSRFToken, userController.updateProfileSettings)
-app.post("/user-public-pref/:id", userController.updateUserPublicProfile)
-app.post("/user-job-applications", userController.userJobApplications)
-app.post("/apply-job/:id", userController.updateUserApplyToJobs)
-app.get("/get-jobs-where-there-is-application", jobsController.getJobsWhereThereIsApplication)
-app.get("/check-logged-in", jobsController.getJobsWhereThereIsApplication)
-
-app.post("/update-job/:jobId", jobsController.updateJob)
+app.post("/user/:id", validateCSRFToken, updateProfileSettings)
+app.post("/user-public-pref/:id", updateUserPublicProfile)
+app.post("/user-job-applications", userJobApplications)
+app.post("/apply-job/:id", updateUserApplyToJobs)
+app.get("/get-jobs-where-there-is-application", getJobsWhereThereIsApplication)
+app.get("/check-logged-in", getJobsWhereThereIsApplication)
+app.post("/update-job/:jobId", updateJob)
 
 app.use(express.static(path.join(__dirname, "./client/build")))
 app.get("*", (req, res) => {
@@ -73,7 +72,7 @@ app.get("*", (req, res) => {
 
 app.listen(process.env.PORT || port, () => console.log(`Server listening on port ${port}!`))
 // This overrides the default error handler, and must be called last
-app.use((err, req, res, next) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.message)
   res.status(403).send(err.message)
 })

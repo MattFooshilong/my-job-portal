@@ -1,4 +1,5 @@
 export {}
+import express from "express"
 
 declare global {
   namespace NodeJS {
@@ -10,8 +11,19 @@ declare global {
     }
   }
 }
-declare module "express-serve-static-core" {
-  interface Request {
-    csrfToken?: string
+//declare module "express-serve-static-core" {
+//  interface Request {
+//    csrfToken?: string
+//    email?: string
+//    roles?: number[]
+//  }
+//}
+declare global {
+  namespace Express {
+    interface Request {
+      csrfToken?: string
+      email?: string
+      roles?: number[]
+    }
   }
 }
