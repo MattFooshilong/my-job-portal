@@ -31,12 +31,14 @@ const allowedOrigins = ["http://localhost:3000", "https://my-job-portal-client.v
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
     if (!origin) {
+      console.log("!origin: ", origin)
       return callback(new Error("CORS: Origin is undefined"))
     }
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV == "staging") {
       console.log("origin: ", origin)
       return callback(null, true)
     }
+    console.log("last block origin: ", origin)
     return callback(new Error(`origin: ${origin}`))
   },
   optionsSuccessStatus: 200,
