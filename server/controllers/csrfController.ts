@@ -13,6 +13,7 @@ const validateCSRFToken = (req: Request, res: Response, next: NextFunction) => {
   if (formCSRFToken === cookieCsrfToken) {
     next()
   } else {
+    console.log("Invalid CSRF token")
     res.status(403).send("Invalid CSRF token")
   }
 }

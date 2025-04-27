@@ -34,7 +34,10 @@ const findUserWithRefreshToken = async (refreshToken: string) => {
 //if refresh token is valid issue a new access token
 const refreshToken = async (req: Request, res: Response): Promise<any> => {
   const cookies = req.cookies
-  if (!cookies.refreshToken) return res.sendStatus(401)
+  if (!cookies.refreshToken) {
+    console.log(`couldnt find refresh token in cookies`)
+    return res.sendStatus(401)
+  }
   const refreshToken = cookies.refreshToken
   //find user with that refresh token
   const user = await findUserWithRefreshToken(refreshToken)

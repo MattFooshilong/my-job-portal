@@ -63,7 +63,7 @@ const updateProfileSettings = async (req: Request, res: Response) => {
     })
     res.json({ updated: true })
   } catch (error) {
-    console.log("updateupdateProfileSettings error: ", error)
+    console.log("updateProfileSettings error: ", error)
     throw error
   }
 }
