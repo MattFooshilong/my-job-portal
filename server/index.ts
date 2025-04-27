@@ -54,7 +54,7 @@ app.options("*", cors(corsOptions)) // Handles preflight requests
 app.use(cors(corsOptions))
 
 //public routes
-app.use("/api/", routes)
+app.use("/public/", routes)
 //protected routes
 app.use(verifyAccessToken)
 app.get("/user/:id", getUser)

@@ -74,7 +74,7 @@ const FullPageJob = () => {
     const getJob = async () => {
       setLoading(true);
       try {
-        const response = await axiosPrivate.get(`/api/job/${jobId}`);
+        const response = await axiosPrivate.get(`/public/job/${jobId}`);
         setJob(response?.data);
         setLoading(false);
       } catch (err) {

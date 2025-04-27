@@ -33,7 +33,7 @@ const SignUp = () => {
       password: values.password,
     };
     try {
-      const res = await axios.post('/api/signup', data);
+      const res = await axios.post('/public/signup', data);
       const accessToken = res?.data?.accessToken;
       const user = res?.data?.user;
       setAuth({ user, roles: user.roles, accessToken });

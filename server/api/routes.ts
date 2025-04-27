@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser"
 const router = Router()
 router.use(cookieParser())
 
-//use - http://localhost:3001/api/
+//use - http://localhost:3001/public/
 router.get("/", (req, res) => {
   console.log("testing")
   res.status(200).send("welcome")

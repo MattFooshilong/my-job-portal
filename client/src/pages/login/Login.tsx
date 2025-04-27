@@ -42,7 +42,7 @@ const Login = () => {
       password: values.password,
     };
     try {
-      const res = await axios.post('/api/login', data);
+      const res = await axios.post('/public/login', data);
       const accessToken = res?.data?.accessToken;
       const user = res?.data?.user;
       setAuth({ user, roles: user.roles, accessToken });

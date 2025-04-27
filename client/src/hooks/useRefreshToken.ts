@@ -19,7 +19,7 @@ const useRefreshToken = () => {
   // refresh code will only be called if the refreshtoken is not expired
   const refresh = async () => {
     try {
-      const response = await axios.get('/api/refreshToken', { withCredentials: true });
+      const response = await axios.get('/public/refreshToken', { withCredentials: true });
       //return the previous state but overwrite the accessToken with a new one
       setAuth((prev: PrevAuthType) => {
         //console.log(JSON.stringify(prev));

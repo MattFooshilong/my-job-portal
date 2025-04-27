@@ -118,7 +118,7 @@ const Jobs = () => {
     const getJobs = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/api/jobs');
+        const response = await axios.get('/public/jobs');
         setJobs(response?.data);
         setJob(response?.data[0]);
         setLoading(false);
@@ -138,7 +138,7 @@ const Jobs = () => {
         console.error(err);
         setLoading(false);
         try {
-          await axios('/api/logout', { withCredentials: true });
+          await axios('/public/logout', { withCredentials: true });
           //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
           setAuth({});
         } catch (err) {
