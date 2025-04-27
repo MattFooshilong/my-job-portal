@@ -1,3 +1,0 @@
-{
-  "rewrites": [{ "source": "/:match*", "destination": "https://my-job-portal-server.vercel.app/:match*" }]
-}

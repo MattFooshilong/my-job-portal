@@ -2,6 +2,7 @@
   "name": "matt-foo-frontend-engineer-28aug2022",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://my-job-portal-server.vercel.app",
   "dependencies": {
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
