@@ -38,7 +38,10 @@ const refreshToken = async (req: Request, res: Response): Promise<any> => {
   const refreshToken = cookies.refreshToken
   //find user with that refresh token
   const user = await findUserWithRefreshToken(refreshToken)
-  if (!user.email) return res.sendStatus(403)
+  if (!user.email) {
+    console.log(`couldnt find user with refresh token`)
+    return res.sendStatus(403)
+  }
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err: jwt.VerifyErrors | null, decoded: string | JwtPayload | undefined) => {
     const payload = decoded as MyPayload
     if (err || payload.email !== user.email) {
