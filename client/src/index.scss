@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
-@import "./styles/variables";
-@import "../node_modules/bootstrap/scss/bootstrap";
-@import "~bootstrap/scss/bootstrap";
+@import './styles/variables';
+@import '../node_modules/bootstrap/scss/bootstrap';
+@import '~bootstrap/scss/bootstrap';
 
 .accordion-button:not(.collapsed) {
   color: black;
@@ -18,7 +18,6 @@ body {
   font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
 }
 
 ::-webkit-scrollbar {

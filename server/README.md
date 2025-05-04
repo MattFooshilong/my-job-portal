@@ -1,3 +1,5 @@
+# Instructions
+
 To run in development:
 
 cd server;npm start (starts the server)  
