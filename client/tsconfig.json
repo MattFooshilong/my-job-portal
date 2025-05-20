@@ -1,5 +1,5 @@
 {
-  "include": ["src", "declaration.d.ts"],
+  "include": ["**/*.ts", "src", "declaration.d.ts"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "target": "es2016",

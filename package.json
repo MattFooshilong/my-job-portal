@@ -1,0 +1,17 @@
+{
+  "name": "my-job-portal",
+  "version": "1.0.0",
+  "description": "To run\r cd client; npm start;\r cd server; npm start;",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"lint": "eslint . --ext .js,.ts"
+  },
+  "author": "mattFoo",
+  "license": "ISC",
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^8.22.0"
+  }
+}
