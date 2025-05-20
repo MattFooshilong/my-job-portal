@@ -1,39 +1,30 @@
-import { useState, useRef, useEffect } from 'react';
-import { Formik, Form as FormikForm, FormikProps, useField, useFormikContext } from 'formik';
-import * as Yup from 'yup';
-import dayjs from 'dayjs';
-import Container from 'react-bootstrap/Container';
-import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
-import Image from 'react-bootstrap/Image';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import Alert from 'react-bootstrap/Alert';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate } from 'react-router-dom';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
-import useAuth from '../../hooks/useAuth';
-import useLogout from '../../hooks/useLogout';
-import { FirebaseError } from 'firebase/app';
-import { FC } from 'react';
+import { useState, useRef, useEffect } from "react";
+import { Formik, Form as FormikForm, FormikProps, useField, useFormikContext } from "formik";
+import * as Yup from "yup";
+import dayjs from "dayjs";
+import Container from "react-bootstrap/Container";
+import Card from "react-bootstrap/Card";
+import Form from "react-bootstrap/Form";
+import Image from "react-bootstrap/Image";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
+import { firebaseApp } from "../../firebase/firebaseInit";
 
-type HandleSubmitValues = {
-  name: string;
-  age: string;
-  dob: Date | null;
-  jobTitle: string;
-  company: string;
-  companyLogo: string;
-  jobDescription: string;
-  startDate: Date | null;
-  endDate: Date | null;
-  csrfToken: string;
-};
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { FirebaseError } from "firebase/app";
+
+import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
+import useAuth from "../../hooks/useAuth";
+import useLogout from "../../hooks/useLogout";
+import { FC } from "react";
+
 type InputTypes = {
   name: string;
   age: string;
@@ -50,7 +41,7 @@ type DatePickerFieldProps = {
   name: string;
   [key: string]: any; //allows more props in the future
 };
-type AllowedKeys = 'jobTitle' | 'company' | 'jobDescription';
+type AllowedKeys = "jobTitle" | "company" | "jobDescription";
 type Headers = {
   value: AllowedKeys;
   label: string;
@@ -58,23 +49,23 @@ type Headers = {
 
 const ProfileSettings = () => {
   const [inputs, setInputs] = useState<InputTypes>({
-    name: '',
-    age: '',
+    name: "",
+    age: "",
     dob: null,
-    jobTitle: '',
-    company: '',
-    companyLogo: '',
-    jobDescription: '',
+    jobTitle: "",
+    company: "",
+    companyLogo: "",
+    jobDescription: "",
     startDate: null,
     endDate: null,
-    csrfToken: '',
+    csrfToken: ""
   });
   const [profileSaved, setProfileSaved] = useState(false);
   const [err, setErr] = useState(false);
   const logout = useLogout();
 
   const [showEndDate, setShowEndDate] = useState(() => {
-    if (inputs.name === '') return true;
+    if (inputs.name === "") return true;
     else return false;
   });
   const navigate = useNavigate();
@@ -83,92 +74,61 @@ const ProfileSettings = () => {
   const { auth } = useAuth();
 
   // for image upload
-  const [imgPreview, setImgPreview] = useState('');
+  const [imgPreview, setImgPreview] = useState("");
   const imgInputRef = useRef<HTMLInputElement | null>(null);
-  const [avatar, setAvatar] = useState('');
-  const [companyLogoUrl, setCompanyLogoUrl] = useState('');
+  const [avatar, setAvatar] = useState("");
+  const [companyLogoUrl, setCompanyLogoUrl] = useState("");
 
   // event handlers
   const handleImgPreview = () => {
-    if (imgPreview === '') {
+    if (imgPreview === "") {
       return avatar;
     } else return imgPreview;
   };
-  const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileType = event.target.accept;
     const files = event.target.files;
+    const tagId = event.target.id;
     if (!files || files.length === 0) return;
     const file = files[0];
-    if (file !== undefined && fileType === 'image/*') {
-      setImgPreview(URL.createObjectURL(file));
+    if (file !== undefined && fileType === "image/*") {
+      tagId === "avatarUpload" && setImgPreview(URL.createObjectURL(file));
+
       try {
         //host img on firebase
-        const storage = getStorage();
-        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`);
+        const storage = getStorage(firebaseApp);
+        const imagesRef = ref(storage, `images/${dayjs().format("DD-MM-YYYY, hh:mm:ssA")}, ${file.name}`);
         await uploadBytesResumable(imagesRef, file);
         const url = await getDownloadURL(imagesRef);
-        setAvatar(url);
+        tagId === "avatarUpload" ? setAvatar(url) : setCompanyLogoUrl(url);
       } catch (error) {
+        console.log("error: ", error);
         if (error instanceof FirebaseError) {
           switch (error.code) {
-            case 'storage/object-not-found':
-              // File doesn't exist
+            case "storage/object-not-found":
+              console.log("File doesn't exist");
               break;
-            case 'storage/unauthorized':
-              // User doesn't have permission to access the object
+            case "storage/unauthorized":
+              console.log("User doesn't have permission to access the object");
               break;
-            case 'storage/canceled':
-              // User canceled the upload
+            case "storage/canceled":
+              console.log("User canceled the upload");
               break;
-            // ...
-            case 'storage/unknown':
-              // Unknown error occurred, inspect the server response
+            case "storage/unknown":
+              console.log("Unknown error occurred, inspect the server response");
               break;
           }
         }
       }
     }
   };
-  const onCompanyLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileType = event.target.accept;
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-    const file = files[0];
-    if (file !== undefined && fileType === 'image/*') {
-      //host img on firebase
-      try {
-        const storage = getStorage();
-        const imagesRef = ref(storage, `images/${dayjs().format('DD-MM-YYYY, hh:mm:ssA')}, ${file.name}`);
-        await uploadBytesResumable(imagesRef, file);
-        const url = await getDownloadURL(imagesRef);
-        setCompanyLogoUrl(url);
-      } catch (error) {
-        if (error instanceof FirebaseError) {
-          switch (error.code) {
-            case 'storage/object-not-found':
-              // File doesn't exist
-              break;
-            case 'storage/unauthorized':
-              // User doesn't have permission to access the object
-              break;
-            case 'storage/canceled':
-              // User canceled the upload
-              break;
-            // ...
-            case 'storage/unknown':
-              // Unknown error occurred, inspect the server response
-              break;
-          }
-        }
-      }
-    }
-  };
-  const handleSubmit = async (values: HandleSubmitValues) => {
+
+  const handleSubmit = async (values: InputTypes) => {
     const dataObject = {
       values,
       companyLogoUrl,
       avatar: avatar,
-      showEndDate,
+      showEndDate
     };
     try {
       const response = await axiosPrivate.post(`/user/${auth.user.userId}`, dataObject);
@@ -187,23 +147,23 @@ const ProfileSettings = () => {
   }
   const validationSchema = Yup.object().shape({
     name: Yup.string()
-      .required('required')
-      .matches(/^[a-zA-Z0-9_ ]*$/, 'Please remove any numbers or special characters and try again'),
-    age: Yup.number().required('required').typeError('Age must be a number').positive('age must be greater than zero'),
-    dob: Yup.date().nullable().required('required'),
+      .required("required")
+      .matches(/^[a-zA-Z0-9_ ]*$/, "Please remove any numbers or special characters and try again"),
+    age: Yup.number().required("required").typeError("Age must be a number").positive("age must be greater than zero"),
+    dob: Yup.date().nullable().required("required"),
     jobTitle: Yup.string()
-      .required('required')
-      .matches(/^[a-zA-Z0-9~!@^&*()_'"/_ ]*$/, 'Please remove any special characters and try again'),
+      .required("required")
+      .matches(/^[a-zA-Z0-9~!@^&*()_'"/_ ]*$/, "Please remove any special characters and try again"),
     company: Yup.string()
-      .required('required')
-      .matches(/^[a-zA-Z0-9~!@^&*()_'"/_ ]*$/, 'Please remove any special characters and try again'),
+      .required("required")
+      .matches(/^[a-zA-Z0-9~!@^&*()_'"/_ ]*$/, "Please remove any special characters and try again"),
     jobDescription: Yup.string()
-      .required('required')
-      .matches(/^[a-zA-Z0-9~!@^&,*()_'"/_ ]*$/, 'Please remove any special characters and try again'),
-    startDate: Yup.date().nullable().required('required'),
+      .required("required")
+      .matches(/^[a-zA-Z0-9~!@^&,*()_'"/_ ]*$/, "Please remove any special characters and try again"),
+    startDate: Yup.date().nullable().required("required"),
     endDate: Yup.date()
       .nullable()
-      .min(Yup.ref('startDate'), ({ min }) => `End date needs to be after ${formatDate(min)}`),
+      .min(Yup.ref("startDate"), ({ min }) => `End date needs to be after ${formatDate(min)}`)
   });
 
   // date picker
@@ -230,7 +190,7 @@ const ProfileSettings = () => {
     const getUser = async () => {
       try {
         const response = await axiosPrivate.get(`/user/${auth.user.userId}`); //protected route, will throw an error if refreshToken is expired
-        const antiCSRFRes = await axiosPrivate.get('/antiCSRF');
+        const antiCSRFRes = await axiosPrivate.get("/antiCSRF");
         const data = response?.data;
         setInputs({
           name: data.name,
@@ -242,15 +202,15 @@ const ProfileSettings = () => {
           jobDescription: data.jobDescription,
           startDate: isNaN(new Date(data.startDate).valueOf()) ? new Date() : new Date(data.startDate),
           endDate: isNaN(new Date(data.endDate).valueOf()) ? new Date() : new Date(data.endDate),
-          csrfToken: antiCSRFRes.data.csrfToken,
+          csrfToken: antiCSRFRes.data.csrfToken
         });
-        setAvatar(data.avatar ?? '');
+        setAvatar(data.avatar ?? "");
       } catch (err) {
         console.error(err);
         try {
           await logout(); // Will throw if logout fails
         } catch (logoutError) {
-          console.error('Error during logout:', logoutError);
+          console.error("Error during logout:", logoutError);
           // Handle logout-specific errors here
         }
       }
@@ -263,7 +223,7 @@ const ProfileSettings = () => {
       <Card className="mt-5 p-3 p-sm-5">
         <Row>
           <Col sm={3}>
-            <Button variant="link" className="text-black ps-0" onClick={() => navigate('/my-profile')}>
+            <Button variant="link" className="text-black ps-0" onClick={() => navigate("/my-profile")}>
               <FontAwesomeIcon icon={faArrowLeft} size="lg" className="me-2" />
               My profile
             </Button>
@@ -274,30 +234,30 @@ const ProfileSettings = () => {
           enableReinitialize
           initialValues={inputs}
           validationSchema={validationSchema}
-          onSubmit={(values: HandleSubmitValues) => {
+          onSubmit={(values: InputTypes) => {
             handleSubmit(values);
           }}
         >
-          {({ values, handleChange, errors, touched }: FormikProps<HandleSubmitValues>) => (
+          {({ values, handleChange, errors, touched }: FormikProps<InputTypes>) => (
             <FormikForm>
               <input type="hidden" name="csrfToken" value={values.csrfToken} onChange={handleChange} />
               <Row>
                 <Col sm={6}>
                   <div>
-                    {imgPreview !== '' || avatar ? (
-                      <Image roundedCircle src={handleImgPreview()} width="107" height="107" alt="" style={{ objectFit: 'cover' }} />
+                    {imgPreview !== "" || avatar ? (
+                      <Image roundedCircle src={handleImgPreview()} width="107" height="107" alt="" style={{ objectFit: "cover" }} />
                     ) : (
                       <Image
                         src="../images/profile-placeholder.png"
                         alt="default-avatar"
                         style={{
-                          objectFit: 'cover',
-                          width: '107px',
-                          height: '107px',
+                          objectFit: "cover",
+                          width: "107px",
+                          height: "107px"
                         }}
                       />
                     )}
-                    <input type="file" ref={imgInputRef} onChange={uploadAvatar} hidden accept="image/*" name="avatar" />
+                    <input id="avatarUpload" type="file" ref={imgInputRef} onChange={uploadImage} hidden accept="image/*" name="avatar" />
                     <div className="mt-3">
                       <Col sm={12}>
                         <Row>
@@ -318,8 +278,8 @@ const ProfileSettings = () => {
                               variant="secondary"
                               className="text-white w-100"
                               onClick={() => {
-                                setImgPreview('');
-                                setAvatar('');
+                                setImgPreview("");
+                                setAvatar("");
                               }}
                             >
                               Remove
@@ -335,7 +295,7 @@ const ProfileSettings = () => {
                 <Col>
                   <Form.Group className="mb-3">
                     <Form.Label>Name</Form.Label>
-                    <Form.Control type="text" placeholder={'Enter Name'} name="name" value={values.name} onChange={handleChange} />
+                    <Form.Control type="text" placeholder={"Enter Name"} name="name" value={values.name} onChange={handleChange} />
                     {errors.name && touched.name && <div className="err-message">{errors.name}</div>}
                   </Form.Group>
                 </Col>
@@ -352,16 +312,16 @@ const ProfileSettings = () => {
                 <Col>
                   <Form.Group className="mb-3">
                     <Form.Label>Age</Form.Label>
-                    <Form.Control type="text" placeholder={'Enter Age'} name="age" value={values.age} onChange={handleChange} />
+                    <Form.Control type="text" placeholder={"Enter Age"} name="age" value={values.age} onChange={handleChange} />
                     {errors.age && touched.age && <div className="err-message">{errors.age}</div>}
                   </Form.Group>
                 </Col>
               </Row>
               {(
                 [
-                  { value: 'jobTitle', label: 'Job Title' },
-                  { value: 'company', label: 'Company' },
-                  { value: 'jobDescription', label: 'Job Description' },
+                  { value: "jobTitle", label: "Job Title" },
+                  { value: "company", label: "Company" },
+                  { value: "jobDescription", label: "Job Description" }
                 ] as Headers[]
               ).map((obj, i) => {
                 return (
@@ -378,9 +338,9 @@ const ProfileSettings = () => {
               })}
               <Row>
                 <Col className="mb-3">
-                  <Form.Group controlId="formFileSm">
+                  <Form.Group controlId="companyLogoUpload">
                     <Form.Label>Company Logo</Form.Label>
-                    <Form.Control type="file" size="sm" accept="image/*" onChange={onCompanyLogoUpload} />
+                    <Form.Control type="file" size="sm" accept="image/*" onChange={uploadImage} />
                   </Form.Group>
                 </Col>
               </Row>
@@ -425,7 +385,7 @@ const ProfileSettings = () => {
               </Row>
               <Row>
                 <Col className="d-flex justify-content-end" sm={3}>
-                  <Button variant="primary" type="submit" className={'mt-3 w-100 text-white '}>
+                  <Button variant="primary" type="submit" className={"mt-3 w-100 text-white "}>
                     Submit
                   </Button>
                 </Col>
