@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'react';
-import Container from 'react-bootstrap/Container';
-import Card from 'react-bootstrap/Card';
-import Image from 'react-bootstrap/Image';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import styles from './Jobs.module.scss';
-import 'react-datepicker/dist/react-datepicker.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding } from '@fortawesome/free-regular-svg-icons';
-import { faCheck, faBriefcase, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import Spinner from 'react-bootstrap/Spinner';
-import { useNavigate } from 'react-router-dom';
-import Toast from 'react-bootstrap/Toast';
-import ToastContainer from 'react-bootstrap/ToastContainer';
-import axios from '../../config/axiosConfig';
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
-import useAuth from '../../hooks/useAuth';
+import { useState, useEffect } from "react";
+import Container from "react-bootstrap/Container";
+import Card from "react-bootstrap/Card";
+import Image from "react-bootstrap/Image";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
+import styles from "./Jobs.module.scss";
+import "react-datepicker/dist/react-datepicker.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBuilding } from "@fortawesome/free-regular-svg-icons";
+import { faCheck, faBriefcase, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import Spinner from "react-bootstrap/Spinner";
+import { useNavigate } from "react-router-dom";
+import Toast from "react-bootstrap/Toast";
+import ToastContainer from "react-bootstrap/ToastContainer";
+import axios from "../../config/axiosConfig";
+import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
+import useAuth from "../../hooks/useAuth";
 
 type JobType = {
   companyDescription: string;
@@ -42,7 +42,7 @@ type authType = {
   roles: number[];
   accessToken: string;
 };
-type EachJob = {
+type EachJobType = {
   auth: authType | Record<string, never>;
   job: JobType | Record<string, never>;
   applyJob: (id: number) => Promise<void>;
@@ -66,7 +66,7 @@ const Jobs = () => {
   const applyJob = async (id: number) => {
     setApplyingJob(true);
     if (!auth.user) {
-      navigate('/login');
+      navigate("/login");
       setApplyingJob(false);
     } else {
       //push id to appliedJobs array in db
@@ -74,7 +74,7 @@ const Jobs = () => {
       appliedJobsCopy.push(id);
       const dataObject = {
         appliedJobs: appliedJobsCopy,
-        email: auth.user.email,
+        email: auth.user.email
       };
       try {
         const response = await axiosPrivate.post(`/apply-job/${auth.user.userId}`, dataObject);
@@ -118,12 +118,12 @@ const Jobs = () => {
     const getJobs = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/public/jobs');
+        const response = await axios.get("/public/jobs");
         setJobs(response?.data);
         setJob(response?.data[0]);
         setLoading(false);
       } catch (err) {
-        console.error('loading jobs error: ', err);
+        console.error("loading jobs error: ", err);
         setLoading(false);
       }
     };
@@ -138,7 +138,7 @@ const Jobs = () => {
         console.error(err);
         setLoading(false);
         try {
-          await axios('/public/logout', { withCredentials: true });
+          await axios("/public/logout", { withCredentials: true });
           //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
           setAuth({});
         } catch (err) {
@@ -148,7 +148,20 @@ const Jobs = () => {
     };
     getJobs();
     if (auth?.user) getUser();
-  }, []);
+  }, [auth.user, axiosPrivate, setAuth]);
+
+  function useMediaQuery(query: string) {
+    const [matches, setMatches] = useState(window.matchMedia(query).matches);
+    useEffect(() => {
+      const media = window.matchMedia(query);
+      const listener = () => setMatches(media.matches);
+      media.addEventListener("change", listener);
+      return () => media.removeEventListener("change", listener);
+    }, [query]);
+
+    return matches;
+  }
+  const isMobile = useMediaQuery("(max-width: 992px)");
 
   return (
     <Container>
@@ -157,24 +170,23 @@ const Jobs = () => {
         <Spinner animation="border" className="mt-5" />
       ) : (
         <>
-          {/* Desktop */}
-          <div className="d-none d-lg-block">
+          <div className={isMobile ? "d-lg-none" : "d-none d-lg-block"}>
             <Row>
               <Col className="pe-sm-0">
                 <div className={styles.custom__card}>
                   {jobs.length === 0 && <h6>Jobs not loaded!</h6>}
                   {jobs.map((ele: JobType, i) => {
                     return (
-                      <Row className={styles.row_clickable} key={i} onClick={() => setJob(ele)}>
+                      <Row className={styles.row_clickable} key={i} onClick={() => (isMobile ? navigate("/job/" + ele.id) : setJob(ele))}>
                         <Col xs={4} xl={3}>
-                          <Image src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                          <Image src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                         </Col>
                         <Col>
                           <h6>{ele.jobTitle}</h6>
                           <p className="mb-0">{ele.companyName}</p>
                           <small className="d-block">{ele.location}</small>
                           <small className="d-block mb-2">
-                            {' '}
+                            {" "}
                             <FontAwesomeIcon icon={faCheck} className="me-1" color="green" />
                             {ele.isRecruiting}
                           </small>
@@ -184,40 +196,15 @@ const Jobs = () => {
                   })}
                 </div>
               </Col>
-              <Col sm={8}>
-                <EachJob auth={auth} job={job} applyJob={applyJob} applyingJob={applyingJob} appliedJobs={appliedJobs} />
-              </Col>
+              {/* Desktop only */}
+              {!isMobile && (
+                <Col sm={8}>
+                  <EachJob auth={auth} job={job} applyJob={applyJob} applyingJob={applyingJob} appliedJobs={appliedJobs} />
+                </Col>
+              )}
             </Row>
           </div>
-          {/* mobile */}
-          <div className="d-block d-lg-none">
-            <Row>
-              <Col className="pe-sm-0">
-                <div className={styles.custom__card}>
-                  {jobs.length === 0 && <h6>Jobs not loaded!</h6>}
-                  {jobs.map((ele: JobType, i) => {
-                    return (
-                      <Row className={styles.row_clickable} key={i} onClick={() => navigate('/job/' + ele.id)}>
-                        <Col xs={3}>
-                          <Image src={`/images/company${i}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
-                        </Col>
-                        <Col>
-                          <h6>{ele.jobTitle}</h6>
-                          <p className="mb-0">{ele.companyName}</p>
-                          <small className="d-block">{ele.location}</small>
-                          <small className="d-block mb-2">
-                            {' '}
-                            <FontAwesomeIcon icon={faCheck} className="me-1" color="green" />
-                            {ele.isRecruiting}
-                          </small>
-                        </Col>
-                      </Row>
-                    );
-                  })}
-                </div>
-              </Col>
-            </Row>
-          </div>
+
           <ToastContainer className="p-3" position="top-end">
             <Toast
               show={showToast}
@@ -240,7 +227,7 @@ const Jobs = () => {
   );
 };
 
-const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJob) => {
+const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType) => {
   return (
     <>
       {Object.keys(job).length !== 0 && (
@@ -273,7 +260,7 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJob) => 
                   <FontAwesomeIcon icon={faArrowUpRightFromSquare} size="lg" className="me-2" />
                   Apply
                 </Button>
-                {applyingJob ? <Spinner animation="border" className="ms-1" /> : ''}
+                {applyingJob ? <Spinner animation="border" className="ms-1" /> : ""}
               </div>
             )
           ) : (
@@ -301,7 +288,7 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJob) => 
               <h4>About the company</h4>
               <Row className="mt-3 mb-3">
                 <Col xs={3} lg={2} xl={1} className="me-4">
-                  <Image src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                  <Image src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                 </Col>
                 <Col>
                   <h5 className="pt-2">{job.companyName}</h5>
