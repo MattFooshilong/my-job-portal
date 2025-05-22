@@ -22,3 +22,5 @@ npm-debug.log*
 
 .env
 .vercel
+.secrets
+output.log

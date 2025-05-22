@@ -1,0 +1,27 @@
+.card {
+  padding: 2rem;
+  margin-top: 3rem;
+
+  &__col {
+    padding: 1rem;
+    border: 1px solid rgb(0 0 0 / 12.5%);
+    border-radius: 10px !important;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 10%);
+  }
+
+  &__age {
+    padding-top: 8px;
+    color: grey;
+    padding-left: 8px;
+  }
+}
+
+small {
+  color: grey;
+}
+
+@media only screen and (width <= 575px) {
+  .card {
+    padding: 1rem;
+  }
+}

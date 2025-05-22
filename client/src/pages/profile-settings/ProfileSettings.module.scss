@@ -1,0 +1,9 @@
+.datepicker {
+  width: 100%;
+}
+
+@media only screen and (width > 991px) {
+  .datepicker {
+    width: 20%;
+  }
+}

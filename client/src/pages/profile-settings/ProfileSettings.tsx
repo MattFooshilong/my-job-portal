@@ -16,14 +16,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { firebaseApp } from "../../firebase/firebaseInit";
-
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { FirebaseError } from "firebase/app";
-
 import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 import useAuth from "../../hooks/useAuth";
 import useLogout from "../../hooks/useLogout";
 import { FC } from "react";
+import styles from "./ProfileSettings.module.scss";
 
 type InputTypes = {
   name: string;
@@ -181,6 +180,7 @@ const ProfileSettings = () => {
         }}
         className="form-control"
         placeholderText="Select date"
+        wrapperClassName={styles.datepicker}
       />
     );
   };
@@ -339,14 +339,15 @@ const ProfileSettings = () => {
               <Row>
                 <Col className="mb-3">
                   <Form.Group controlId="companyLogoUpload">
-                    <Form.Label>Company Logo</Form.Label>
+                    <Form.Label>Company Logo Upload</Form.Label>
                     <Form.Control type="file" size="sm" accept="image/*" onChange={uploadImage} />
                   </Form.Group>
                 </Col>
               </Row>
               <Row>
-                <Col className="mb-3" sm={3}>
+                <Col className="mb-3">
                   <label className="form-label">Start Date</label>
+                  <br />
                   <DatePickerField name="startDate" />
                   {errors.startDate && touched.startDate && <div className="err-message">{errors.startDate}</div>}
                 </Col>
@@ -366,8 +367,9 @@ const ProfileSettings = () => {
               </div>
               {showEndDate && (
                 <Row>
-                  <Col className="mb-3" sm={3}>
+                  <Col className="mb-3">
                     <label className="form-label">End Date</label>
+                    <br />
                     <DatePickerField name="endDate" />
                     {errors.endDate && touched.endDate && <div className="err-message">{errors.endDate}</div>}
                   </Col>

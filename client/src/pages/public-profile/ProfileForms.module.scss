@@ -4,10 +4,9 @@
 
   &__col {
     padding: 1rem;
-    border-radius: 10px;
-    border: 1px solid rgba(0, 0, 0, 0.125);
+    border: 1px solid rgb(0 0 0 / 12.5%);
     border-radius: 24px !important;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 10%);
   }
 
   &__age {
@@ -17,7 +16,7 @@
   }
 }
 
-.form__switch {
+.formSwitch {
   input {
     height: 30px !important;
     width: 60px !important;
@@ -30,11 +29,7 @@
   }
 }
 
-.form__datepicker {
-  width: 266px;
-}
-
-.col__end {
+.colEnd {
   display: flex;
   flex-direction: column;
   justify-content: center;

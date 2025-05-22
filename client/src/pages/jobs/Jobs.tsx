@@ -173,11 +173,11 @@ const Jobs = () => {
           <div className={isMobile ? "d-lg-none" : "d-none d-lg-block"}>
             <Row>
               <Col className="pe-sm-0">
-                <div className={styles.custom__card}>
+                <div className={styles.customCard}>
                   {jobs.length === 0 && <h6>Jobs not loaded!</h6>}
                   {jobs.map((ele: JobType, i) => {
                     return (
-                      <Row className={styles.row_clickable} key={i} onClick={() => (isMobile ? navigate("/job/" + ele.id) : setJob(ele))}>
+                      <Row className={styles.rowClickable} key={i} onClick={() => (isMobile ? navigate("/job/" + ele.id) : setJob(ele))}>
                         <Col xs={4} xl={3}>
                           <Image src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                         </Col>
@@ -231,7 +231,7 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType)
   return (
     <>
       {Object.keys(job).length !== 0 && (
-        <div className={styles.custom__card}>
+        <div className={styles.customCard}>
           <h3 className="mt-3">{job?.jobTitle}</h3>
           <Row className="gx-0">
             <p className="mb-0">
