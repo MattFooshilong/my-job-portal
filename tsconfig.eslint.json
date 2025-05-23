@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "jsx": "preserve"
+  },
+  "include": ["client", "server"],
+  "exclude": [
+    "node_modules",
+    "**/node_modules", // More robust
+    "build",
+    "**/build", // More robust
+    "dist",
+    "**/dist" // More robust
+  ]
+}

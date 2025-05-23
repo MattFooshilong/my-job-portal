@@ -2,3 +2,6 @@
 ios/
 android/
 *.config.js
+node_modules
+client/build
+server/dist

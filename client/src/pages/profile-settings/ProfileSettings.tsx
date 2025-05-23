@@ -296,7 +296,7 @@ const ProfileSettings = () => {
                   <Form.Group className="mb-3">
                     <Form.Label>Name</Form.Label>
                     <Form.Control type="text" placeholder={"Enter Name"} name="name" value={values.name} onChange={handleChange} />
-                    {errors.name && touched.name && <div className="err-message">{errors.name}</div>}
+                    {errors.name && touched.name && <div className="errMessage">{errors.name}</div>}
                   </Form.Group>
                 </Col>
               </Row>
@@ -305,7 +305,7 @@ const ProfileSettings = () => {
                   <label className="form-label">Date of birth</label>
                   <br />
                   <DatePickerField name="dob" />
-                  {errors.dob && touched.dob && <div className="err-message">{errors.dob}</div>}
+                  {errors.dob && touched.dob && <div className="errMessage">{errors.dob}</div>}
                 </Col>
               </Row>
               <Row>
@@ -313,7 +313,7 @@ const ProfileSettings = () => {
                   <Form.Group className="mb-3">
                     <Form.Label>Age</Form.Label>
                     <Form.Control type="text" placeholder={"Enter Age"} name="age" value={values.age} onChange={handleChange} />
-                    {errors.age && touched.age && <div className="err-message">{errors.age}</div>}
+                    {errors.age && touched.age && <div className="errMessage">{errors.age}</div>}
                   </Form.Group>
                 </Col>
               </Row>
@@ -330,7 +330,7 @@ const ProfileSettings = () => {
                       <Form.Group className="mb-3">
                         <Form.Label>{obj.label}</Form.Label>
                         <Form.Control type="text" placeholder={`Enter ${obj.label}`} name={obj.value} value={values[obj.value]} onChange={handleChange} />
-                        {errors[obj.value] && touched[obj.value] && <div className="err-message">{errors[obj.value]}</div>}
+                        {errors[obj.value] && touched[obj.value] && <div className="errMessage">{errors[obj.value]}</div>}
                       </Form.Group>
                     </Col>
                   </Row>
@@ -349,7 +349,7 @@ const ProfileSettings = () => {
                   <label className="form-label">Start Date</label>
                   <br />
                   <DatePickerField name="startDate" />
-                  {errors.startDate && touched.startDate && <div className="err-message">{errors.startDate}</div>}
+                  {errors.startDate && touched.startDate && <div className="errMessage">{errors.startDate}</div>}
                 </Col>
               </Row>
               <div>
@@ -371,7 +371,7 @@ const ProfileSettings = () => {
                     <label className="form-label">End Date</label>
                     <br />
                     <DatePickerField name="endDate" />
-                    {errors.endDate && touched.endDate && <div className="err-message">{errors.endDate}</div>}
+                    {errors.endDate && touched.endDate && <div className="errMessage">{errors.endDate}</div>}
                   </Col>
                 </Row>
               )}

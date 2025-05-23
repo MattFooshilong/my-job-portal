@@ -1,12 +1,13 @@
 {
-  "include": ["**/*.ts", "**/*.tsx", "src", "declaration.d.ts"],
   "compilerOptions": {
-    "jsx": "react-jsx",
     "target": "es2016",
     "module": "commonjs",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["**/*.ts", "**/*.tsx", "src"],
+  "exclude": ["node_modules", "build", "dist"]
 }

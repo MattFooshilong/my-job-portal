@@ -3,11 +3,6 @@
 @import "../node_modules/bootstrap/scss/bootstrap";
 @import "~bootstrap/scss/bootstrap";
 
-.accordion-button:not(.collapsed) {
-  color: black;
-  background-color: $accordion-button-active-bg;
-}
-
 html,
 body {
   background-color: $page-background;
@@ -27,6 +22,6 @@ body {
   background: transparent;
 }
 
-.err-message {
+.errMessage {
   color: red;
 }
