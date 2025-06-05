@@ -7,8 +7,9 @@ describe('Click on the apply button and applied job should show up on the applic
     cy.get('button[type=submit]').click()
     cy.contains('Logout')
     //go to jobs page
-    //cy.get('[href="/jobs"]').click()
-    //cy.location('pathname').should('eq', '/jobs')
+    cy.get('[href="/jobs"]').click()
+    cy.location('pathname').should('eq', '/jobs')
+    //apply job
     cy.get('[data-testid="job-0"]').then(($ele) => {
       const jobTitleText = $ele.find('.col > h6').text()
       const companyText = $ele.find('.col > .mb-0').text()
