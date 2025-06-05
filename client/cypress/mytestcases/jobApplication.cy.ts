@@ -10,7 +10,7 @@ describe('Click on the apply button and applied job should show up on the applic
     //cy.get('[href="/jobs"]').click()
     //cy.location('pathname').should('eq', '/jobs')
     cy.get('[data-testid="job-0"]').then(($ele) => {
-      const titleText = $ele.find('.col > h6').text()
+      const jobTitleText = $ele.find('.col > h6').text()
       const companyText = $ele.find('.col > .mb-0').text()
       //click on Apply button
       cy.get('button[type=button]').then(($btn) => {
@@ -23,6 +23,14 @@ describe('Click on the apply button and applied job should show up on the applic
       //go to job applications page
       cy.get('[href="/job-applications"]').click()
       cy.get('select').select('InProgress')
+      cy.get('[data-testid="job-application-0"]').then(($ele) => {
+        const appliedJobTitle = $ele.find('.col > h6').text()
+        const appliedCompanyText = $ele.find('.col > p').text()
+        cy.log(appliedJobTitle)
+        cy.log(appliedCompanyText)
+        expect(jobTitleText).to.eq(appliedJobTitle)
+        expect(companyText).to.eq(appliedCompanyText)
+      })
     })
   })
 })
