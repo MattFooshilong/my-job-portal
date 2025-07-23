@@ -4,8 +4,8 @@
     "allowJs": true,
     "checkJs": false,
     "noEmit": true,
-    "target": "ESNext",
-    "module": "ESNext",
+    "target": "es2017",
+    "module": "esnext",
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "jsx": "preserve"

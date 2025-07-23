@@ -1,25 +1,27 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import SignUp from './pages/signup/SignUp';
-import Nav from './components/navbar/navbar';
-import PublicProfile from './pages/public-profile/PublicProfile';
-import ProfileSettings from './pages/profile-settings/ProfileSettings';
-import MyProfile from './pages/my-profile/MyProfile';
-import Jobs from './pages/jobs/Jobs';
-import FullPageJob from './pages/jobs/FullPageJob';
-import JobApplications from './pages/job-applications/JobApplications';
-import Layout from './Layout';
-import Missing from './pages/missing/Missing';
-import RequireAuth from './components/RequireAuth';
-import Unauthorized from './pages/unauthorized/Unauthorized';
-import AdminDashboard from './pages/admin-dashboard/AdminDashboard';
-import PersistLogin from './components/PersistLogin';
-import Login from './pages/login/Login';
+import { lazy } from "react";
+import { Routes, Route } from "react-router-dom";
+import SignUp from "./pages/signup/SignUp";
+import Nav from "./components/navbar/navbar";
+import PublicProfile from "./pages/public-profile/PublicProfile";
+import ProfileSettings from "./pages/profile-settings/ProfileSettings";
+import MyProfile from "./pages/my-profile/MyProfile";
+import Jobs from "./pages/jobs/Jobs";
+import FullPageJob from "./pages/jobs/FullPageJob";
+import JobApplications from "./pages/job-applications/JobApplications";
+import Layout from "./Layout";
+import Missing from "./pages/missing/Missing";
+import RequireAuth from "./components/RequireAuth";
+import Unauthorized from "./pages/unauthorized/Unauthorized";
+import AdminDashboard from "./pages/admin-dashboard/AdminDashboard";
+import PersistLogin from "./components/PersistLogin";
+import Login from "./pages/login/Login";
+
+const Admin = lazy(() => import("./pages/admin-dashboard/AdminDashboard"));
 
 const App = () => {
   const ROLES = {
     Admin: 1,
-    User: 2,
+    User: 2
   };
 
   return (

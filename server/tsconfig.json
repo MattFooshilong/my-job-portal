@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es2016",
-    "module": "commonjs",
-    "esModuleInterop": true,
+    "target": "es2017",
+    "module": "esnext",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "moduleResolution": "node10", // Use Node.js style module resolution
+    "esModuleInterop": true // Enables default imports from modules with no default export
   },
-   "include": ["**/*.ts"],
-   "exclude": ["node_modules", "dist"]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
