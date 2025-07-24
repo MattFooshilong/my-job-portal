@@ -17,6 +17,11 @@ import PersistLogin from './components/PersistLogin';
 import Login from './pages/login/Login';
 import Spinner from 'react-bootstrap/Spinner';
 import { ErrorBoundary } from 'react-error-boundary';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
+//lazy loaded components
 const Admin = lazy(() => import('./pages/admin-dashboard/AdminDashboard'));
 
 const App = () => {
@@ -27,7 +32,7 @@ const App = () => {
   const navigate = useNavigate();
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Nav />
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -64,7 +69,7 @@ const App = () => {
           <Route path="*" element={<Missing />} />
         </Route>
       </Routes>
-    </>
+    </QueryClientProvider>
   );
 };
 

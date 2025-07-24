@@ -17,6 +17,7 @@ import ToastContainer from 'react-bootstrap/ToastContainer';
 import axios from '../../config/axiosConfig';
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
 import useAuth from '../../hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
 
 type JobType = {
   companyDescription: string;
@@ -54,7 +55,6 @@ const Jobs = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosWithInterceptors();
   const { auth, setAuth } = useAuth();
-
   const [jobs, setJobs] = useState([]);
   const [job, setJob] = useState({});
   const [appliedJobs, setAppliedJobs] = useState<number[]>([]);
@@ -113,42 +113,29 @@ const Jobs = () => {
   //      industry: 'Finance',
   //    })
   //  }
+  const getJobs = async (): Promise<JobType[]> => {
+    return await axios.get('/public/jobs').then((res) => res.data);
+  };
 
-  useEffect(() => {
-    const getJobs = async () => {
+  const getUser = async () => {
+    try {
       setLoading(true);
+      const response = await axiosPrivate.get(`/user/${auth.user.userId}`);
+      const data = response?.data;
+      setAppliedJobs(data.appliedJobs);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
       try {
-        const response = await axios.get('/public/jobs');
-        setJobs(response?.data);
-        setJob(response?.data[0]);
-        setLoading(false);
-      } catch (err) {
-        console.error('loading jobs error: ', err);
-        setLoading(false);
-      }
-    };
-    const getUser = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosPrivate.get(`/user/${auth.user.userId}`);
-        const data = response?.data;
-        setAppliedJobs(data.appliedJobs);
-        setLoading(false);
+        await axios('/public/logout', { withCredentials: true });
+        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
+        setAuth({});
       } catch (err) {
         console.error(err);
-        setLoading(false);
-        try {
-          await axios('/public/logout', { withCredentials: true });
-          //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-          setAuth({});
-        } catch (err) {
-          console.error(err);
-        }
       }
-    };
-    getJobs();
-    if (auth?.user) getUser();
-  }, []);
+    }
+  };
 
   function useMediaQuery(query: string) {
     const [matches, setMatches] = useState(window.matchMedia(query).matches);
@@ -163,69 +150,85 @@ const Jobs = () => {
   }
   const isMobile = useMediaQuery('(max-width: 992px)');
 
+  const { isPending, isError, data, error } = useQuery({
+    queryKey: ['todos'],
+    queryFn: getJobs
+  });
+
+  if (isPending) {
+    return <Spinner animation="border" className="mt-5" />;
+  }
+
+  if (isError) {
+    return <span>Error: {error.message}</span>;
+  }
+
+  //  useEffect(() => {
+
+  //    getJobs();
+  //    if (auth?.user) getUser();
+  //  }, []);
+
   return (
     <Container>
       {/* <Button onClick={() => addJob()}>Add job</Button> */}
-      {loading ? (
-        <Spinner animation="border" className="mt-5" />
-      ) : (
-        <>
-          <div className={isMobile ? 'd-lg-none' : 'd-none d-lg-block'}>
-            <Row>
-              <Col className="pe-sm-0">
-                <div className={styles.customCard}>
-                  {jobs.length === 0 ? (
-                    <h6>Jobs not loaded!</h6>
-                  ) : (
-                    jobs.map((ele: JobType, i) => {
-                      return (
-                        <Row className={styles.rowClickable} key={i} onClick={() => (isMobile ? navigate('/job/' + ele.id) : setJob(ele))} data-testid={`job-${i}`}>
-                          <Col xs={4} xl={3}>
-                            <Image fetchPriority="high" src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
-                          </Col>
-                          <Col>
-                            <h6>{ele.jobTitle}</h6>
-                            <p className="mb-0">{ele.companyName}</p>
-                            <small className="d-block">{ele.location}</small>
-                            <small className="d-block mb-2">
-                              {' '}
-                              <FontAwesomeIcon icon={faCheck} className="me-1" color="green" />
-                              {ele.isRecruiting}
-                            </small>
-                          </Col>
-                        </Row>
-                      );
-                    })
-                  )}
-                </div>
-              </Col>
-              {/* Desktop only */}
-              {!isMobile && (
-                <Col sm={8}>
-                  <EachJob auth={auth} job={job} applyJob={applyJob} applyingJob={applyingJob} appliedJobs={appliedJobs} />
-                </Col>
-              )}
-            </Row>
-          </div>
 
-          <ToastContainer className="p-3" position="top-end">
-            <Toast
-              show={showToast}
-              onClose={() => {
-                setShowToast(!showToast);
-              }}
-              delay={5000}
-              autohide
-            >
-              <Toast.Header>
-                <strong className="me-auto text-success">Success!</strong>
-                <small>Just now</small>
-              </Toast.Header>
-              <Toast.Body>You&apos;ve successfully applied for the job!</Toast.Body>
-            </Toast>
-          </ToastContainer>
-        </>
-      )}
+      <>
+        <div className={isMobile ? 'd-lg-none' : 'd-none d-lg-block'}>
+          <Row>
+            <Col className="pe-sm-0">
+              <div className={styles.customCard}>
+                {data.length === 0 ? (
+                  <h6>Jobs not loaded!</h6>
+                ) : (
+                  data.map((ele: JobType, i) => {
+                    return (
+                      <Row className={styles.rowClickable} key={i} onClick={() => (isMobile ? navigate('/job/' + ele.id) : setJob(ele))} data-testid={`job-${i}`}>
+                        <Col xs={4} xl={3}>
+                          <Image fetchPriority="high" src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                        </Col>
+                        <Col>
+                          <h6>{ele.jobTitle}</h6>
+                          <p className="mb-0">{ele.companyName}</p>
+                          <small className="d-block">{ele.location}</small>
+                          <small className="d-block mb-2">
+                            {' '}
+                            <FontAwesomeIcon icon={faCheck} className="me-1" color="green" />
+                            {ele.isRecruiting}
+                          </small>
+                        </Col>
+                      </Row>
+                    );
+                  })
+                )}
+              </div>
+            </Col>
+            {/* Desktop only */}
+            {!isMobile && (
+              <Col sm={8}>
+                <EachJob auth={auth} job={job} applyJob={applyJob} applyingJob={applyingJob} appliedJobs={appliedJobs} />
+              </Col>
+            )}
+          </Row>
+        </div>
+
+        <ToastContainer className="p-3" position="top-end">
+          <Toast
+            show={showToast}
+            onClose={() => {
+              setShowToast(!showToast);
+            }}
+            delay={5000}
+            autohide
+          >
+            <Toast.Header>
+              <strong className="me-auto text-success">Success!</strong>
+              <small>Just now</small>
+            </Toast.Header>
+            <Toast.Body>You&apos;ve successfully applied for the job!</Toast.Body>
+          </Toast>
+        </ToastContainer>
+      </>
     </Container>
   );
 };
