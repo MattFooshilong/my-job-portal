@@ -17,7 +17,7 @@ import PersistLogin from './components/PersistLogin';
 import Login from './pages/login/Login';
 import Spinner from 'react-bootstrap/Spinner';
 import { ErrorBoundary } from 'react-error-boundary';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
