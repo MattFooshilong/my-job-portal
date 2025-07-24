@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import SignUp from './pages/signup/SignUp';
 import Nav from './components/navbar/navbar';
 import PublicProfile from './pages/public-profile/PublicProfile';
@@ -15,12 +15,16 @@ import Unauthorized from './pages/unauthorized/Unauthorized';
 import AdminDashboard from './pages/admin-dashboard/AdminDashboard';
 import PersistLogin from './components/PersistLogin';
 import Login from './pages/login/Login';
+import Spinner from 'react-bootstrap/Spinner';
+import { ErrorBoundary } from 'react-error-boundary';
+const Admin = lazy(() => import('./pages/admin-dashboard/AdminDashboard'));
 
 const App = () => {
   const ROLES = {
     Admin: 1,
-    User: 2,
+    User: 2
   };
+  const navigate = useNavigate();
 
   return (
     <>
@@ -43,7 +47,16 @@ const App = () => {
               <Route path="/job-applications" element={<JobApplications />} />
             </Route>
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route
+                path="/admin-dashboard"
+                element={
+                  <ErrorBoundary fallback={<h2>Could not fetch. Please refresh</h2>} onReset={() => navigate('/')}>
+                    <Suspense fallback={<Spinner animation="border" className="mt-5" />}>
+                      <Admin />
+                    </Suspense>
+                  </ErrorBoundary>
+                }
+              />
             </Route>
           </Route>
 
