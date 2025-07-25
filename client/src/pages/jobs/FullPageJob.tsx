@@ -197,7 +197,7 @@ const FullPageJob = () => {
                   <h4>About the company</h4>
                   <Row className="mt-3 mb-3">
                     <Col xs={2} md={1} className="me-4">
-                      <Image fetchPriority="high" src={`/images/company${job?.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
+                      <Image src={`/images/company${job?.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                     </Col>
                     <Col>
                       <h5 className="pt-2">{job?.companyName}</h5>
