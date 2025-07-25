@@ -17,7 +17,7 @@ import ToastContainer from 'react-bootstrap/ToastContainer';
 import axios from '../../config/axiosConfig';
 import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
 import useAuth from '../../hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 type JobType = {
   companyDescription: string;
@@ -48,40 +48,39 @@ type EachJobType = {
   job: JobType | Record<string, never>;
   applyJob: (id: number) => Promise<void>;
   applyingJob: boolean;
-  appliedJobs: number[];
+  appliedJobs: number[] | undefined;
 };
 
 const Jobs = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosWithInterceptors();
   const { auth, setAuth } = useAuth();
-  const [jobs, setJobs] = useState([]);
   const [job, setJob] = useState({});
-  const [appliedJobs, setAppliedJobs] = useState<number[]>([]);
-  const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [applyingJob, setApplyingJob] = useState(false);
+  const queryClient = useQueryClient();
 
   //event handlers
-  const applyJob = async (id: number) => {
+  const applyJob = async (jobId: number) => {
     setApplyingJob(true);
     if (!auth.user) {
       navigate('/login');
       setApplyingJob(false);
-    } else {
+    } else if (appliedJobs) {
       //push id to appliedJobs array in db
       const appliedJobsCopy = [...appliedJobs];
-      appliedJobsCopy.push(id);
+      appliedJobsCopy.push(jobId);
       const dataObject = {
         appliedJobs: appliedJobsCopy,
         email: auth.user.email
       };
       try {
         const response = await axiosPrivate.post(`/apply-job/${auth.user.userId}`, dataObject);
-        const updated = response?.data?.updated;
+        const updated = response?.data?.updated as boolean;
         setShowToast(updated);
-        setAppliedJobs([...appliedJobs, id]);
         setApplyingJob(false);
+        //refetch appliedJobs
+        queryClient.invalidateQueries({ queryKey: ['getUserAppliedJobs'] });
       } catch (error) {
         console.log(error);
         setApplyingJob(false);
@@ -113,30 +112,8 @@ const Jobs = () => {
   //      industry: 'Finance',
   //    })
   //  }
-  const getJobs = async (): Promise<JobType[]> => {
-    return await axios.get('/public/jobs').then((res) => res.data);
-  };
 
-  const getUser = async () => {
-    try {
-      setLoading(true);
-      const response = await axiosPrivate.get(`/user/${auth.user.userId}`);
-      const data = response?.data;
-      setAppliedJobs(data.appliedJobs);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-      try {
-        await axios('/public/logout', { withCredentials: true });
-        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        setAuth({});
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
-
+  // check if user on mobile
   function useMediaQuery(query: string) {
     const [matches, setMatches] = useState(window.matchMedia(query).matches);
     useEffect(() => {
@@ -150,42 +127,76 @@ const Jobs = () => {
   }
   const isMobile = useMediaQuery('(max-width: 992px)');
 
-  const { isPending, isError, data, error } = useQuery({
-    queryKey: ['todos'],
-    queryFn: getJobs
+  const getUserAppliedJobs = async () => {
+    try {
+      const response = await axiosPrivate.get(`/user/${auth.user.userId}`);
+      return response?.data?.appliedJobs;
+    } catch (err) {
+      console.error(err);
+      try {
+        await axios('/public/logout', { withCredentials: true });
+        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
+        setAuth({});
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+  const {
+    isPending,
+    isError,
+    data: jobs,
+    error
+  } = useQuery<JobType[]>({
+    queryKey: ['getJobs'],
+    queryFn: () =>
+      axios.get('/public/jobs').then((res) => {
+        setJob(res.data[0]);
+        return res.data;
+      }),
+    staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
+
+  const {
+    data: appliedJobs,
+    isError: isGetUsersError,
+    error: getUsersError
+  } = useQuery<number[]>({
+    queryKey: ['getUserAppliedJobs'],
+    queryFn: getUserAppliedJobs,
+    enabled: auth.hasOwnProperty('user'),
+    staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
+  });
+
+  useEffect(() => {
+    //set the first job during cache
+    if (jobs) setJob(jobs[0]);
+  }, [jobs]);
 
   if (isPending) {
     return <Spinner animation="border" className="mt-5" />;
   }
 
-  if (isError) {
-    return <span>Error: {error.message}</span>;
+  if (isError || isGetUsersError) {
+    return <span>Error: {error?.message || getUsersError?.message}</span>;
   }
-
-  //  useEffect(() => {
-
-  //    getJobs();
-  //    if (auth?.user) getUser();
-  //  }, []);
 
   return (
     <Container>
       {/* <Button onClick={() => addJob()}>Add job</Button> */}
-
       <>
         <div className={isMobile ? 'd-lg-none' : 'd-none d-lg-block'}>
           <Row>
             <Col className="pe-sm-0">
               <div className={styles.customCard}>
-                {data.length === 0 ? (
+                {jobs.length === 0 ? (
                   <h6>Jobs not loaded!</h6>
                 ) : (
-                  data.map((ele: JobType, i) => {
+                  jobs?.map((ele: JobType, i: number) => {
                     return (
                       <Row className={styles.rowClickable} key={i} onClick={() => (isMobile ? navigate('/job/' + ele.id) : setJob(ele))} data-testid={`job-${i}`}>
                         <Col xs={4} xl={3}>
-                          <Image fetchPriority="high" src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                          <Image src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                         </Col>
                         <Col>
                           <h6>{ele.jobTitle}</h6>
@@ -256,7 +267,7 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType)
           </p>
           {/* check login or not then show application status */}
           {auth.user ? (
-            appliedJobs.includes(job.id) ? (
+            appliedJobs?.includes(job.id) ? (
               <Button variant="secondary" className="text-white mb-3" disabled>
                 Applied
               </Button>
@@ -294,7 +305,7 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType)
               <h4>About the company</h4>
               <Row className="mt-3 mb-3">
                 <Col xs={3} lg={2} xl={1} className="me-4">
-                  <Image fetchPriority="low" src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                  <Image src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
                 </Col>
                 <Col>
                   <h5 className="pt-2">{job.companyName}</h5>
