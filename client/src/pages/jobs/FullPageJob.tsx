@@ -18,6 +18,7 @@ import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 import useAuth from "../../hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "../../config/axiosConfig";
+import allJobs from "./initialData";
 
 type JobType = {
   companyDescription: string;
@@ -88,7 +89,7 @@ const FullPageJob = () => {
     }
   };
 
-  //on load
+  //on load + cache
   const {
     isPending,
     isError,
@@ -100,6 +101,7 @@ const FullPageJob = () => {
       axios.get("/public/jobs").then((res) => {
         return res.data;
       }),
+    initialData: allJobs,
     select: (cachedJobs: JobType[]): JobType => {
       const job = cachedJobs.find((job: JobType) => job.id === parseInt(jobId));
       if (!job) throw new Error("Job not found");
