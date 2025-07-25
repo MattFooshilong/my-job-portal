@@ -1,22 +1,23 @@
-import { useState } from 'react';
-import Card from 'react-bootstrap/Card';
-import Image from 'react-bootstrap/Image';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import styles from './Jobs.module.scss';
-import 'react-datepicker/dist/react-datepicker.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding } from '@fortawesome/free-regular-svg-icons';
-import { faBriefcase, faArrowUpRightFromSquare, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import Spinner from 'react-bootstrap/Spinner';
-import { useParams, useNavigate } from 'react-router-dom';
-import Toast from 'react-bootstrap/Toast';
-import ToastContainer from 'react-bootstrap/ToastContainer';
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
-import useAuth from '../../hooks/useAuth';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from '../../config/axiosConfig';
+import { useState } from "react";
+import Container from "react-bootstrap/Container";
+import Card from "react-bootstrap/Card";
+import Image from "react-bootstrap/Image";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
+import styles from "./Jobs.module.scss";
+import "react-datepicker/dist/react-datepicker.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBuilding } from "@fortawesome/free-regular-svg-icons";
+import { faBriefcase, faArrowUpRightFromSquare, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import Spinner from "react-bootstrap/Spinner";
+import { useParams, useNavigate } from "react-router-dom";
+import Toast from "react-bootstrap/Toast";
+import ToastContainer from "react-bootstrap/ToastContainer";
+import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
+import useAuth from "../../hooks/useAuth";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "../../config/axiosConfig";
 
 type JobType = {
   companyDescription: string;
@@ -35,19 +36,18 @@ type JobType = {
 
 const FullPageJob = () => {
   const param = useParams();
-  const jobId = param.id !== undefined ? param.id : '';
+  const jobId = param.id !== undefined ? param.id : "";
   const navigate = useNavigate();
   const [applyingJob, setApplyingJob] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const axiosPrivate = useAxiosWithInterceptors();
   const { auth, setAuth } = useAuth();
   const queryClient = useQueryClient();
-
   //event handlers
   const applyJob = async (jobId: number) => {
     setApplyingJob(true);
     if (!auth.user) {
-      navigate('/login');
+      navigate("/login");
       setApplyingJob(false);
     } else if (appliedJobs) {
       //push id to appliedJobs array in db
@@ -63,7 +63,7 @@ const FullPageJob = () => {
         setShowToast(updated);
         setApplyingJob(false);
         //refetch appliedJobs
-        queryClient.invalidateQueries({ queryKey: ['getUserAppliedJobs'] });
+        queryClient.invalidateQueries({ queryKey: ["getUserAppliedJobs"] });
       } catch (error) {
         console.log(error);
         setApplyingJob(false);
@@ -79,7 +79,7 @@ const FullPageJob = () => {
     } catch (err) {
       console.error(err);
       try {
-        await axios('/public/logout', { withCredentials: true });
+        await axios("/public/logout", { withCredentials: true });
         //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
         setAuth({});
       } catch (err) {
@@ -88,19 +88,22 @@ const FullPageJob = () => {
     }
   };
 
-  //on load + caching
+  //on load
   const {
     isPending,
     isError,
     data: job,
     error
-  } = useQuery<JobType>({
-    queryKey: ['getJobs'],
+  } = useQuery({
+    queryKey: ["getJobs"],
     queryFn: () =>
-      axios.get(`/public/job/${jobId}`).then((res) => {
-        console.log('job: ', res.data);
+      axios.get("/public/jobs").then((res) => {
         return res.data;
       }),
+    select: (cachedJobs: JobType[]): JobType => {
+      const oneJobArray = cachedJobs.filter((job: JobType) => job.id === parseInt(jobId));
+      return oneJobArray[0];
+    },
     staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
 
@@ -109,9 +112,9 @@ const FullPageJob = () => {
     isError: isGetUsersError,
     error: getUsersError
   } = useQuery<number[]>({
-    queryKey: ['getUserAppliedJobs'],
+    queryKey: ["getUserAppliedJobs"],
     queryFn: getUserAppliedJobs,
-    enabled: auth.hasOwnProperty('user'),
+    enabled: auth.hasOwnProperty("user"),
     staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
 
@@ -124,14 +127,14 @@ const FullPageJob = () => {
   }
 
   return (
-    <>
+    <Container className="p-3">
       {Object.keys(job).length !== 0 && (
         <Row className="justify-content-center">
           <Col sm={10} xs={12}>
             <div className={styles.custom__card}>
               <Row>
                 <Col sm={3}>
-                  <Button variant="link" className="text-black ps-0" onClick={() => navigate('/jobs')}>
+                  <Button variant="link" className="text-black ps-0" onClick={() => navigate("/jobs")}>
                     <FontAwesomeIcon icon={faArrowLeft} size="lg" className="me-2" />
                   </Button>
                 </Col>
@@ -165,7 +168,7 @@ const FullPageJob = () => {
                       <FontAwesomeIcon icon={faArrowUpRightFromSquare} size="lg" className="me-2" />
                       Apply
                     </Button>
-                    {applyingJob ? <Spinner animation="border" className="ms-1" /> : ''}
+                    {applyingJob ? <Spinner animation="border" className="ms-1" /> : ""}
                   </div>
                 )
               ) : (
@@ -193,7 +196,7 @@ const FullPageJob = () => {
                   <h4>About the company</h4>
                   <Row className="mt-3 mb-3">
                     <Col xs={2} md={1} className="me-4">
-                      <Image fetchPriority="high" src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                      <Image fetchPriority="high" src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                     </Col>
                     <Col>
                       <h5 className="pt-2">{job.companyName}</h5>
@@ -215,7 +218,6 @@ const FullPageJob = () => {
           show={showToast}
           onClose={() => {
             setShowToast(!showToast);
-            window.location.reload();
           }}
           delay={5000}
           autohide
@@ -224,10 +226,10 @@ const FullPageJob = () => {
             <strong className="me-auto text-success">Success!</strong>
             <small>Just now</small>
           </Toast.Header>
-          <Toast.Body>You&apos;ve successfully applied for the job! Refreshing page</Toast.Body>
+          <Toast.Body>You&apos;ve successfully applied for the job!</Toast.Body>
         </Toast>
       </ToastContainer>
-    </>
+    </Container>
   );
 };
 
