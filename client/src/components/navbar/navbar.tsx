@@ -7,6 +7,8 @@ import styles from "./Nav.module.scss";
 import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import useLogout from "../../hooks/useLogout";
+import { useQueryClient } from "@tanstack/react-query";
+import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 
 const NavBar = () => {
   const { auth } = useAuth();
@@ -17,7 +19,23 @@ const NavBar = () => {
   };
   const userOnly = auth?.roles?.includes(2);
   const adminOnly = auth?.roles?.includes(1);
+  const axiosPrivate = useAxiosWithInterceptors();
+  const queryClient = useQueryClient();
 
+  const prefetch = () => {
+    queryClient.prefetchQuery({
+      queryKey: ["getJobApplications"],
+      queryFn: async () => {
+        const dataObject = {
+          email: auth.user.email,
+          status: "InProgress"
+        };
+        const response = await axiosPrivate.post("/user-job-applications", dataObject); //protected route, will throw an error if refreshToken is expired
+        return response?.data?.infoOfAppliedJobs;
+      },
+      staleTime: 1 * 24 * 60 * 60 //cacheTime 1 day
+    });
+  };
   return (
     <Navbar bg="light" expand="lg" collapseOnSelect className={styles.navbar}>
       <Container fluid className="px-sm-0 mx-sm-4">
@@ -34,7 +52,9 @@ const NavBar = () => {
               <>
                 {userOnly && (
                   <>
-                    <Link to="/job-applications">Job Applications</Link>
+                    <Link to="/job-applications" onMouseEnter={prefetch}>
+                      Job Applications
+                    </Link>
                     <Link to="/my-profile">My Profile</Link>
                     <Link to="/profile-settings">Profile Settings</Link>
                     <Link to="/public-profile">Edit Public Profile</Link>

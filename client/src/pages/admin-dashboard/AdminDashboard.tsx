@@ -16,6 +16,7 @@ import { faBriefcase, faClose, faList, faSearch } from "@fortawesome/free-solid-
 import { useState, useEffect } from "react";
 import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 import useLogout from "../../hooks/useLogout";
+import { useQueryClient } from "@tanstack/react-query";
 
 type JobStatus = "Successful" | "Unsuccessful" | "InProgress";
 
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
   const [filteredStatus, setFilteredStatus] = useState("");
   const logout = useLogout();
   const axiosPrivate = useAxiosWithInterceptors();
+  const queryClient = useQueryClient();
 
   const updateJobStatus = async (details: ApplicationData, approveOrReject: string) => {
     setUpdatingJob(true);
@@ -48,6 +50,7 @@ const AdminDashboard = () => {
       const response = await axiosPrivate.post(`/update-job/${details.jobId}`, dataObject);
       const statusUpdated = response?.data?.statusUpdated; //do smth later perhaps?
       setUpdatingJob(false);
+      queryClient.invalidateQueries({ queryKey: ["getJobApplications"] });
     } catch (error) {
       setUpdatingJob(false);
       console.log(error);
