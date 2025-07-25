@@ -18,6 +18,7 @@ import axios from "../../config/axiosConfig";
 import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 import useAuth from "../../hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import allJobs from "./initialData";
 
 type JobType = {
   companyDescription: string;
@@ -88,31 +89,6 @@ const Jobs = () => {
     }
   };
 
-  //  const addJob = async () => {
-  //    //for testing
-  //    await setDoc(doc(db, 'jobs', 'jobs-5'), {
-  //      jobTitle: 'Senior frontend developer',
-  //      companyName: 'Fiverr',
-  //      location: 'Australia (remote)',
-  //      isRecruiting: 'Actively recruiting',
-  //      type: 'Full-time',
-  //      noOfEmployees: '10000-50000',
-  //      jobDescription: 'You will join our team and you’ll be responsible for co-creating interactive computer vision and other various application on the web. We highly value innovation – and you will think along with us about our current business processes and implementations.',
-  //      skills: {
-  //        1: 'You have a bachelor’s or master’s degree in IT or science – or you have a similar degree',
-  //        2: 'You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)',
-  //        3: 'You have knowledge of Database implementations such as SQL or NoSQL',
-  //      },
-  //      tasks: {
-  //        1: 'You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc',
-  //        2: 'You will improve both performance and features of existing micro-services',
-  //        3: 'You are responsible for the correct implementation of the design and also code yourself',
-  //      },
-  //      companyDescription: 'This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).',
-  //      industry: 'Finance',
-  //    })
-  //  }
-
   // check if user on mobile
   function useMediaQuery(query: string) {
     const [matches, setMatches] = useState(window.matchMedia(query).matches);
@@ -143,15 +119,16 @@ const Jobs = () => {
     }
   };
 
-  queryClient.prefetchQuery({
-    queryKey: ["getJobs"],
-    queryFn: () =>
-      axios.get("/public/jobs").then((res) => {
-        setJob(res.data[0]);
-        return res.data;
-      }),
-    staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
-  });
+  //  queryClient.prefetchQuery({
+  //    queryKey: ["getJobs"],
+  //    queryFn: () =>
+  //      axios.get("/public/jobs").then((res) => {
+  //        console.log(res.data);
+  //        setJob(res.data[0]);
+  //        return res.data;
+  //      }),
+  //    staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
+  //  });
 
   const {
     isPending,
@@ -165,6 +142,7 @@ const Jobs = () => {
         setJob(res.data[0]);
         return res.data;
       }),
+    initialData: allJobs,
     staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
 
@@ -194,7 +172,6 @@ const Jobs = () => {
 
   return (
     <Container>
-      {/* <Button onClick={() => addJob()}>Add job</Button> */}
       <>
         <div className={isMobile ? "d-lg-none" : "d-none d-lg-block"}>
           <Row>
