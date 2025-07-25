@@ -101,8 +101,9 @@ const FullPageJob = () => {
         return res.data;
       }),
     select: (cachedJobs: JobType[]): JobType => {
-      const oneJobArray = cachedJobs.filter((job: JobType) => job.id === parseInt(jobId));
-      return oneJobArray[0];
+      const job = cachedJobs.find((job: JobType) => job.id === parseInt(jobId));
+      if (!job) throw new Error("Job not found");
+      return job;
     },
     staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
@@ -158,13 +159,13 @@ const FullPageJob = () => {
               </p>
               {/* check login or not then show application status */}
               {auth.user ? (
-                appliedJobs?.includes(job.id) ? (
+                appliedJobs?.includes(job?.id) ? (
                   <Button variant="secondary" className="text-white mb-3" disabled>
                     Applied
                   </Button>
                 ) : (
                   <div>
-                    <Button onClick={() => applyJob(job.id)} variant="primary" className="text-white mb-3">
+                    <Button onClick={() => applyJob(job?.id)} variant="primary" className="text-white mb-3">
                       <FontAwesomeIcon icon={faArrowUpRightFromSquare} size="lg" className="me-2" />
                       Apply
                     </Button>
@@ -172,7 +173,7 @@ const FullPageJob = () => {
                   </div>
                 )
               ) : (
-                <Button onClick={() => applyJob(job.id)} variant="primary" className="text-white mb-3">
+                <Button onClick={() => applyJob(job?.id)} variant="primary" className="text-white mb-3">
                   <FontAwesomeIcon icon={faArrowUpRightFromSquare} size="lg" className="me-2" />
                   Apply
                 </Button>
@@ -196,17 +197,17 @@ const FullPageJob = () => {
                   <h4>About the company</h4>
                   <Row className="mt-3 mb-3">
                     <Col xs={2} md={1} className="me-4">
-                      <Image fetchPriority="high" src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
+                      <Image fetchPriority="high" src={`/images/company${job?.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                     </Col>
                     <Col>
-                      <h5 className="pt-2">{job.companyName}</h5>
+                      <h5 className="pt-2">{job?.companyName}</h5>
                       <p>3000 followers</p>
                     </Col>
                   </Row>
                   <p>
-                    {job.industry}, &nbsp; {job.noOfEmployees} employees
+                    {job?.industry}, &nbsp; {job?.noOfEmployees} employees
                   </p>
-                  <p>{job.companyDescription}</p>
+                  <p>{job?.companyDescription}</p>
                 </Card.Body>
               </Card>
             </div>
