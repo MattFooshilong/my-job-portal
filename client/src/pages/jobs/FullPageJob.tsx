@@ -18,6 +18,7 @@ import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 import useAuth from "../../hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "../../config/axiosConfig";
+import allJobs from "./initialData";
 
 type JobType = {
   companyDescription: string;
@@ -88,7 +89,7 @@ const FullPageJob = () => {
     }
   };
 
-  //on load
+  //on load + cache
   const {
     isPending,
     isError,
@@ -100,6 +101,7 @@ const FullPageJob = () => {
       axios.get("/public/jobs").then((res) => {
         return res.data;
       }),
+    initialData: allJobs,
     select: (cachedJobs: JobType[]): JobType => {
       const job = cachedJobs.find((job: JobType) => job.id === parseInt(jobId));
       if (!job) throw new Error("Job not found");
@@ -197,7 +199,7 @@ const FullPageJob = () => {
                   <h4>About the company</h4>
                   <Row className="mt-3 mb-3">
                     <Col xs={2} md={1} className="me-4">
-                      <Image fetchPriority="high" src={`/images/company${job?.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
+                      <Image src={`/images/company${job?.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                     </Col>
                     <Col>
                       <h5 className="pt-2">{job?.companyName}</h5>

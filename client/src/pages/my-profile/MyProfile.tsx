@@ -1,33 +1,33 @@
-import { useState, useEffect } from 'react';
-import Container from 'react-bootstrap/Container';
-import Card from 'react-bootstrap/Card';
-import Image from 'react-bootstrap/Image';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import styles from './MyProfile.module.scss';
-import 'react-datepicker/dist/react-datepicker.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faEnvelope } from '@fortawesome/free-regular-svg-icons';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { faWhatsapp, faLinkedin } from '@fortawesome/free-brands-svg-icons';
-import useAxiosWithInterceptors from '../../hooks/useAxiosWithInterceptors';
-import { Link } from 'react-router-dom';
-import useAuth from '../../hooks/useAuth';
-import dayjs from 'dayjs';
-import useLogout from '../../hooks/useLogout';
+import { useState, useEffect } from "react";
+import Container from "react-bootstrap/Container";
+import Card from "react-bootstrap/Card";
+import Image from "react-bootstrap/Image";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
+import styles from "./MyProfile.module.scss";
+import "react-datepicker/dist/react-datepicker.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare, faEnvelope } from "@fortawesome/free-regular-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faWhatsapp, faLinkedin } from "@fortawesome/free-brands-svg-icons";
+import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
+import { Link } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
+import dayjs from "dayjs";
+import useLogout from "../../hooks/useLogout";
 
 const PublicProfile = () => {
   const [inputs, setInputs] = useState({
-    name: 'Matt Foo',
-    age: '22',
-    jobTitle: 'Designer',
-    company: 'Designer Pte Ltd',
-    jobDescription: 'Help to create mockups and design dashboard',
-    startDate: '01/02/2022',
-    endDate: '01/07/2022',
-    email: '',
-    whatsapp: '99998888'
+    name: "Matt Foo",
+    age: "22",
+    jobTitle: "Designer",
+    company: "Designer Pte Ltd",
+    jobDescription: "Help to create mockups and design dashboard",
+    startDate: "01/02/2022",
+    endDate: "01/07/2022",
+    email: "",
+    whatsapp: "99998888"
   });
   const { name, age, jobTitle, company, jobDescription, startDate, endDate, email, whatsapp } = inputs;
   const { auth } = useAuth();
@@ -35,7 +35,7 @@ const PublicProfile = () => {
   const logout = useLogout();
 
   // avatar
-  const [avatar, setAvatar] = useState('');
+  const [avatar, setAvatar] = useState("");
 
   // on load
   useEffect(() => {
@@ -50,8 +50,8 @@ const PublicProfile = () => {
           jobTitle: data.jobTitle,
           company: data.company,
           jobDescription: data.jobDescription,
-          startDate: data.startDate ? dayjs(data.startDate).format('DD-MM-YYYY') : '',
-          endDate: data.endDate ? dayjs(data.endDate).format('DD-MM-YYYY') : '',
+          startDate: data.startDate ? dayjs(data.startDate).format("DD-MM-YYYY") : "",
+          endDate: data.endDate ? dayjs(data.endDate).format("DD-MM-YYYY") : "",
           email: data?.email
         });
         setAvatar(data.avatar);
@@ -60,7 +60,7 @@ const PublicProfile = () => {
         try {
           await logout(); // Will throw if logout fails
         } catch (logoutError) {
-          console.error('Error during logout:', logoutError);
+          console.error("Error during logout:", logoutError);
           // Handle logout-specific errors here
         }
       }
@@ -77,7 +77,7 @@ const PublicProfile = () => {
             <Card.Body>
               <Row className="d-flex justify-content-between">
                 <Col style={{ paddingLeft: 0 }} xs={{ order: 2, span: 12 }} sm={{ order: 1, span: 6 }}>
-                  {avatar ? <Image fetchPriority="high" roundedCircle src={avatar} width="107" height="107" alt="" style={{ objectFit: 'cover' }} /> : <Image fetchPriority="high" src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: 'cover', width: '107px', height: '107px' }} />}
+                  {avatar ? <Image roundedCircle src={avatar} width="107" height="107" alt="" style={{ objectFit: "cover" }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "107px", height: "107px" }} />}
                 </Col>
                 <Col xs={{ order: 1, span: 12 }} sm={{ order: 2, span: 6 }}>
                   <Link to="/profile-settings">
@@ -109,10 +109,10 @@ const PublicProfile = () => {
             {jobTitle && <h6 className="mb-0">Job Title: {jobTitle}</h6>}
             {company && (
               <p className="mb-0">
-                Company: {company}{' '}
+                Company: {company}{" "}
                 {startDate && (
                   <small className="mb-3 d-block">
-                    {startDate} - {endDate ? endDate : 'Present'}
+                    {startDate} - {endDate ? endDate : "Present"}
                   </small>
                 )}
               </p>
@@ -137,16 +137,16 @@ const PublicProfile = () => {
             <Card.Body>
               <p>People you may know</p>
               {[
-                { name: 'John Lee', jobTitle: 'Developer at Google' },
-                { name: 'Susan Koh', jobTitle: 'Designer at Mavrick' },
-                { name: 'Shakesphere Tan', jobTitle: 'Poet lecturer at Singapore Polytechnic' },
-                { name: 'Hafiz', jobTitle: 'Engineer at NTU' },
-                { name: 'Lambert Lahm', jobTitle: 'QA Engineer at PlatsOrg' }
+                { name: "John Lee", jobTitle: "Developer at Google" },
+                { name: "Susan Koh", jobTitle: "Designer at Mavrick" },
+                { name: "Shakesphere Tan", jobTitle: "Poet lecturer at Singapore Polytechnic" },
+                { name: "Hafiz", jobTitle: "Engineer at NTU" },
+                { name: "Lambert Lahm", jobTitle: "QA Engineer at PlatsOrg" }
               ].map((ele, i) => {
                 return (
                   <Row className="d-flex justify-content-between mt-3" key={i}>
                     <Col xs={3}>
-                      <Image fetchPriority="low" src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: 'cover', width: '70px', height: '70px' }} />
+                      <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                     </Col>
                     <Col>
                       <p className="mb-0">{ele.name}</p>

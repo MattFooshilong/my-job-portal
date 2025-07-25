@@ -82,6 +82,7 @@ const Jobs = () => {
         setApplyingJob(false);
         //refetch appliedJobs
         queryClient.invalidateQueries({ queryKey: ["getUserAppliedJobs"] });
+        queryClient.invalidateQueries({ queryKey: ["getJobApplications"] });
       } catch (error) {
         console.log(error);
         setApplyingJob(false);
@@ -119,17 +120,7 @@ const Jobs = () => {
     }
   };
 
-  //  queryClient.prefetchQuery({
-  //    queryKey: ["getJobs"],
-  //    queryFn: () =>
-  //      axios.get("/public/jobs").then((res) => {
-  //        console.log(res.data);
-  //        setJob(res.data[0]);
-  //        return res.data;
-  //      }),
-  //    staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
-  //  });
-
+  // onload + cache
   const {
     isPending,
     isError,
