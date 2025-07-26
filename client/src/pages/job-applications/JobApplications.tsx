@@ -56,7 +56,7 @@ const JobApplications = () => {
   };
   // onload + cache
   const {
-    isPending,
+    isFetching,
     isError,
     data: jobApplications,
     error
@@ -66,7 +66,7 @@ const JobApplications = () => {
     staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
 
-  if (isPending) {
+  if (isFetching) {
     return <Spinner animation="border" className="mt-5" />;
   }
   if (isError) {
