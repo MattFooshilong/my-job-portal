@@ -133,7 +133,7 @@ const Jobs = () => {
         setJob(res.data[0]);
         return res.data;
       }),
-    initialData: allJobs,
+    placeholderData: allJobs,
     staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
 
