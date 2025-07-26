@@ -165,9 +165,9 @@ export const signUp = async (req: Request, res: Response): Promise<any> => {
     //log in and give refresh and access token
     const accessToken = createAccessToken(email, [2]);
     const refreshToken = createRefreshToken(email);
-    await saveRefreshTokenToDb(email, refreshToken);
     res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });
     res.status(201).json({ user, accessToken });
+    saveRefreshTokenToDb(email, refreshToken);
   } catch (error) {
     return res.status(500).send({ error });
   }
@@ -199,18 +199,15 @@ export const logout = async (req: Request, res: Response): Promise<any> => {
     const cookies = req.cookies;
     res.clearCookie("cookieCsrfToken", { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });
     if (!cookies.refreshToken) return res.sendStatus(204);
+    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });
+    res.sendStatus(204);
     const refreshToken = cookies.refreshToken;
     //is refreshToken in db?
     const foundUser = await findUserWithRefreshToken(refreshToken);
     //if no user/empty object
-    if (Object.keys(foundUser).length === 0) {
-      res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });
-      res.sendStatus(204);
-    } else {
+    if (Object.keys(foundUser).length !== 0) {
       //delete refreshtoken in db
-      await saveRefreshTokenToDb(foundUser.email, "");
-      res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });
-      res.sendStatus(204);
+      saveRefreshTokenToDb(foundUser.email, "");
     }
   } catch (error) {
     console.log(error);
