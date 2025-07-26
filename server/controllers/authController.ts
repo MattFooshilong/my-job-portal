@@ -199,8 +199,7 @@ export const logout = async (req: Request, res: Response): Promise<any> => {
     const cookies = req.cookies;
     res.clearCookie("cookieCsrfToken", { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });
     if (!cookies.refreshToken) return res.sendStatus(204);
-    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });
-    res.sendStatus(204);
+
     const refreshToken = cookies.refreshToken;
     //is refreshToken in db?
     const foundUser = await findUserWithRefreshToken(refreshToken);
@@ -210,6 +209,8 @@ export const logout = async (req: Request, res: Response): Promise<any> => {
       console.log("do this");
       saveRefreshTokenToDb(foundUser.email, "");
     }
+    res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });
+    res.sendStatus(204);
   } catch (error) {
     console.log(error);
     throw error;
