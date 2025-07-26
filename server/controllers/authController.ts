@@ -207,6 +207,7 @@ export const logout = async (req: Request, res: Response): Promise<any> => {
     //if no user/empty object
     if (Object.keys(foundUser).length !== 0) {
       //delete refreshtoken in db
+      console.log("do this");
       saveRefreshTokenToDb(foundUser.email, "");
     }
   } catch (error) {
