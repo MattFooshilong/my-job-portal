@@ -11,7 +11,7 @@ import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfControll
 import { getJobsWhereThereIsApplication, updateJob } from "./controllers/jobsController";
 import cookieParser from "cookie-parser";
 import { Request, Response, NextFunction } from "express";
-import "./dbConfig";
+
 // Globals
 const app = express();
 app.use(cookieParser());
@@ -59,7 +59,7 @@ app.use(cors(corsOptions));
 //public routes
 app.use("/public/", routes);
 //protected routes
-app.use(verifyAccessToken);
+//app.use(verifyAccessToken);
 app.get("/user/:id", getUser);
 app.get("/antiCSRF", generateCSRFToken, (req: Request, res: Response) => {
   res.json({ csrfToken: req.csrfToken });

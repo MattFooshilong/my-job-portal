@@ -19,6 +19,7 @@ import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 import useAuth from "../../hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import allJobs from "./initialData";
+import useLogout from "../../hooks/useLogout";
 
 type JobType = {
   companyDescription: string;
@@ -60,6 +61,7 @@ const Jobs = () => {
   const [showToast, setShowToast] = useState(false);
   const [applyingJob, setApplyingJob] = useState(false);
   const queryClient = useQueryClient();
+  const logout = useLogout();
 
   //event handlers
   const applyJob = async (jobId: number) => {
@@ -111,9 +113,7 @@ const Jobs = () => {
     } catch (err) {
       console.error(err);
       try {
-        await axios("/public/logout", { withCredentials: true });
-        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        setAuth({});
+        await logout();
       } catch (err) {
         console.error(err);
       }
