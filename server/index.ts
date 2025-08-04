@@ -6,7 +6,7 @@ import routes from "./api/routes";
 import path from "path";
 import { fileURLToPath } from "url";
 import { verifyAccessToken } from "./middleware/verifyAccessToken";
-import { getUser, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, userJobApplications } from "./controllers/userController";
+import { getJobApplications, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, getJobApplicationsAndCompanyInfo } from "./controllers/userController";
 import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfController";
 import { getJobsWhereThereIsApplication, updateJob } from "./controllers/jobsController";
 import cookieParser from "cookie-parser";
@@ -59,15 +59,16 @@ app.use(cors(corsOptions));
 //public routes
 app.use("/public/", routes);
 //protected routes
-//app.use(verifyAccessToken);
-app.get("/user/:id", getUser);
+app.use(verifyAccessToken);
+app.get("/user/:id", getJobApplications);
+app.post("/apply-job", updateUserApplyToJobs);
+
 app.get("/antiCSRF", generateCSRFToken, (req: Request, res: Response) => {
   res.json({ csrfToken: req.csrfToken });
 });
 app.post("/user/:id", validateCSRFToken, updateProfileSettings);
 app.post("/user-public-pref/:id", updateUserPublicProfile);
-app.post("/user-job-applications", userJobApplications);
-app.post("/apply-job/:id", updateUserApplyToJobs);
+app.post("/user-job-applications", getJobApplicationsAndCompanyInfo);
 app.get("/get-jobs-where-there-is-application", getJobsWhereThereIsApplication);
 app.get("/check-logged-in", getJobsWhereThereIsApplication);
 app.post("/update-job/:jobId", updateJob);

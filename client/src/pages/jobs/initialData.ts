@@ -1,135 +1,93 @@
-const allJobs = [
-  {
-    id: 0,
-    industry: "Recruitment",
-    companyDescription: "The mission of Kinderpedia is to use digital tools to transform education, by optimizing the administrative processes and placing parent-teacher-student collaboration right at the core of the learning act.",
-    location: "Singapore (remote)",
-    skills: {
-      1: "Strong understanding of HTML5, cross-browser and cross-domain compatibility",
-      2: "Good knowledge of Javascript (ES6+), JSON and AJAX",
-      3: "Experience in consuming APIs, asynchronous code execution (async, await, Promise)"
-    },
-    noOfEmployees: "11-40",
-    isRecruiting: "Actively recruiting",
-    jobTitle: "Junior frontend developer",
-    tasks: {
-      1: "Build responsive user interfaces",
-      2: "Write clean, commented code",
-      3: "Optimize app for modularity and speed"
-    },
-    jobDescription: "We are looking for a highly resourceful and innovative developer with extensive experience as Web Developer who hate working in a stiff corporate environment. You`ll be joining a cool, agile team of like-minded people who are passionate about building and optimizing the most innovative web/API based platform for nurseries, kindergartens and schools. You`ll be using primarily Vue.js, JavaScript (ES6+), HTML5 and CSS3, with a strong emphasis on WebRTC and Websockets.",
-    companyName: "Choosee",
-    type: "Full-time"
-  },
+const placeHolderData = [
   {
     id: 1,
-    noOfEmployees: "100-200",
-    jobTitle: "Junior backend developer",
+    created_at: "2025-07-23T11:01:56.14065+00:00",
+    company_description: "The mission of Kinderpedia is to use digital tools to transform education, by optimizing the administrative processes and placing parent-teacher-student collaboration right at the core of the learning act.",
+    company_name: "Choosee",
+    industry: "Recruitment",
+    is_recruiting: "Actively recruiting\n\n\n",
+    job_description: "We are looking for a highly resourceful and innovative developer with extensive experience as Web Developer who hate working in a stiff corporate environment. You`ll be joining a cool, agile team of like-minded people who are passionate about building and optimizing the most innovative web/API based platform for nurseries, kindergartens and schools. You`ll be using primarily Vue.js, JavaScript (ES6+), HTML5 and CSS3, with a strong emphasis on WebRTC and Websockets.",
+    job_title: "Junior frontend developer",
     location: "Singapore (remote)",
-    industry: "HR",
-    jobDescription: "You will join our team and you’ll be responsible for co-creating interactive computer vision and other various application on the web. We highly value innovation – and you will think along with us about our current business processes and implementations.",
-    tasks: {
-      1: "You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc",
-      2: "You will improve both performance and features of existing micro-services",
-      3: "You are responsible for the correct implementation of the design and also code yourself"
-    },
-    companyDescription: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
-    skills: {
-      1: "You have a bachelor’s or master’s degree in IT or science – or you have a similar degree",
-      2: "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)",
-      3: "You have knowledge of Database implementations such as SQL or NoSQL"
-    },
-    companyName: "Virto",
-    isRecruiting: "Actively recruiting",
-    type: "Full-time"
+    no_of_employees: "11-40",
+    type: "Full-time",
+    skills: ["Strong understanding of HTML5, cross-browser and cross-domain compatibility", "Good knowledge of Javascript (ES6+), JSON and AJAX", "Experience in consuming APIs, asynchronous code execution (async, await, Promise)"],
+    tasks: ["Build responsive user interfaces", "Write clean, commented code", "Optimize app for modularity and speed"]
   },
   {
-    companyName: "Media-Arch",
-    skills: {
-      1: "You have a bachelor’s or master’s degree in IT or science – or you have a similar degree",
-      2: "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)",
-      3: "You have knowledge of Database implementations such as SQL or NoSQL"
-    },
-    isRecruiting: "Promoted",
-    companyDescription: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
     id: 2,
-    location: "Malaysia (remote)",
-    jobTitle: "Full-stack developer",
-    tasks: {
-      1: "You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc",
-      2: "You will improve both performance and features of existing micro-services",
-      3: "You are responsible for the correct implementation of the design and also code yourself"
-    },
-    industry: "IT Consultant",
-    noOfEmployees: "10-20",
-    type: "Part-time",
-    jobDescription: "In this role, you’re a member of an agile team. You’ll work on a React application and collaborate with designers, UX writers, and back-end engineers. You’ll have the freedom to try out your ideas and work on a passion project. You’ll exchange knowledge with experts from different areas, including web accessibility, machine learning and serverless. You’ll choose the developing tools and computer environment that you’re most comfortable with."
-  },
-  {
-    industry: "Finance",
-    companyDescription: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
-    isRecruiting: "Promoted",
-    id: 3,
+    created_at: "2025-07-29T08:03:41.303515+00:00",
+    company_description: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
+    company_name: "Virto",
+    industry: "HR",
+    is_recruiting: "Actively recruiting",
+    job_description: "You will join our team and you’ll be responsible for co-creating interactive computer vision and other various application on the web. We highly value innovation – and you will think along with us about our current business processes and implementations.",
+    job_title: "Junior backend developer",
     location: "Singapore (remote)",
-    skills: {
-      1: "You have a bachelor’s or master’s degree in IT or science – or you have a similar degree",
-      2: "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)",
-      3: "You have knowledge of Database implementations such as SQL or NoSQL"
-    },
-    jobDescription: "You will be joining a company that has recently been acquired and is therefore looking to grow their team due to increased demand for their product. You will join a team of 10 Ruby developers  Ideally, you will have worked with Ruby for more than 3 years and you will also have extensive experience with front-end frameworks. ",
-    jobTitle: "Frontend developer",
-    companyName: "Paytrix",
-    tasks: {
-      1: "You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc",
-      2: "You will improve both performance and features of existing micro-services",
-      3: "You are responsible for the correct implementation of the design and also code yourself"
-    },
+    no_of_employees: "100-200",
     type: "Full-time",
-    noOfEmployees: "100-200"
+    skills: ["You have a bachelor’s or master’s degree in IT or science – or you have a similar degree", "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)", "You have knowledge of Database implementations such as SQL or NoSQL"],
+    tasks: ["You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc", "You will improve both performance and features of existing micro-services", "You are responsible for the correct implementation of the design and also code yourself"]
   },
   {
-    jobTitle: "Senior frontend developer",
-    jobDescription: "You will join our team and you’ll be responsible for co-creating interactive computer vision and other various application on the web. We highly value innovation – and you will think along with us about our current business processes and implementations.",
-    noOfEmployees: "1000-2000",
-    industry: "Finance",
-    tasks: {
-      1: "You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc",
-      2: "You will improve both performance and features of existing micro-services",
-      3: "You are responsible for the correct implementation of the design and also code yourself"
-    },
+    id: 3,
+    created_at: "2025-07-29T08:05:00.929717+00:00",
+    company_description: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
+    company_name: "Media-Arch",
+    industry: "IT Consultant",
+    is_recruiting: "Promoted",
+    job_description: "In this role, you’re a member of an agile team. You’ll work on a React application and collaborate with designers, UX writers, and back-end engineers. You’ll have the freedom to try out your ideas and work on a passion project. You’ll exchange knowledge with experts from different areas, including web accessibility, machine learning and serverless. You’ll choose the developing tools and computer environment that you’re most comfortable with.",
+    job_title: "Full-stack developer",
+    location: "Malaysia (remote)",
+    no_of_employees: "10-20",
     type: "Full-time",
-    companyDescription: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
-    location: "EU (remote)",
-    isRecruiting: "Actively recruiting",
-    companyName: "Mellonare",
+    skills: ["You have a bachelor’s or master’s degree in IT or science – or you have a similar degree", "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)", "You have knowledge of Database implementations such as SQL or NoSQL"],
+    tasks: ["You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc", "You will improve both performance and features of existing micro-services", "You are responsible for the correct implementation of the design and also code yourself"]
+  },
+  {
     id: 4,
-    skills: {
-      1: "You have a bachelor’s or master’s degree in IT or science – or you have a similar degree",
-      2: "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)",
-      3: "You have knowledge of Database implementations such as SQL or NoSQL"
-    }
+    created_at: "2025-07-29T08:05:59.593557+00:00",
+    company_description: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
+    company_name: "Paytrix",
+    industry: "Finance",
+    is_recruiting: "Promoted",
+    job_description: "You will be joining a company that has recently been acquired and is therefore looking to grow their team due to increased demand for their product. You will join a team of 10 Ruby developers  Ideally, you will have worked with Ruby for more than 3 years and you will also have extensive experience with front-end frameworks.",
+    job_title: "Frontend developer",
+    location: "Singapore (remote)",
+    no_of_employees: "100-200",
+    type: "Full-time",
+    skills: ["You have a bachelor’s or master’s degree in IT or science – or you have a similar degree", "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)", "You have knowledge of Database implementations such as SQL or NoSQL"],
+    tasks: ["You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc", "You will improve both performance and features of existing micro-services", "You are responsible for the correct implementation of the design and also code yourself"]
   },
   {
-    skills: {
-      1: "You have a bachelor’s or master’s degree in IT or science – or you have a similar degree",
-      2: "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)",
-      3: "You have knowledge of Database implementations such as SQL or NoSQL"
-    },
-    type: "Full-time",
-    tasks: {
-      1: "You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc",
-      2: "You will improve both performance and features of existing micro-services",
-      3: "You are responsible for the correct implementation of the design and also code yourself"
-    },
-    noOfEmployees: "10000-50000",
-    companyName: "Acrolinx",
-    companyDescription: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
-    location: "Australia (remote)",
-    industry: "Transport",
     id: 5,
-    isRecruiting: "Actively recruiting",
-    jobTitle: "Senior frontend developer",
-    jobDescription: "You will join our team and you’ll be responsible for co-creating interactive computer vision and other various application on the web. We highly value innovation – and you will think along with us about our current business processes and implementations."
+    created_at: "2025-07-29T08:06:58.676425+00:00",
+    company_description: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
+    company_name: "Mellonare",
+    industry: "Finance",
+    is_recruiting: "Actively recruiting",
+    job_description: "You will join our team and you’ll be responsible for co-creating interactive computer vision and other various application on the web. We highly value innovation – and you will think along with us about our current business processes and implementations.",
+    job_title: "Senior frontend developer",
+    location: "EU (remote)",
+    no_of_employees: "1000-2000",
+    type: "Full-time",
+    skills: ["You have a bachelor’s or master’s degree in IT or science – or you have a similar degree", "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)", "You have knowledge of Database implementations such as SQL or NoSQL"],
+    tasks: ["You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc", "You will improve both performance and features of existing micro-services", "You are responsible for the correct implementation of the design and also code yourself"]
+  },
+  {
+    id: 6,
+    created_at: "2025-07-29T08:07:42.55548+00:00",
+    company_description: "This company develops advanced WEB and CAD applications for solar energy systems, such as our renowned plugin for AutoCAD / BricsCAD (BIM).",
+    company_name: "Acrolinx",
+    industry: "Transport",
+    is_recruiting: "Actively recruiting",
+    job_description: "You will join our team and you’ll be responsible for co-creating interactive computer vision and other various application on the web. We highly value innovation – and you will think along with us about our current business processes and implementations.",
+    job_title: "Senior frontend developer",
+    location: "Australia (remote)",
+    no_of_employees: "1000-5000",
+    type: "Full-time",
+    skills: ["You have a bachelor’s or master’s degree in IT or science – or you have a similar degree", "You have a significant amount of knowledge of both front and back-end developments (React, Bootstrap, Typescript, JavaScript, Node.js, SQL, NoSQL, Docker)", "You have knowledge of Database implementations such as SQL or NoSQL"],
+    tasks: ["You will develop and implement various micro-services needed to visualize solar panel layouts with associated data such as wind, snow load, ballast, wiring scheme’s, etc", "You will improve both performance and features of existing micro-services", "You are responsible for the correct implementation of the design and also code yourself"]
   }
 ];
-export default allJobs;
+export default placeHolderData;

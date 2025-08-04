@@ -18,21 +18,21 @@ import axios from "../../config/axiosConfig";
 import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 import useAuth from "../../hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import allJobs from "./initialData";
+import placeHolderData from "./initialData";
 import useLogout from "../../hooks/useLogout";
 
 type JobType = {
-  companyDescription: string;
-  companyName: string;
+  company_description: string;
+  company_name: string;
   id: number;
   industry: string;
-  isRecruiting: string;
-  jobDescription: string;
-  jobTitle: string;
+  is_recruiting: string;
+  job_description: string;
+  job_title: string;
   location: string;
-  noOfEmployees: string;
-  skills: Record<number, string>;
-  tasks: Record<number, string>;
+  no_of_employees: string;
+  skills: string[];
+  tasks: string[];
   type: string;
 };
 type User = {
@@ -56,7 +56,7 @@ type EachJobType = {
 const Jobs = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosWithInterceptors();
-  const { auth, setAuth } = useAuth();
+  const { auth } = useAuth();
   const [job, setJob] = useState({});
   const [showToast, setShowToast] = useState(false);
   const [applyingJob, setApplyingJob] = useState(false);
@@ -70,15 +70,12 @@ const Jobs = () => {
       navigate("/login");
       setApplyingJob(false);
     } else if (appliedJobs) {
-      //push id to appliedJobs array in db
-      const appliedJobsCopy = [...appliedJobs];
-      appliedJobsCopy.push(jobId);
       const dataObject = {
-        appliedJobs: appliedJobsCopy,
-        email: auth.user.email
+        job_id: jobId,
+        user_id: auth.user.userId
       };
       try {
-        const response = await axiosPrivate.post(`/apply-job/${auth.user.userId}`, dataObject);
+        const response = await axiosPrivate.post(`/apply-job`, dataObject);
         const updated = response?.data?.updated as boolean;
         setShowToast(updated);
         setApplyingJob(false);
@@ -130,10 +127,12 @@ const Jobs = () => {
     queryKey: ["getJobs"],
     queryFn: () =>
       axios.get("/public/jobs").then((res) => {
+        console.log(res);
+
         setJob(res.data[0]);
         return res.data;
       }),
-    placeholderData: allJobs,
+    placeholderData: placeHolderData,
     staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
 
@@ -178,13 +177,13 @@ const Jobs = () => {
                           <Image src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                         </Col>
                         <Col>
-                          <h6>{ele.jobTitle}</h6>
-                          <p className="mb-0">{ele.companyName}</p>
+                          <h6>{ele.job_title}</h6>
+                          <p className="mb-0">{ele.company_name}</p>
                           <small className="d-block">{ele.location}</small>
                           <small className="d-block mb-2">
                             {" "}
                             <FontAwesomeIcon icon={faCheck} className="me-1" color="green" />
-                            {ele.isRecruiting}
+                            {ele.is_recruiting}
                           </small>
                         </Col>
                       </Row>
@@ -228,10 +227,10 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType)
     <>
       {Object.keys(job).length !== 0 && (
         <div className={styles.customCard}>
-          <h3 className="mt-3">{job?.jobTitle}</h3>
+          <h3 className="mt-3">{job?.job_title}</h3>
           <Row className="gx-0">
             <p className="mb-0">
-              {job?.companyName},&nbsp; {job?.location}
+              {job?.company_name},&nbsp; {job?.location}
             </p>
             <p className="mb-0">3 days ago</p>
             <p className="mb-0">Over 100 applicants</p>
@@ -242,7 +241,7 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType)
           </p>
           <p>
             <FontAwesomeIcon icon={faBuilding} size="xl" className="me-2" />
-            {job?.noOfEmployees} employees
+            {job?.no_of_employees} employees
           </p>
           {/* check login or not then show application status */}
           {auth.user ? (
@@ -266,18 +265,18 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType)
             </Button>
           )}
           <h6>Job Description</h6>
-          <p>{job?.jobDescription}</p>
+          <p>{job?.job_description}</p>
           <h6>What skills and experience you will need</h6>
           <ul>
+            <li>{job?.skills[0]}</li>
             <li>{job?.skills[1]}</li>
             <li>{job?.skills[2]}</li>
-            <li>{job?.skills[3]}</li>
           </ul>
           <h6>Tasks</h6>
           <ul>
+            <li>{job?.tasks[0]}</li>
             <li>{job?.tasks[1]}</li>
             <li>{job?.tasks[2]}</li>
-            <li>{job?.tasks[3]}</li>
           </ul>
           <Card className="mt-5 p-1 p-sm-1">
             <Card.Body>
@@ -287,14 +286,14 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType)
                   <Image src={`/images/company${job.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                 </Col>
                 <Col>
-                  <h5 className="pt-2">{job.companyName}</h5>
+                  <h5 className="pt-2">{job.company_name}</h5>
                   <p>3000 followers</p>
                 </Col>
               </Row>
               <p>
-                {job.industry}, &nbsp; {job.noOfEmployees} employees
+                {job.industry}, &nbsp; {job.no_of_employees} employees
               </p>
-              <p>{job.companyDescription}</p>
+              <p>{job.company_description}</p>
             </Card.Body>
           </Card>
         </div>

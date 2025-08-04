@@ -2,6 +2,7 @@ import { firebaseApp } from "../firebaseServerInit/firebaseInit";
 import { getDocs, getDoc, getFirestore, collection, doc, collectionGroup, query, where, updateDoc, DocumentReference, DocumentData } from "firebase/firestore";
 import sanitize from "xss";
 import { Request, Response } from "express";
+import supabase from "./dbConfig";
 
 type Job = {
   jobDescription: string;
@@ -32,13 +33,13 @@ const db = getFirestore(firebaseApp);
 
 const getAllJobs = async (req: Request, res: Response) => {
   try {
-    const snapshot = await getDocs(collection(db, "jobs"));
-    const jobsArr = [] as Job[];
-    snapshot.forEach((doc) => {
-      const data = doc.data() as Job;
-      jobsArr.push(data);
-    });
-    res.json(jobsArr);
+    const { data, error } = await supabase.rpc("get_all_jobs_with_skills_tasks");
+    if (error) {
+      res.sendStatus(400);
+      console.log(error);
+    } else {
+      res.json(data);
+    }
   } catch (error) {
     console.log(error);
     throw error;

@@ -21,17 +21,17 @@ import axios from "../../config/axiosConfig";
 import allJobs from "./initialData";
 
 type JobType = {
-  companyDescription: string;
-  companyName: string;
+  company_description: string;
+  company_name: string;
   id: number;
   industry: string;
-  isRecruiting: string;
-  jobDescription: string;
-  jobTitle: string;
+  is_recruiting: string;
+  job_description: string;
+  job_title: string;
   location: string;
-  noOfEmployees: string;
-  skills: Record<number, string>;
-  tasks: Record<number, string>;
+  no_of_employees: string;
+  skills: string[];
+  tasks: string[];
   type: string;
 };
 
@@ -142,10 +142,10 @@ const FullPageJob = () => {
                   </Button>
                 </Col>
               </Row>
-              <h3 className="mt-3">{job?.jobTitle}</h3>
+              <h3 className="mt-3">{job?.job_title}</h3>
               <Row className="gx-0">
                 <p className="mb-0">
-                  {job?.companyName},&nbsp; {job?.location}
+                  {job?.company_name},&nbsp; {job?.location}
                 </p>
                 <p className="mb-0">3 days ago</p>
                 <p className="mb-0">Over 100 applicants</p>
@@ -157,7 +157,7 @@ const FullPageJob = () => {
               </p>
               <p>
                 <FontAwesomeIcon icon={faBuilding} size="xl" className="me-2" />
-                {job?.noOfEmployees} employees
+                {job?.no_of_employees} employees
               </p>
               {/* check login or not then show application status */}
               {auth.user ? (
@@ -181,18 +181,18 @@ const FullPageJob = () => {
                 </Button>
               )}
               <h6>Job Description</h6>
-              <p>{job?.jobDescription}</p>
+              <p>{job?.job_description}</p>
               <h6>What skills and experience you will need</h6>
               <ul>
+                <li>{job?.skills[0]}</li>
                 <li>{job?.skills[1]}</li>
                 <li>{job?.skills[2]}</li>
-                <li>{job?.skills[3]}</li>
               </ul>
               <h6>Tasks</h6>
               <ul>
+                <li>{job?.tasks[0]}</li>
                 <li>{job?.tasks[1]}</li>
                 <li>{job?.tasks[2]}</li>
-                <li>{job?.tasks[3]}</li>
               </ul>
               <Card className="mt-5 p-1 p-sm-1">
                 <Card.Body>
@@ -202,14 +202,14 @@ const FullPageJob = () => {
                       <Image src={`/images/company${job?.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                     </Col>
                     <Col>
-                      <h5 className="pt-2">{job?.companyName}</h5>
+                      <h5 className="pt-2">{job?.company_name}</h5>
                       <p>3000 followers</p>
                     </Col>
                   </Row>
                   <p>
-                    {job?.industry}, &nbsp; {job?.noOfEmployees} employees
+                    {job?.industry}, &nbsp; {job?.no_of_employees} employees
                   </p>
-                  <p>{job?.companyDescription}</p>
+                  <p>{job?.company_description}</p>
                 </Card.Body>
               </Card>
             </div>

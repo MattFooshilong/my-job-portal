@@ -1,10 +1,7 @@
 import { Request, Response } from "express";
-import { createClient } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
-import { error } from "console";
+import supabase from "./dbConfig";
 
-// Create a single supabase client for interacting with your database
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 const createRefreshToken = (email: string) => {
   return jwt.sign(
     {
@@ -108,6 +105,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     }
     const refreshToken = cookies.refreshToken;
     const { error } = await supabase.rpc("if_refresh_token_exist_delete_it", { p_refresh_token: refreshToken });
+
     if (error) {
       res.status(500).send({ message: "No user found/db error" });
       console.log(error);
