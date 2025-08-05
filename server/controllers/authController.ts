@@ -73,15 +73,19 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
       email: email,
       password: password
     });
+    console.log("signup", data);
     // duplicate email or something went wrong
+    if (error) {
+      console.log(error);
+    }
     if (!data.user) {
       res.status(403).send({ message: error?.message });
       return;
     }
     // a trigger to insert user_role is done on supabase after above
     const userCredentials = {
-      userId: data.user.id,
-      email: data.user.email,
+      userId: data?.user?.id,
+      email: data?.user?.email,
       roles: [2] //manually assign role 1 in db
     };
     // using my own refresh token instead of supabase's because their never expires, different security logic

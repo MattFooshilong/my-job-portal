@@ -27,10 +27,10 @@ const NavBar = () => {
       queryKey: ["getJobApplications"],
       queryFn: async () => {
         const dataObject = {
-          email: auth.user.email,
+          user_id: auth.user.userId,
           status: "InProgress"
         };
-        const response = await axiosPrivate.post("/user-job-applications", dataObject); //protected route, will throw an error if refreshToken is expired
+        const response = await axiosPrivate.post("/job-applications-and-company-info", dataObject); //protected route, will throw an error if refreshToken is expired
         return response?.data?.infoOfAppliedJobs;
       },
       staleTime: 1 * 24 * 60 * 60 //cacheTime 1 day

@@ -105,7 +105,7 @@ const Jobs = () => {
 
   const getUserAppliedJobs = async () => {
     try {
-      const response = await axiosPrivate.get(`/user/${auth.user.userId}`);
+      const response = await axiosPrivate.get(`/get-job-applications/${auth.user.userId}`);
       return response?.data?.appliedJobs;
     } catch (err) {
       console.error(err);
@@ -127,8 +127,6 @@ const Jobs = () => {
     queryKey: ["getJobs"],
     queryFn: () =>
       axios.get("/public/jobs").then((res) => {
-        console.log(res);
-
         setJob(res.data[0]);
         return res.data;
       }),

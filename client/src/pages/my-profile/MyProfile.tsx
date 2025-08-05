@@ -41,18 +41,18 @@ const PublicProfile = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await axiosPrivate.get(`/user/${auth.user.userId}`); //protected route, will throw an error if refreshToken is expired
-        const data = response?.data;
+        const response = await axiosPrivate.get(`/my-profile/${auth.user.userId}`); //protected route, will throw an error if refreshToken is expired
+        const data = response?.data[0];
         setInputs({
           ...inputs,
           name: data.name,
           age: data.age,
-          jobTitle: data.jobTitle,
-          company: data.company,
-          jobDescription: data.jobDescription,
-          startDate: data.startDate ? dayjs(data.startDate).format("DD-MM-YYYY") : "",
-          endDate: data.endDate ? dayjs(data.endDate).format("DD-MM-YYYY") : "",
-          email: data?.email
+          jobTitle: data.job_title,
+          company: data.company_name,
+          jobDescription: data.job_description,
+          startDate: data.start_date ? dayjs(data.start_date).format("DD-MM-YYYY") : "",
+          endDate: data.end_date ? dayjs(data.end_date).format("DD-MM-YYYY") : "",
+          email: auth?.user?.email
         });
         setAvatar(data.avatar);
       } catch (err) {
