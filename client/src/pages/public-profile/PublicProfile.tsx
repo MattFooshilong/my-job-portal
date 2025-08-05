@@ -20,7 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import Spinner from "react-bootstrap/Spinner";
 import placeHolderData from "../my-profile/placeHolderData";
 
-type AllowedKeys = "age" | "dob" | "job_title" | "company_name" | "job_description" | "company_logo" | "start_date" | "end_date";
+type AllowedKeys = "age" | "job_title" | "company_name" | "job_description" | "company_logo" | "start_date" | "end_date";
 type Headers = {
   value: AllowedKeys;
   label: string;
@@ -35,7 +35,6 @@ type ProfileDataType = {
   end_date: string;
   email: string;
   whatsapp: string;
-  dob: string;
   company_logo: string;
   avatar_url: string;
 };
@@ -44,7 +43,6 @@ type PublicProfilePrefDataType = {
   end_date: boolean;
   company_name: boolean;
   company_logo: boolean;
-  dob: boolean;
   job_description: boolean;
   job_title: boolean;
   start_date: boolean;
@@ -58,7 +56,6 @@ const PublicProfile = () => {
   const logout = useLogout();
   const [switches, setSwitches] = useState({
     age: true,
-    dob: true,
     job_title: true,
     company_name: true,
     company_logo: true,
@@ -129,7 +126,6 @@ const PublicProfile = () => {
       end_date: true,
       company_name: true,
       company_logo: true,
-      dob: true,
       job_description: true,
       job_title: true,
       start_date: true
@@ -183,7 +179,6 @@ const PublicProfile = () => {
             {(
               [
                 { value: "age", label: "Age" },
-                { value: "dob", label: "Date of birth" },
                 { value: "job_title", label: "Job Title" },
                 { value: "company_name", label: "Company" },
                 { value: "job_description", label: "Job Description" },
@@ -224,7 +219,6 @@ const PublicProfile = () => {
                 <h3>{profileDataObj?.name}</h3>
                 {switches?.age && profileDataObj?.age && <p className={styles.card__age}>{profileDataObj?.age} years old</p>}
               </div>
-              {switches?.dob && profileDataObj?.dob && <p>Date of birth: {profileDataObj?.dob}</p>}
               <h3>Career</h3>
               {switches?.job_title && profileDataObj?.job_title && <h6 className="mb-0">{profileDataObj?.job_title}</h6>}
               {switches?.company_logo && profileDataObj?.company_logo && <Image roundedCircle src={profileDataObj?.company_logo || ""} width="100" height="100" alt="" style={{ objectFit: "cover" }} />}

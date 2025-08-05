@@ -70,7 +70,6 @@ const updateProfileSettings = async (req: Request, res: Response) => {
       avatar: avatar,
       name: values.name,
       age: values.age,
-      dob: dayjs(values.dob).format("MM/DD/YYYY"),
       jobTitle: values.jobTitle,
       company: values.company,
       companyLogo: companyLogoUrl,

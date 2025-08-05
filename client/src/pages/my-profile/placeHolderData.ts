@@ -8,7 +8,6 @@ const placeHolderData = {
   end_date: "01/07/2022",
   email: "",
   whatsapp: "99998888",
-  dob: "",
   company_logo: "",
   avatar_url: ""
 };

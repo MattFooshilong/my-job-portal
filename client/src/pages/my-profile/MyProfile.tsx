@@ -29,7 +29,6 @@ type ProfileDataType = {
   end_date: string;
   email: string;
   whatsapp: string;
-  dob: string;
   company_logo: string;
   avatar_url: string;
 };
