@@ -19,7 +19,6 @@ const getJobApplications = async (req: Request, res: Response): Promise<void> =>
       res.sendStatus(400);
       console.log(error);
     } else {
-      console.log(data);
       res.json({ appliedJobs: data ?? [] });
     }
   } catch (error) {
@@ -28,17 +27,29 @@ const getJobApplications = async (req: Request, res: Response): Promise<void> =>
   }
 };
 const getMyProfile = async (req: Request, res: Response): Promise<void> => {
-  const userId = sanitize(req.params.user_id);
+  const userId = sanitize(req.body.user_id);
   try {
-    const { data, error } = (await supabase.rpc("get_my_profile", { p_id: userId })) as {
-      data: number[] | null;
-      error: PostgrestError | null;
-    };
+    const { data, error } = await supabase.rpc("get_my_profile", { p_id: userId });
     if (error) {
       res.sendStatus(400);
       console.log(error);
     } else {
-      res.json(data);
+      res.json(data[0]);
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+const getPublicProfile = async (req: Request, res: Response): Promise<void> => {
+  const userId = sanitize(req.body.user_id);
+  try {
+    const { data, error } = await supabase.rpc("get_public_profile_pref", { p_id: userId });
+    if (error) {
+      res.sendStatus(400);
+      console.log(error);
+    } else {
+      res.json(data[0]);
     }
   } catch (error) {
     console.log(error);
@@ -109,7 +120,6 @@ const updateUserApplyToJobs = async (req: Request, res: Response) => {
 const getJobApplicationsAndCompanyInfo = async (req: Request, res: Response) => {
   const status = req.body.status;
   const userId = sanitize(req.body.user_id);
-  console.log(userId);
   try {
     const { data, error } = await supabase.rpc("get_job_applications_and_company_info", { p_id: userId, p_status: status });
     if (error) {
@@ -123,4 +133,4 @@ const getJobApplicationsAndCompanyInfo = async (req: Request, res: Response) => 
     throw error;
   }
 };
-export { getJobApplications, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, getJobApplicationsAndCompanyInfo, getMyProfile };
+export { getJobApplications, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, getJobApplicationsAndCompanyInfo, getMyProfile, getPublicProfile };

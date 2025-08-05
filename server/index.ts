@@ -6,7 +6,7 @@ import routes from "./api/routes";
 import path from "path";
 import { fileURLToPath } from "url";
 import { verifyAccessToken } from "./middleware/verifyAccessToken";
-import { getJobApplications, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, getJobApplicationsAndCompanyInfo, getMyProfile } from "./controllers/userController";
+import { getJobApplications, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, getJobApplicationsAndCompanyInfo, getMyProfile, getPublicProfile } from "./controllers/userController";
 import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfController";
 import { getJobsWhereThereIsApplication, updateJob } from "./controllers/jobsController";
 import cookieParser from "cookie-parser";
@@ -61,10 +61,9 @@ app.use("/public/", routes);
 //protected routes
 app.use(verifyAccessToken);
 app.get("/get-job-applications/:user_id", getJobApplications);
-app.get("/my-profile/:user_id", getMyProfile);
-
+app.post("/my-profile", getMyProfile);
+app.post("/public-profile-pref", getPublicProfile);
 app.post("/apply-job", updateUserApplyToJobs);
-
 app.get("/antiCSRF", generateCSRFToken, (req: Request, res: Response) => {
   res.json({ csrfToken: req.csrfToken });
 });

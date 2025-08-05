@@ -11,49 +11,61 @@ import Alert from "react-bootstrap/Alert";
 import "react-datepicker/dist/react-datepicker.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 import useAuth from "../../hooks/useAuth";
 import dayjs from "dayjs";
 import useLogout from "../../hooks/useLogout";
-type AllowedKeys = "age" | "dob" | "jobTitle" | "company" | "jobDescription" | "companyLogo" | "startDate" | "endDate";
+import { useQuery } from "@tanstack/react-query";
+import Spinner from "react-bootstrap/Spinner";
+import placeHolderData from "../my-profile/placeHolderData";
+
+type AllowedKeys = "age" | "dob" | "job_title" | "company_name" | "job_description" | "company_logo" | "start_date" | "end_date";
 type Headers = {
   value: AllowedKeys;
   label: string;
 };
-
+type ProfileDataType = {
+  name: string;
+  age: string;
+  job_title: string;
+  company_name: string;
+  job_description: string;
+  start_date: string;
+  end_date: string;
+  email: string;
+  whatsapp: string;
+  dob: string;
+  company_logo: string;
+  avatar_url: string;
+};
+type PublicProfilePrefDataType = {
+  age: boolean;
+  end_date: boolean;
+  company_name: boolean;
+  company_logo: boolean;
+  dob: boolean;
+  job_description: boolean;
+  job_title: boolean;
+  start_date: boolean;
+};
 const PublicProfile = () => {
-  const [inputs, setInputs] = useState({
-    name: "",
-    age: "",
-    dob: "",
-    jobTitle: "",
-    company: "",
-    companyLogo: "",
-    jobDescription: "",
-    startDate: "",
-    endDate: ""
-  });
-  const [switches, setSwitches] = useState({
-    age: true,
-    dob: true,
-    jobTitle: true,
-    company: true,
-    companyLogo: true,
-    jobDescription: true,
-    startDate: true,
-    endDate: true
-  });
   const [preferencesSaved, setPreferencesSaved] = useState(false);
   const [err, setErr] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const axiosPrivate = useAxiosWithInterceptors();
   const { auth } = useAuth();
   const logout = useLogout();
-
-  const [avatar, setAvatar] = useState("");
-
+  const [switches, setSwitches] = useState({
+    age: true,
+    dob: true,
+    job_title: true,
+    company_name: true,
+    company_logo: true,
+    job_description: true,
+    start_date: true,
+    end_date: true
+  });
   const handleSubmit = async () => {
     try {
       const response = await axiosPrivate.post(`/user-public-pref/${auth.user.userId}`, switches);
@@ -66,47 +78,81 @@ const PublicProfile = () => {
     }
   };
 
-  useEffect(() => {
-    const getUser = async () => {
+  const getMyProfileData = async () => {
+    try {
+      const hideIdObj = { user_id: auth.user.userId };
+      const res = await axiosPrivate.post(`/my-profile`, hideIdObj);
+      return res.data;
+    } catch (err) {
+      console.error(err);
       try {
-        const response = await axiosPrivate.get(`/user/${auth.user.userId}`); //protected route, will throw an error if refreshToken is expired
-        const data = response?.data;
-        const publicProfilePref = data.publicProfilePref;
-        setInputs({
-          name: data.name,
-          age: data.age,
-          dob: data.dob ? dayjs(data.dob).format("DD-MM-YYYY") : "",
-          jobTitle: data.jobTitle,
-          company: data.company,
-          companyLogo: data.companyLogo,
-          jobDescription: data.jobDescription,
-          startDate: data.startDate ? dayjs(data.startDate).format("DD-MM-YYYY") : "",
-          endDate: data.endDate ? dayjs(data.endDate).format("DD-MM-YYYY") : ""
-        });
-        setAvatar(data.avatar);
-        setSwitches({
-          age: publicProfilePref.age,
-          dob: publicProfilePref.dob,
-          jobTitle: publicProfilePref.jobTitle,
-          company: publicProfilePref.company,
-          companyLogo: publicProfilePref.companyLogo,
-          jobDescription: publicProfilePref.jobDescription,
-          startDate: publicProfilePref.startDate,
-          endDate: publicProfilePref.endDate
-        });
+        await logout();
       } catch (err) {
         console.error(err);
-        try {
-          await logout(); // Will throw if logout fails
-        } catch (logoutError) {
-          console.error("Error during logout:", logoutError);
-          // Handle logout-specific errors here
-        }
       }
-    };
+    }
+  };
+  const getPublicProfilePrefData = async () => {
+    try {
+      const hideIdObj = { user_id: auth.user.userId };
+      const res = await axiosPrivate.post(`/public-profile-pref`, hideIdObj);
+      return res.data;
+    } catch (err) {
+      console.error(err);
+      try {
+        await logout();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+  //on load + cache
+  const {
+    isPending,
+    isError,
+    data: profileDataObj
+  } = useQuery<ProfileDataType>({
+    queryKey: ["getMyProfileData"],
+    queryFn: getMyProfileData,
+    placeholderData: placeHolderData,
+    staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
+  });
+  const {
+    isPending: publicProfilePrefIsPending,
+    isError: publicProfilePrefIsError,
+    data: publicProfilePrefObj
+  } = useQuery<PublicProfilePrefDataType>({
+    queryKey: ["getPublicProfilePrefData"],
+    queryFn: getPublicProfilePrefData,
+    placeholderData: {
+      age: true,
+      end_date: true,
+      company_name: true,
+      company_logo: true,
+      dob: true,
+      job_description: true,
+      job_title: true,
+      start_date: true
+    },
+    staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
+  });
 
-    getUser();
-  }, []);
+  useEffect(() => {
+    //set data on first fetch
+    if (publicProfilePrefObj) setSwitches(publicProfilePrefObj);
+  }, [publicProfilePrefObj]);
+
+  const formattedStartDate = dayjs(profileDataObj?.start_date).format("DD-MM-YYYY");
+  const formattedEndDate = dayjs(profileDataObj?.end_date).format("DD-MM-YYYY");
+
+  if (publicProfilePrefIsPending || isPending) {
+    return <Spinner animation="border" className="mt-5" />;
+  }
+
+  if (publicProfilePrefIsError || isError) {
+    return <span>Error: fetching data went wrong</span>;
+  }
+
   return (
     <Container>
       <Card className={styles.card}>
@@ -138,12 +184,12 @@ const PublicProfile = () => {
               [
                 { value: "age", label: "Age" },
                 { value: "dob", label: "Date of birth" },
-                { value: "jobTitle", label: "Job Title" },
-                { value: "company", label: "Company" },
-                { value: "jobDescription", label: "Job Description" },
-                { value: "companyLogo", label: "Company Logo" },
-                { value: "startDate", label: "Start Date" },
-                { value: "endDate", label: "End Date" }
+                { value: "job_title", label: "Job Title" },
+                { value: "company_name", label: "Company" },
+                { value: "job_description", label: "Job Description" },
+                { value: "company_logo", label: "Company Logo" },
+                { value: "start_date", label: "Start Date" },
+                { value: "end_date", label: "End Date" }
               ] as Headers[]
             ).map((obj, i) => {
               return (
@@ -173,24 +219,24 @@ const PublicProfile = () => {
 
           <Col>
             <Card className={styles.card__col}>
-              <Card.Body style={{ paddingLeft: 0 }}>{avatar ? <Image roundedCircle src={avatar} width="107" height="107" alt="" style={{ objectFit: "cover" }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "107px", height: "107px" }} />}</Card.Body>
+              <Card.Body style={{ paddingLeft: 0 }}>{profileDataObj?.avatar_url ? <Image roundedCircle src={profileDataObj?.avatar_url} width="107" height="107" alt="" style={{ objectFit: "cover" }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "107px", height: "107px" }} />}</Card.Body>
               <div className="d-flex">
-                <h3>{inputs.name}</h3>
-                {switches.age && inputs.age && <p className={styles.card__age}>{inputs.age} years old</p>}
+                <h3>{profileDataObj?.name}</h3>
+                {switches?.age && profileDataObj?.age && <p className={styles.card__age}>{profileDataObj?.age} years old</p>}
               </div>
-              {switches.dob && inputs.dob && <p>Date of birth: {inputs.dob}</p>}
+              {switches?.dob && profileDataObj?.dob && <p>Date of birth: {profileDataObj?.dob}</p>}
               <h3>Career</h3>
-              {switches.jobTitle && inputs.jobTitle && <h6 className="mb-0">{inputs.jobTitle}</h6>}
-              {switches.companyLogo && inputs.companyLogo && <Image roundedCircle src={inputs.companyLogo || ""} width="100" height="100" alt="" style={{ objectFit: "cover" }} />}
-              {switches.company && inputs.company && <p className="text-muted">{inputs.company}</p>}
-              {switches.jobDescription && inputs.jobDescription && (
+              {switches?.job_title && profileDataObj?.job_title && <h6 className="mb-0">{profileDataObj?.job_title}</h6>}
+              {switches?.company_logo && profileDataObj?.company_logo && <Image roundedCircle src={profileDataObj?.company_logo || ""} width="100" height="100" alt="" style={{ objectFit: "cover" }} />}
+              {switches?.company_name && profileDataObj?.company_name && <p className="text-muted">{profileDataObj?.company_name}</p>}
+              {switches?.job_description && profileDataObj?.job_description && (
                 <div className="mb-3">
                   <h6 className="mb-0">Job Description:</h6>
-                  <small>{inputs.jobDescription}</small>
+                  <small>{profileDataObj?.job_description}</small>
                 </div>
               )}
-              {switches.startDate && inputs.startDate && <p className="text-muted mb-0">From: {inputs.startDate} </p>}
-              {switches.endDate && inputs.endDate && <p className="text-muted">To: {inputs.endDate}</p>}
+              {switches?.start_date && formattedStartDate && <p className="text-muted mb-0">From: {formattedStartDate} </p>}
+              {switches?.end_date && formattedEndDate && <p className="text-muted">To: {formattedEndDate}</p>}
             </Card>
           </Col>
         </Row>

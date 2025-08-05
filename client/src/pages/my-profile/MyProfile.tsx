@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import Container from "react-bootstrap/Container";
 import Card from "react-bootstrap/Card";
 import Image from "react-bootstrap/Image";
@@ -16,59 +15,67 @@ import { Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import dayjs from "dayjs";
 import useLogout from "../../hooks/useLogout";
+import { useQuery } from "@tanstack/react-query";
+import Spinner from "react-bootstrap/Spinner";
+import placeHolderData from "./placeHolderData";
+
+type ProfileDataType = {
+  name: string;
+  age: string;
+  job_title: string;
+  company_name: string;
+  job_description: string;
+  start_date: string;
+  end_date: string;
+  email: string;
+  whatsapp: string;
+  dob: string;
+  company_logo: string;
+  avatar_url: string;
+};
 
 const PublicProfile = () => {
-  const [inputs, setInputs] = useState({
-    name: "Matt Foo",
-    age: "22",
-    jobTitle: "Designer",
-    company: "Designer Pte Ltd",
-    jobDescription: "Help to create mockups and design dashboard",
-    startDate: "01/02/2022",
-    endDate: "01/07/2022",
-    email: "",
-    whatsapp: "99998888"
-  });
-  const { name, age, jobTitle, company, jobDescription, startDate, endDate, email, whatsapp } = inputs;
   const { auth } = useAuth();
   const axiosPrivate = useAxiosWithInterceptors();
   const logout = useLogout();
 
-  // avatar
-  const [avatar, setAvatar] = useState("");
-
-  // on load
-  useEffect(() => {
-    const getUser = async () => {
+  const getMyProfileData = async () => {
+    try {
+      const hideIdObj = { user_id: auth.user.userId };
+      const res = await axiosPrivate.post(`/my-profile`, hideIdObj);
+      return res.data;
+    } catch (err) {
+      console.error(err);
       try {
-        const response = await axiosPrivate.get(`/my-profile/${auth.user.userId}`); //protected route, will throw an error if refreshToken is expired
-        const data = response?.data[0];
-        setInputs({
-          ...inputs,
-          name: data.name,
-          age: data.age,
-          jobTitle: data.job_title,
-          company: data.company_name,
-          jobDescription: data.job_description,
-          startDate: data.start_date ? dayjs(data.start_date).format("DD-MM-YYYY") : "",
-          endDate: data.end_date ? dayjs(data.end_date).format("DD-MM-YYYY") : "",
-          email: auth?.user?.email
-        });
-        setAvatar(data.avatar);
+        await logout();
       } catch (err) {
         console.error(err);
-        try {
-          await logout(); // Will throw if logout fails
-        } catch (logoutError) {
-          console.error("Error during logout:", logoutError);
-          // Handle logout-specific errors here
-        }
       }
-    };
+    }
+  };
+  // onload + cache
+  const {
+    isPending,
+    isError,
+    data: profileDataObj,
+    error
+  } = useQuery<ProfileDataType>({
+    queryKey: ["getMyProfileData"],
+    queryFn: getMyProfileData,
+    placeholderData: placeHolderData,
+    staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
+  });
 
-    getUser();
-  }, []);
+  if (isPending) {
+    return <Spinner animation="border" className="mt-5" />;
+  }
 
+  if (isError) {
+    return <span>Error: {error?.message}</span>;
+  }
+
+  const formattedStartDate = dayjs(profileDataObj?.start_date).format("DD-MM-YYYY");
+  const formattedEndDate = dayjs(profileDataObj?.end_date).format("DD-MM-YYYY");
   return (
     <Container>
       <Row>
@@ -77,7 +84,7 @@ const PublicProfile = () => {
             <Card.Body>
               <Row className="d-flex justify-content-between">
                 <Col style={{ paddingLeft: 0 }} xs={{ order: 2, span: 12 }} sm={{ order: 1, span: 6 }}>
-                  {avatar ? <Image roundedCircle src={avatar} width="107" height="107" alt="" style={{ objectFit: "cover" }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "107px", height: "107px" }} />}
+                  {profileDataObj?.avatar_url ? <Image roundedCircle src={profileDataObj?.avatar_url} width="107" height="107" alt="" style={{ objectFit: "cover" }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "107px", height: "107px" }} />}
                 </Col>
                 <Col xs={{ order: 1, span: 12 }} sm={{ order: 2, span: 6 }}>
                   <Link to="/profile-settings">
@@ -87,40 +94,40 @@ const PublicProfile = () => {
               </Row>
             </Card.Body>
             <div className="d-flex mb-0">
-              <h3>{name}</h3>
-              {age && <p className={styles.card__age}>{inputs.age} years old</p>}
+              <h3>{profileDataObj?.name}</h3>
+              {profileDataObj?.age && <p className={styles.card__age}>{profileDataObj?.age} years old</p>}
             </div>
             <p className="mb-0">This is a profile summary - Hi I&apos;m a full stack developer and I have built dashboards with React, Typescript, Bootstrap on the frontend and Nodejs, SQL, Graphql for the backend</p>
             <small>Singapore</small>
 
             <p className="mb-0 mt-2">
               <FontAwesomeIcon icon={faEnvelope} size="xl" className="me-2" />
-              {email}
+              {profileDataObj?.email}
             </p>
             <p className="mb-0">
               <FontAwesomeIcon icon={faWhatsapp} size="xl" className="me-2" />
-              +65 {whatsapp}
+              +65 {profileDataObj?.whatsapp}
             </p>
             <a className="mb-3 text-black" href="https://www.linkedin.com/in/shilong-foo/">
               <FontAwesomeIcon icon={faLinkedin} size="xl" className="me-2" />
               https://www.linkedin.com/in/shilong-foo/
             </a>
             <h3>Career</h3>
-            {jobTitle && <h6 className="mb-0">Job Title: {jobTitle}</h6>}
-            {company && (
+            {profileDataObj?.job_title && <h6 className="mb-0">Job Title: {profileDataObj?.job_title}</h6>}
+            {profileDataObj?.company_name && (
               <p className="mb-0">
-                Company: {company}{" "}
-                {startDate && (
+                Company: {profileDataObj?.company_name}{" "}
+                {profileDataObj?.start_date && (
                   <small className="mb-3 d-block">
-                    {startDate} - {endDate ? endDate : "Present"}
+                    {formattedStartDate} - {formattedEndDate ? formattedEndDate : "Present"}
                   </small>
                 )}
               </p>
             )}
-            {jobDescription && (
+            {profileDataObj?.job_description && (
               <div className="mb-3">
                 <h6 className="mb-0">Job Description:</h6>
-                <small>{jobDescription}</small>
+                <small>{profileDataObj?.job_description}</small>
               </div>
             )}
           </Card>
