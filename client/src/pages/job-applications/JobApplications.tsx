@@ -55,6 +55,7 @@ const JobApplications = () => {
   } = useQuery<JobApplication[]>({
     queryKey: ["getJobApplications", status],
     queryFn: () => fetchData(status),
+    placeholderData: [],
     staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
 

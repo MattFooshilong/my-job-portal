@@ -19,6 +19,7 @@ import useAuth from "../../hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "../../config/axiosConfig";
 import allJobs from "./initialData";
+import useLogout from "../../hooks/useLogout";
 
 type JobType = {
   company_description: string;
@@ -44,6 +45,8 @@ const FullPageJob = () => {
   const axiosPrivate = useAxiosWithInterceptors();
   const { auth, setAuth } = useAuth();
   const queryClient = useQueryClient();
+  const logout = useLogout();
+
   //event handlers
   const applyJob = async (jobId: number) => {
     setApplyingJob(true);
@@ -75,14 +78,13 @@ const FullPageJob = () => {
   // on load
   const getUserAppliedJobs = async () => {
     try {
-      const response = await axiosPrivate.get(`/user/${auth.user.userId}`);
+      const hideIdObj = { user_id: auth.user.userId };
+      const response = await axiosPrivate.post(`/get-job-applications`, hideIdObj);
       return response?.data?.appliedJobs;
     } catch (err) {
       console.error(err);
       try {
-        await axios("/public/logout", { withCredentials: true });
-        //if refresh token is expired, send them back to login screen. After logging in, send them back to where they were
-        setAuth({});
+        await logout();
       } catch (err) {
         console.error(err);
       }

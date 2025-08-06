@@ -9,7 +9,7 @@ import { PostgrestError } from "@supabase/supabase-js";
 const db = getFirestore(firebaseApp);
 
 const getJobApplications = async (req: Request, res: Response): Promise<void> => {
-  const userId = sanitize(req.params.user_id);
+  const userId = sanitize(req.body.user_id);
   try {
     const { data, error } = (await supabase.rpc("get_user_applied_jobs", { p_id: userId })) as {
       data: number[] | null;
@@ -85,13 +85,16 @@ const updateProfileSettings = async (req: Request, res: Response) => {
 };
 
 const updateUserPublicProfile = async (req: Request, res: Response) => {
-  const switches = req.body;
+  const switches = req.body.switches;
+  const userId = sanitize(req.body.user_id);
   try {
-    const userId = sanitize(req.params.id);
-    await updateDoc(doc(db, "users", userId), {
-      publicProfilePref: switches
-    });
-    res.json({ updated: true });
+    const { error } = await supabase.rpc("update_public_profile_pref", { p_id: userId, prefs: switches });
+    if (error) {
+      res.sendStatus(400);
+      console.log(error);
+    } else {
+      res.json({ updated: true });
+    }
   } catch (error) {
     console.log(error);
     throw error;

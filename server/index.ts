@@ -60,7 +60,7 @@ app.use(cors(corsOptions));
 app.use("/public/", routes);
 //protected routes
 app.use(verifyAccessToken);
-app.get("/get-job-applications/:user_id", getJobApplications);
+app.post("/get-job-applications", getJobApplications);
 app.post("/my-profile", getMyProfile);
 app.post("/public-profile-pref", getPublicProfile);
 app.post("/apply-job", updateUserApplyToJobs);
@@ -68,7 +68,7 @@ app.get("/antiCSRF", generateCSRFToken, (req: Request, res: Response) => {
   res.json({ csrfToken: req.csrfToken });
 });
 app.post("/user/:id", validateCSRFToken, updateProfileSettings);
-app.post("/user-public-pref/:id", updateUserPublicProfile);
+app.post("/user-public-pref", updateUserPublicProfile);
 app.post("/job-applications-and-company-info", getJobApplicationsAndCompanyInfo);
 app.get("/get-jobs-where-there-is-application", getJobsWhereThereIsApplication);
 app.get("/check-logged-in", getJobsWhereThereIsApplication);

@@ -105,7 +105,8 @@ const Jobs = () => {
 
   const getUserAppliedJobs = async () => {
     try {
-      const response = await axiosPrivate.get(`/get-job-applications/${auth.user.userId}`);
+      const hideIdObj = { user_id: auth.user.userId };
+      const response = await axiosPrivate.post(`/get-job-applications`, hideIdObj);
       return response?.data?.appliedJobs;
     } catch (err) {
       console.error(err);

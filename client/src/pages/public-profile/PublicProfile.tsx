@@ -8,7 +8,6 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import styles from "./ProfileForms.module.scss";
 import Alert from "react-bootstrap/Alert";
-import "react-datepicker/dist/react-datepicker.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
@@ -65,7 +64,11 @@ const PublicProfile = () => {
   });
   const handleSubmit = async () => {
     try {
-      const response = await axiosPrivate.post(`/user-public-pref/${auth.user.userId}`, switches);
+      const dataObj = {
+        switches,
+        user_id: auth.user.userId
+      };
+      const response = await axiosPrivate.post(`/user-public-pref`, dataObj);
       const updated = response?.data?.updated;
       setPreferencesSaved(updated);
       setErr(false);
@@ -164,7 +167,7 @@ const PublicProfile = () => {
         <h1>Public profile settings</h1>
         <Row className="mb-2">
           <Col sm={5}>
-            <p>You control your profile and limit what is shown to the public. Toggle your preferences on the left and your public profile is as on the right.</p>
+            <p>You control your profile and limit what is shown to the public. Toggle your preferences on the left and your public profile is as shown on the right.</p>
           </Col>
         </Row>
 
