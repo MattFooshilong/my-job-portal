@@ -15,7 +15,7 @@ import useAxiosWithInterceptors from "../../hooks/useAxiosWithInterceptors";
 import useAuth from "../../hooks/useAuth";
 import dayjs from "dayjs";
 import useLogout from "../../hooks/useLogout";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Spinner from "react-bootstrap/Spinner";
 import placeHolderData from "../my-profile/placeHolderData";
 
@@ -36,6 +36,8 @@ type ProfileDataType = {
   whatsapp: string;
   company_logo_path: string;
   signed_avatar_url: string;
+  avatar_path: string;
+  signed_company_logo_url: string;
 };
 type PublicProfilePrefDataType = {
   age: boolean;
@@ -53,6 +55,8 @@ const PublicProfile = () => {
   const axiosPrivate = useAxiosWithInterceptors();
   const { auth } = useAuth();
   const logout = useLogout();
+  const queryClient = useQueryClient();
+
   const [switches, setSwitches] = useState({
     age: true,
     job_title: true,
@@ -72,6 +76,7 @@ const PublicProfile = () => {
       const updated = response?.data?.updated;
       setPreferencesSaved(updated);
       setErr(false);
+      queryClient.invalidateQueries({ queryKey: ["getPublicProfilePrefData"] });
     } catch (err) {
       console.error(err);
       setErr(true);

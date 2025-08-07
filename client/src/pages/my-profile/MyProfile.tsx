@@ -31,6 +31,8 @@ type ProfileDataType = {
   whatsapp: string;
   company_logo_path: string;
   signed_avatar_url: string;
+  avatar_path: string;
+  signed_company_logo_url: string;
 };
 
 const PublicProfile = () => {
