@@ -46,24 +46,6 @@ const getAllJobs = async (req: Request, res: Response) => {
   }
 };
 
-const getOneJob = async (req: Request, res: Response) => {
-  const jobId = sanitize(req.params.jobId);
-  try {
-    const docRef = doc(db, "jobs", `jobs-${jobId}`);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const job = docSnap.data();
-      res.json(job);
-    } else {
-      const job = {};
-      res.json(job);
-    }
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
 const getJobsWhereThereIsApplication = async (req: Request, res: Response) => {
   try {
     // get all job applications
@@ -133,4 +115,4 @@ const updateJob = async (req: Request, res: Response) => {
   }
 };
 
-export { getAllJobs, getOneJob, getJobsWhereThereIsApplication, updateJob };
+export { getAllJobs, getJobsWhereThereIsApplication, updateJob };
