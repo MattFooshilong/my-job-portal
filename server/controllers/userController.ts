@@ -1,12 +1,8 @@
-import { firebaseApp } from "../firebaseServerInit/firebaseInit";
-import { getDoc, getFirestore, doc, updateDoc, getDocs, query, collectionGroup, where, collection, addDoc, DocumentReference, DocumentData, DocumentSnapshot } from "firebase/firestore";
 import dayjs from "dayjs";
 import sanitize from "xss";
 import { Request, Response } from "express";
 import supabase from "./dbConfig";
 import { PostgrestError } from "@supabase/supabase-js";
-
-const db = getFirestore(firebaseApp);
 
 const getJobApplications = async (req: Request, res: Response): Promise<void> => {
   const userId = sanitize(req.body.user_id);
@@ -29,13 +25,41 @@ const getJobApplications = async (req: Request, res: Response): Promise<void> =>
 const getMyProfile = async (req: Request, res: Response): Promise<void> => {
   const userId = sanitize(req.body.user_id);
   try {
-    const { data, error } = await supabase.rpc("get_my_profile", { p_id: userId });
+    const { data: profileData, error } = await supabase.rpc("get_my_profile", { p_id: userId });
     if (error) {
       res.sendStatus(400);
       console.log(error);
-    } else {
-      res.json(data[0]);
+      return;
     }
+    //retrieve profile and company logo pic
+    const avatarPath: string = profileData[0]?.avatar_path;
+    const companyLogoPath: string = profileData[0]?.company_logo_path;
+    let signed_avatar_url;
+    let signed_company_logo_url;
+    if (avatarPath) {
+      const { data, error: imageDlError } = await supabase.storage.from("images-bucket").createSignedUrl(`${avatarPath}`, 3600);
+      signed_avatar_url = data?.signedUrl;
+      if (imageDlError) {
+        res.sendStatus(400);
+        console.log(error);
+        return;
+      }
+    }
+    if (companyLogoPath) {
+      const { data, error: imageDlError } = await supabase.storage.from("images-bucket").createSignedUrl(`${companyLogoPath}`, 3600);
+      signed_company_logo_url = data?.signedUrl;
+      if (imageDlError) {
+        res.sendStatus(400);
+        console.log(error);
+        return;
+      }
+    }
+    const returnObj = {
+      ...profileData[0],
+      signed_avatar_url: signed_avatar_url ?? "",
+      signed_company_logo_url: signed_company_logo_url ?? ""
+    };
+    res.json(returnObj);
   } catch (error) {
     console.log(error);
     throw error;
@@ -57,26 +81,62 @@ const getPublicProfile = async (req: Request, res: Response): Promise<void> => {
   }
 };
 const updateProfileSettings = async (req: Request, res: Response) => {
-  const values = req.body.values;
+  //sanitize
+  const values = JSON.parse(req.body.values);
   Object.keys(values).forEach((key) => {
     values[key] = sanitize(values[key]);
   });
-  const avatar = req.body.avatar;
-  const companyLogoUrl = req.body.companyLogoUrl;
+  //formatting
   const showEndDate = req.body.showEndDate;
+  values.start_date = dayjs(values.start_date).format("MM/DD/YYYY");
+  values.end_date = showEndDate ? dayjs(values.end_date).format("MM/DD/YYYY") : "";
+  delete values.csrfToken;
+  delete values.signed_avatar_url;
+  const userId = req.body.user_id;
+  //image upload
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const avatarFileObj = files["avatar_file"]?.[0];
+  const companyLogoFileObj = files["company_logo_file"]?.[0];
+  let avatarPath = "";
+  if (avatarFileObj) {
+    avatarPath = `${userId}/${avatarFileObj.originalname}`;
+    values.avatar_path = avatarPath;
+  }
+  let companyLogoPath = "";
+  if (companyLogoFileObj) {
+    companyLogoPath = `${userId}/${companyLogoFileObj.originalname}`;
+    values.company_logo_path = companyLogoPath;
+  }
+  const fileArr = [
+    { obj: avatarFileObj, path: avatarPath },
+    { obj: companyLogoFileObj, path: companyLogoPath }
+  ];
+
   try {
-    const userId = req.params.id;
-    await updateDoc(doc(db, "users", userId), {
-      avatar: avatar,
-      name: values.name,
-      age: values.age,
-      jobTitle: values.jobTitle,
-      company: values.company,
-      companyLogo: companyLogoUrl,
-      jobDescription: values.jobDescription,
-      startDate: dayjs(values.startDate).format("MM/DD/YYYY"),
-      endDate: showEndDate ? dayjs(values.endDate).format("MM/DD/YYYY") : ""
-    });
+    /**
+     * 1. Upload image to bucket
+     * 2. store file path to db
+     */
+    for (const file of fileArr) {
+      if (file.obj) {
+        const { error } = await supabase.storage.from("images-bucket").upload(`${file.path}`, file.obj.buffer, {
+          contentType: file.obj.mimetype,
+          upsert: true
+        });
+        if (error) {
+          console.error("Supabase upload error:", error);
+          res.status(500).send("Failed to upload to Supabase");
+          return;
+        }
+      }
+    }
+
+    const { error } = await supabase.rpc("update_profile_settings", { p_id: userId, p_values: values });
+    if (error) {
+      console.log(error);
+      res.sendStatus(400);
+      return;
+    }
     res.json({ updated: true });
   } catch (error) {
     console.log("updateProfileSettings error: ", error);

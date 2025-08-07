@@ -11,6 +11,7 @@ import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfControll
 import { getJobsWhereThereIsApplication, updateJob } from "./controllers/jobsController";
 import cookieParser from "cookie-parser";
 import { Request, Response, NextFunction } from "express";
+import multer from "multer";
 
 // Globals
 const app = express();
@@ -28,7 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", (req: Request, res: Response) => {
   res.send("Server up");
 });
-
+const upload = multer({ storage: multer.memoryStorage() });
 const allowedOrigins = ["http://localhost:3000", "https://my-job-portal-client.vercel.app"];
 
 const corsOptions: cors.CorsOptions = {
@@ -67,7 +68,15 @@ app.post("/apply-job", updateUserApplyToJobs);
 app.get("/antiCSRF", generateCSRFToken, (req: Request, res: Response) => {
   res.json({ csrfToken: req.csrfToken });
 });
-app.post("/user/:id", validateCSRFToken, updateProfileSettings);
+app.post(
+  "/updateProfileSettings",
+  upload.fields([
+    { name: "avatar_file", maxCount: 1 },
+    { name: "company_logo_file", maxCount: 1 }
+  ]),
+  validateCSRFToken,
+  updateProfileSettings
+);
 app.post("/user-public-pref", updateUserPublicProfile);
 app.post("/job-applications-and-company-info", getJobApplicationsAndCompanyInfo);
 app.get("/get-jobs-where-there-is-application", getJobsWhereThereIsApplication);

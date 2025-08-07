@@ -19,7 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import Spinner from "react-bootstrap/Spinner";
 import placeHolderData from "../my-profile/placeHolderData";
 
-type AllowedKeys = "age" | "job_title" | "company_name" | "job_description" | "company_logo" | "start_date" | "end_date";
+type AllowedKeys = "age" | "job_title" | "company_name" | "job_description" | "company_logo_pref" | "start_date" | "end_date";
 type Headers = {
   value: AllowedKeys;
   label: string;
@@ -34,14 +34,14 @@ type ProfileDataType = {
   end_date: string;
   email: string;
   whatsapp: string;
-  company_logo: string;
-  avatar_url: string;
+  company_logo_path: string;
+  signed_avatar_url: string;
 };
 type PublicProfilePrefDataType = {
   age: boolean;
   end_date: boolean;
   company_name: boolean;
-  company_logo: boolean;
+  company_logo_pref: boolean;
   job_description: boolean;
   job_title: boolean;
   start_date: boolean;
@@ -57,7 +57,7 @@ const PublicProfile = () => {
     age: true,
     job_title: true,
     company_name: true,
-    company_logo: true,
+    company_logo_pref: true,
     job_description: true,
     start_date: true,
     end_date: true
@@ -128,7 +128,7 @@ const PublicProfile = () => {
       age: true,
       end_date: true,
       company_name: true,
-      company_logo: true,
+      company_logo_pref: true,
       job_description: true,
       job_title: true,
       start_date: true
@@ -185,7 +185,7 @@ const PublicProfile = () => {
                 { value: "job_title", label: "Job Title" },
                 { value: "company_name", label: "Company" },
                 { value: "job_description", label: "Job Description" },
-                { value: "company_logo", label: "Company Logo" },
+                { value: "company_logo_pref", label: "Company Logo" },
                 { value: "start_date", label: "Start Date" },
                 { value: "end_date", label: "End Date" }
               ] as Headers[]
@@ -217,14 +217,14 @@ const PublicProfile = () => {
 
           <Col>
             <Card className={styles.card__col}>
-              <Card.Body style={{ paddingLeft: 0 }}>{profileDataObj?.avatar_url ? <Image roundedCircle src={profileDataObj?.avatar_url} width="107" height="107" alt="" style={{ objectFit: "cover" }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "107px", height: "107px" }} />}</Card.Body>
+              <Card.Body style={{ paddingLeft: 0 }}>{profileDataObj?.signed_avatar_url ? <Image roundedCircle src={profileDataObj?.signed_avatar_url} width="107" height="107" alt="" style={{ objectFit: "cover" }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "107px", height: "107px" }} />}</Card.Body>
               <div className="d-flex">
                 <h3>{profileDataObj?.name}</h3>
                 {switches?.age && profileDataObj?.age && <p className={styles.card__age}>{profileDataObj?.age} years old</p>}
               </div>
               <h3>Career</h3>
               {switches?.job_title && profileDataObj?.job_title && <h6 className="mb-0">{profileDataObj?.job_title}</h6>}
-              {switches?.company_logo && profileDataObj?.company_logo && <Image roundedCircle src={profileDataObj?.company_logo || ""} width="100" height="100" alt="" style={{ objectFit: "cover" }} />}
+              {switches?.company_logo_pref && profileDataObj?.company_logo_path && <Image roundedCircle src={profileDataObj?.company_logo_path || ""} width="100" height="100" alt="" style={{ objectFit: "cover" }} />}
               {switches?.company_name && profileDataObj?.company_name && <p className="text-muted">{profileDataObj?.company_name}</p>}
               {switches?.job_description && profileDataObj?.job_description && (
                 <div className="mb-3">

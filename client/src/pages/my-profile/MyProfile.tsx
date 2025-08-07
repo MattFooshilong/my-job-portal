@@ -29,8 +29,8 @@ type ProfileDataType = {
   end_date: string;
   email: string;
   whatsapp: string;
-  company_logo: string;
-  avatar_url: string;
+  company_logo_path: string;
+  signed_avatar_url: string;
 };
 
 const PublicProfile = () => {
@@ -83,7 +83,7 @@ const PublicProfile = () => {
             <Card.Body>
               <Row className="d-flex justify-content-between">
                 <Col style={{ paddingLeft: 0 }} xs={{ order: 2, span: 12 }} sm={{ order: 1, span: 6 }}>
-                  {profileDataObj?.avatar_url ? <Image roundedCircle src={profileDataObj?.avatar_url} width="107" height="107" alt="" style={{ objectFit: "cover" }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "107px", height: "107px" }} />}
+                  {profileDataObj?.signed_avatar_url ? <Image roundedCircle src={profileDataObj?.signed_avatar_url} width="107" height="107" alt="" style={{ objectFit: "cover" }} /> : <Image src="../images/profile-placeholder.png" alt="default-avatar" style={{ objectFit: "cover", width: "107px", height: "107px" }} />}
                 </Col>
                 <Col xs={{ order: 1, span: 12 }} sm={{ order: 2, span: 6 }}>
                   <Link to="/profile-settings">
