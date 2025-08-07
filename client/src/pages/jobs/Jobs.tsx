@@ -222,6 +222,7 @@ const Jobs = () => {
 };
 
 const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType) => {
+  const userOnly = auth?.roles?.includes(2);
   return (
     <>
       {Object.keys(job).length !== 0 && (
@@ -243,8 +244,15 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType)
             {job?.no_of_employees} employees
           </p>
           {/* check login or not then show application status */}
-          {auth.user ? (
-            appliedJobs?.includes(job.id) ? (
+          {!auth.user && (
+            <Button onClick={() => applyJob(job.id)} variant="primary" className="text-white mb-3">
+              <FontAwesomeIcon icon={faArrowUpRightFromSquare} size="lg" className="me-2" />
+              Apply
+            </Button>
+          )}
+          {auth.user &&
+            userOnly &&
+            (appliedJobs?.includes(job.id) ? (
               <Button variant="secondary" className="text-white mb-3" disabled>
                 Applied
               </Button>
@@ -256,13 +264,7 @@ const EachJob = ({ auth, job, applyJob, applyingJob, appliedJobs }: EachJobType)
                 </Button>
                 {applyingJob ? <Spinner animation="border" className="ms-1" /> : ""}
               </div>
-            )
-          ) : (
-            <Button onClick={() => applyJob(job.id)} variant="primary" className="text-white mb-3">
-              <FontAwesomeIcon icon={faArrowUpRightFromSquare} size="lg" className="me-2" />
-              Apply
-            </Button>
-          )}
+            ))}
           <h6>Job Description</h6>
           <p>{job?.job_description}</p>
           <h6>What skills and experience you will need</h6>

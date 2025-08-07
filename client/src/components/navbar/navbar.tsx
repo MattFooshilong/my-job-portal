@@ -14,13 +14,14 @@ const NavBar = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
   const logout = useLogout();
+  const queryClient = useQueryClient();
   const signOut = async () => {
+    queryClient.clear();
     await logout();
   };
   const userOnly = auth?.roles?.includes(2);
   const adminOnly = auth?.roles?.includes(1);
   const axiosPrivate = useAxiosWithInterceptors();
-  const queryClient = useQueryClient();
 
   const prefetch = () => {
     queryClient.prefetchQuery({
