@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { login, signUp, logout } from "../controllers/authController";
-import { refreshToken } from "../controllers/refreshTokenController";
-import { getAllJobs } from "../controllers/jobsController";
+import { login, signUp, logout } from "../controllers/authController.js";
+import { refreshToken } from "../controllers/refreshTokenController.js";
+import { getAllJobs } from "../controllers/jobsController.js";
 import cookieParser from "cookie-parser";
 const router = Router();
 router.use(cookieParser());
