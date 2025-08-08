@@ -20,17 +20,16 @@ import { useQueryClient } from "@tanstack/react-query";
 
 type JobStatus = "Successful" | "Unsuccessful" | "InProgress";
 
-type ApplicationData = {
-  applicantName: string;
-  companyName: string;
-  email: string;
-  jobId: number;
-  jobStatus: JobStatus;
-  jobTitle: string;
+type Application = {
+  user_jobs_id: number;
+  user_jobs_created_at: string;
+  user_name: string;
+  company_name: string;
+  job_title: string;
+  status: JobStatus;
 };
 
 const AdminDashboard = () => {
-  const today = dayjs().format("DD-MM-YYYY");
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [updatingJob, setUpdatingJob] = useState(false);
@@ -40,14 +39,13 @@ const AdminDashboard = () => {
   const axiosPrivate = useAxiosWithInterceptors();
   const queryClient = useQueryClient();
 
-  const updateJobStatus = async (details: ApplicationData, approveOrReject: string) => {
+  const updateJobStatus = async (application: Application, status: string) => {
     setUpdatingJob(true);
     const dataObject = {
-      email: details.email,
-      approveOrReject
+      status
     };
     try {
-      const response = await axiosPrivate.post(`/update-job/${details.jobId}`, dataObject);
+      const response = await axiosPrivate.post(`/update-job/${application.user_jobs_id}`, dataObject);
       const statusUpdated = response?.data?.statusUpdated; //do smth later perhaps?
       setUpdatingJob(false);
       queryClient.invalidateQueries({ queryKey: ["getJobApplications"] });
@@ -62,7 +60,7 @@ const AdminDashboard = () => {
       setFilteredData(applications);
       setFilteredStatus("");
     } else {
-      const filtered = applications.filter((ele: ApplicationData) => ele.jobStatus === status);
+      const filtered = applications.filter((ele: Application) => ele.status === status);
       setFilteredData(filtered);
       setFilteredStatus(status);
     }
@@ -70,7 +68,7 @@ const AdminDashboard = () => {
   // search by applicant name, company name or job title
   const filterBySearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value.toLowerCase();
-    const filtered = applications.filter((ele: ApplicationData) => ele.applicantName.toLowerCase().includes(text) || ele.companyName.toLowerCase().includes(text) || ele.jobTitle.toLowerCase().includes(text));
+    const filtered = applications.filter((ele: Application) => ele.user_name.toLowerCase().includes(text) || ele.company_name.toLowerCase().includes(text) || ele.job_title.toLowerCase().includes(text));
     setFilteredData(filtered);
   };
   useEffect(() => {
@@ -78,6 +76,7 @@ const AdminDashboard = () => {
       try {
         setLoading(true);
         const response = await axiosPrivate.get("/get-jobs-where-there-is-application"); //protected route, will throw an error if refreshToken is expired
+        console.log(response);
         setApplications(response.data);
         setFilteredData(response.data); // none filtered at first
         setLoading(false);
@@ -115,15 +114,15 @@ const AdminDashboard = () => {
                 <Row>
                   <Col className="pe-0">
                     <p className={styles.status}>In Progress</p>
-                    <div className={styles.statusCount}>{applications.filter((ele: ApplicationData) => ele.jobStatus === "InProgress").length}</div>
+                    <div className={styles.statusCount}>{applications.filter((ele: Application) => ele.status === "InProgress").length}</div>
                   </Col>
                   <Col className="pe-0">
                     <p className={styles.status}>Successful</p>
-                    <div className={styles.statusCount}>{applications.filter((ele: ApplicationData) => ele.jobStatus === "Successful").length}</div>
+                    <div className={styles.statusCount}>{applications.filter((ele: Application) => ele.status === "Successful").length}</div>
                   </Col>
                   <Col className="pe-0">
                     <p className={styles.status}>Unsuccessful</p>
-                    <div className={styles.statusCountFontSizeOnly}>{applications.filter((ele: ApplicationData) => ele.jobStatus === "Unsuccessful").length}</div>
+                    <div className={styles.statusCountFontSizeOnly}>{applications.filter((ele: Application) => ele.status === "Unsuccessful").length}</div>
                   </Col>
                 </Row>
               </div>
@@ -188,14 +187,14 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((ele: ApplicationData, i) => {
+              {filteredData.map((ele: Application, i) => {
                 return (
                   <tr key={i}>
-                    <td>{today}</td>
-                    <td>{ele?.applicantName}</td>
-                    <td>{ele?.companyName}</td>
-                    <td>{ele?.jobTitle}</td>
-                    <td>{ele.jobStatus === "InProgress" ? <Badge bg="secondary">In Progress</Badge> : ele.jobStatus === "Successful" ? <Badge bg="success">Successful</Badge> : <Badge bg="danger">Unsuccessful</Badge>}</td>
+                    <td>{dayjs(ele?.user_jobs_created_at).format("DD/MM/YYYY")}</td>
+                    <td>{ele?.user_name}</td>
+                    <td>{ele?.company_name}</td>
+                    <td>{ele?.job_title}</td>
+                    <td>{ele.status === "InProgress" ? <Badge bg="secondary">In Progress</Badge> : ele.status === "Successful" ? <Badge bg="success">Successful</Badge> : <Badge bg="danger">Unsuccessful</Badge>}</td>
                     <td>
                       <Dropdown>
                         <Dropdown.Toggle variant="success" id="dropdown-basic" size="sm">

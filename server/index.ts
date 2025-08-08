@@ -81,7 +81,7 @@ app.post("/user-public-pref", updateUserPublicProfile);
 app.post("/job-applications-and-company-info", getJobApplicationsAndCompanyInfo);
 app.get("/get-jobs-where-there-is-application", getJobsWhereThereIsApplication);
 app.get("/check-logged-in", getJobsWhereThereIsApplication);
-app.post("/update-job/:jobId", updateJob);
+app.post("/update-job/:user_jobs_id", updateJob);
 
 app.use(express.static(path.join(__dirname, "./client/build")));
 app.get("*", (req, res) => {
