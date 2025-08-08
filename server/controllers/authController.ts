@@ -42,7 +42,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       password: password
     });
     if (error) {
-      console.log("huh: ", error.message);
+      console.log(error.message);
       res.status(403).send({ message: error.message });
       return;
     }
@@ -73,7 +73,6 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
       email: email,
       password: password
     });
-    console.log("signup", data);
     // duplicate email or something went wrong
     if (error) {
       console.log(error);
