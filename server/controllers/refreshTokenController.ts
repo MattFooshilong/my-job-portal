@@ -1,6 +1,6 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response } from "express";
-import supabase from "./dbConfig";
+import supabase from "./dbConfig.js";
 import { createClient } from "@supabase/supabase-js";
 
 interface MyPayload extends JwtPayload {

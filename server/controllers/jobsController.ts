@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import supabase from "./dbConfig";
+import supabase from "./dbConfig.js";
 import { PostgrestError } from "@supabase/supabase-js";
 
 type Application = {
