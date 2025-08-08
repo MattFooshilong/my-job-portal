@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import supabase from "./dbConfig";
+import supabase from "./dbConfig.js";
 
 const createRefreshToken = (email: string) => {
   return jwt.sign(

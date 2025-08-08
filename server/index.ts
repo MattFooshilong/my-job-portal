@@ -1,14 +1,17 @@
+//Why write .js on imports, tsconfig nodenext
+//To match Node’s real behavior, TypeScript ESM imports must end with .js (even though the source file is .ts).
+//TypeScript will keep the .js in your import, but during compilation it maps it to your .ts file.
 import "dotenv/config";
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import routes from "./api/routes";
+import routes from "./api/routes.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import { verifyAccessToken } from "./middleware/verifyAccessToken";
-import { getJobApplications, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, getJobApplicationsAndCompanyInfo, getMyProfile, getPublicProfile } from "./controllers/userController";
-import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfController";
-import { getJobsWhereThereIsApplication, updateJob } from "./controllers/jobsController";
+import { verifyAccessToken } from "./middleware/verifyAccessToken.js";
+import { getJobApplications, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, getJobApplicationsAndCompanyInfo, getMyProfile, getPublicProfile } from "./controllers/userController.js";
+import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfController.js";
+import { getJobsWhereThereIsApplication, updateJob } from "./controllers/jobsController.js";
 import cookieParser from "cookie-parser";
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
