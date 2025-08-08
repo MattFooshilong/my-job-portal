@@ -14,23 +14,24 @@ const NavBar = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
   const logout = useLogout();
+  const queryClient = useQueryClient();
   const signOut = async () => {
+    queryClient.clear();
     await logout();
   };
   const userOnly = auth?.roles?.includes(2);
   const adminOnly = auth?.roles?.includes(1);
   const axiosPrivate = useAxiosWithInterceptors();
-  const queryClient = useQueryClient();
 
   const prefetch = () => {
     queryClient.prefetchQuery({
       queryKey: ["getJobApplications"],
       queryFn: async () => {
         const dataObject = {
-          email: auth.user.email,
+          user_id: auth.user.userId,
           status: "InProgress"
         };
-        const response = await axiosPrivate.post("/user-job-applications", dataObject); //protected route, will throw an error if refreshToken is expired
+        const response = await axiosPrivate.post("/job-applications-and-company-info", dataObject); //protected route, will throw an error if refreshToken is expired
         return response?.data?.infoOfAppliedJobs;
       },
       staleTime: 1 * 24 * 60 * 60 //cacheTime 1 day

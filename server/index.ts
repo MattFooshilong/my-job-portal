@@ -4,17 +4,21 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import routes from "./api/routes";
 import path from "path";
+import { fileURLToPath } from "url";
 import { verifyAccessToken } from "./middleware/verifyAccessToken";
-import { getUser, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, userJobApplications } from "./controllers/userController";
+import { getJobApplications, updateProfileSettings, updateUserPublicProfile, updateUserApplyToJobs, getJobApplicationsAndCompanyInfo, getMyProfile, getPublicProfile } from "./controllers/userController";
 import { generateCSRFToken, validateCSRFToken } from "./controllers/csrfController";
 import { getJobsWhereThereIsApplication, updateJob } from "./controllers/jobsController";
 import cookieParser from "cookie-parser";
 import { Request, Response, NextFunction } from "express";
+import multer from "multer";
 
 // Globals
 const app = express();
 app.use(cookieParser());
 const port = 3001;
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
 //CSP
 //app.use(function (req, res, next) {
 //  res.setHeader("Content-Security-Policy-Report-Only", "default-src 'self'; font-src 'self'; img-src 'self'; script-src 'self'; style-src 'self'; frame-src 'self'")
@@ -25,7 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", (req: Request, res: Response) => {
   res.send("Server up");
 });
-
+const upload = multer({ storage: multer.memoryStorage() });
 const allowedOrigins = ["http://localhost:3000", "https://my-job-portal-client.vercel.app"];
 
 const corsOptions: cors.CorsOptions = {
@@ -57,17 +61,27 @@ app.use(cors(corsOptions));
 app.use("/public/", routes);
 //protected routes
 app.use(verifyAccessToken);
-app.get("/user/:id", getUser);
+app.post("/get-job-applications", getJobApplications);
+app.post("/my-profile", getMyProfile);
+app.post("/public-profile-pref", getPublicProfile);
+app.post("/apply-job", updateUserApplyToJobs);
 app.get("/antiCSRF", generateCSRFToken, (req: Request, res: Response) => {
   res.json({ csrfToken: req.csrfToken });
 });
-app.post("/user/:id", validateCSRFToken, updateProfileSettings);
-app.post("/user-public-pref/:id", updateUserPublicProfile);
-app.post("/user-job-applications", userJobApplications);
-app.post("/apply-job/:id", updateUserApplyToJobs);
+app.post(
+  "/updateProfileSettings",
+  upload.fields([
+    { name: "avatar_file", maxCount: 1 },
+    { name: "company_logo_file", maxCount: 1 }
+  ]),
+  validateCSRFToken,
+  updateProfileSettings
+);
+app.post("/user-public-pref", updateUserPublicProfile);
+app.post("/job-applications-and-company-info", getJobApplicationsAndCompanyInfo);
 app.get("/get-jobs-where-there-is-application", getJobsWhereThereIsApplication);
 app.get("/check-logged-in", getJobsWhereThereIsApplication);
-app.post("/update-job/:jobId", updateJob);
+app.post("/update-job/:user_jobs_id", updateJob);
 
 app.use(express.static(path.join(__dirname, "./client/build")));
 app.get("*", (req, res) => {
@@ -83,4 +97,4 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(403).send(err.message);
 });
 
-module.exports = app;
+export default app;

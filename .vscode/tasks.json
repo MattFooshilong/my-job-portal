@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Client",
+      "type": "shell",
+      "command": "npm start",
+      "options": {
+        "cwd": "${workspaceFolder}/client"
+      },
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "panel": "new",
+        "showReuseMessage": true
+      }
+    },
+    {
+      "label": "Start Server",
+      "type": "shell",
+      "command": "npm start",
+      "options": {
+        "cwd": "${workspaceFolder}/server"
+      },
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "panel": "new",
+        "showReuseMessage": true
+      }
+    },
+    {
+      "label": "Start Project",
+      "dependsOn": ["Start Client", "Start Server"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

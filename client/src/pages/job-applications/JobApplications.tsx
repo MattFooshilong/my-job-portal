@@ -14,18 +14,10 @@ import useLogout from "../../hooks/useLogout";
 import { useQuery } from "@tanstack/react-query";
 
 type JobApplication = {
-  jobDescription: string;
-  companyName: string;
-  isRecruiting: string;
-  tasks: Record<string, string>;
-  type: string;
-  skills: Record<string, string>;
-  jobTitle: string;
-  industry: string;
-  noOfEmployees: string;
-  location: string;
-  companyDescription: string;
   id: number;
+  job_title: string;
+  company_name: string;
+  location: string;
 };
 
 const JobApplications = () => {
@@ -39,10 +31,10 @@ const JobApplications = () => {
   const fetchData = async (status: string) => {
     try {
       const dataObject = {
-        email: auth.user.email,
+        user_id: auth.user.userId,
         status: status
       };
-      const response = await axiosPrivate.post("/user-job-applications", dataObject); //protected route, will throw an error if refreshToken is expired
+      const response = await axiosPrivate.post("/job-applications-and-company-info", dataObject); //protected route, will throw an error if refreshToken is expired
       return response?.data?.infoOfAppliedJobs;
     } catch (error) {
       console.log(error);
@@ -63,6 +55,7 @@ const JobApplications = () => {
   } = useQuery<JobApplication[]>({
     queryKey: ["getJobApplications", status],
     queryFn: () => fetchData(status),
+    placeholderData: [],
     staleTime: 3 * 24 * 60 * 60 //cacheTime 3 days
   });
 
@@ -97,8 +90,8 @@ const JobApplications = () => {
                     <Image src={`./images/company${ele.id}.jpg`} alt="company-logo" style={{ objectFit: "cover", width: "70px", height: "70px" }} />
                   </Col>
                   <Col>
-                    <h6>{ele.jobTitle}</h6>
-                    <p className="mb-0">{ele.companyName}</p>
+                    <h6>{ele.job_title}</h6>
+                    <p className="mb-0">{ele.company_name}</p>
                     <small className="d-block">{ele.location}</small>
                     <small className="d-block mb-2 mt-2">Applied 3 days ago</small>
                   </Col>
