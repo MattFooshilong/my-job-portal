@@ -26,7 +26,6 @@
 .table {
   margin-top: 1rem;
   border-radius: 12px;
-  overflow: hidden; /* Ensures corners are clipped */
   vertical-align: middle;
   font-weight: 600;
 }
@@ -39,6 +38,11 @@
 
 .table td {
   padding: 0.7rem 1.5rem;
+}
+
+.minWidthCol {
+  position: relative;
+  z-index: 100;
 }
 
 .statusFilter {
