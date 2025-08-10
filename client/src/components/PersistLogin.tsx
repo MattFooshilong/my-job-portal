@@ -1,8 +1,8 @@
-import { Outlet } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import useRefreshToken from '../hooks/useRefreshToken';
-import useAuth from '../hooks/useAuth';
-import Spinner from 'react-bootstrap/Spinner';
+import { Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
+import useRefreshToken from "../hooks/useRefreshToken";
+import useAuth from "../hooks/useAuth";
+import Spinner from "react-bootstrap/Spinner";
 
 const PersistLogin = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +22,7 @@ const PersistLogin = () => {
     };
     //when user clicks refresh or comes back from another page (eg google), auth will have no accessToken
     //if no access token, get a new one
+    console.log("accessToken from PersistLogin: ", auth.accessToken);
     !auth?.accessToken && persist ? verifyRefreshToken() : setIsLoading(false);
     return () => {
       isMounted = false;
