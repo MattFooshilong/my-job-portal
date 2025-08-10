@@ -22,7 +22,6 @@ const PersistLogin = () => {
     };
     //when user clicks refresh or comes back from another page (eg google), auth will have no accessToken
     //if no access token, get a new one
-    console.log("accessToken from PersistLogin: ", auth.accessToken);
     !auth?.accessToken && persist ? verifyRefreshToken() : setIsLoading(false);
     return () => {
       isMounted = false;
