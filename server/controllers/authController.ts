@@ -26,6 +26,8 @@ const saveRefreshTokenToDb = async (parameter_id: string, parameter_refresh_toke
 const getUserRoles = async () => {
   try {
     const { data } = await supabase.auth.getClaims();
+    console.log("get user roles: ", data);
+
     const roles: number[] = data?.claims?.app_metadata?.my_roles;
     return roles;
   } catch (error) {

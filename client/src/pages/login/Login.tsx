@@ -98,7 +98,8 @@ const Login = () => {
               <Button variant="primary" type="submit" className={"mt-3 w-100 text-white"}>
                 {loading ? <Spinner animation="border" size="sm" /> : "Login"}
               </Button>
-              <Row>
+              {/* Disabled for now - interferes with supabase login because accessToken created upon refresh has different claims than the one issued by supabase. */}
+              {/*<Row>
                 <Col className={styles.persistCheck}>
                   <input type="checkbox" id="persist" onChange={togglePersist} checked={persist} />
                   <label htmlFor="persist">Trust This Device</label>
@@ -106,7 +107,7 @@ const Login = () => {
                     <FontAwesomeIcon icon={faQuestionCircle} size="lg" className="ms-1 me-1" />
                   </OverlayTrigger>
                 </Col>
-              </Row>
+              </Row>*/}
             </FormikForm>
           )}
         </Formik>
