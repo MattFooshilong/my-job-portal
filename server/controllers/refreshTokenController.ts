@@ -68,7 +68,6 @@ const refreshToken = async (req: Request, res: Response): Promise<any> => {
       console.log(`refreshToken expired: ${err}`);
       return res.sendStatus(403);
     }
-    console.log("signing new access token");
     const accessToken = jwt.sign(
       {
         email: data.user.email,
