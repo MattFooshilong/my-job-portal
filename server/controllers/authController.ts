@@ -58,6 +58,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // using my own refresh token instead of supabase's because their never expires, different security logic
     const refreshToken = createRefreshToken(email);
     // send refreshToken back in a cookie
+    console.log("userid: ", data.user.id);
     await saveRefreshTokenToDb(data.user.id, refreshToken);
     res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });
     res.status(201).json({ user: userCredentials, accessToken: data.session?.access_token });
@@ -107,10 +108,11 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
       return;
     }
     const refreshToken = cookies.refreshToken;
+    console.log("refreshTokeb", refreshToken);
     const { error } = await supabase.rpc("if_refresh_token_exist_delete_it", { p_refresh_token: refreshToken });
 
     if (error) {
-      res.status(500).send({ message: "No user found/db error" });
+      res.status(501).send({ message: "No user found/db error" });
       console.log(error);
     } else {
       res.clearCookie("refreshToken", { httpOnly: true, secure: true, sameSite: "none", maxAge: 1 * 60 * 60 * 1000 });

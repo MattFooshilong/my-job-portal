@@ -53,7 +53,7 @@ const refreshToken = async (req: Request, res: Response): Promise<any> => {
   const user_exists = await findUserWithRefreshToken(refreshToken);
   if (!user_exists) {
     console.log(`couldnt find user with refresh token`);
-    return res.sendStatus(403);
+    return res.sendStatus(404);
   }
   //get user id, email
   const { data } = await supabase.auth.getUser();
