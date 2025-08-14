@@ -17,14 +17,17 @@ import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
+import { useParams } from "react-router-dom";
 
 type ValuesType = {
   email: string;
   password: string;
 };
 const Login = () => {
+  const param = useParams();
+  const userType = param.userType !== undefined ? param.userType : "";
   const [defaultInputs] = useState({
-    email: "user1@gmail.com",
+    email: userType === "admin" ? "admin@gmail.com" : "user1@gmail.com",
     password: "Abc123!"
   });
   const [err, setErr] = useState(false);
